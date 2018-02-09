@@ -1,11 +1,12 @@
 \chapter{Introduction}
-Trust has been at the basis of transaction between humans since the beginning
-of trade and cooperation between humans. The handshake to settle on the terms 
+Eventhough humans are most commonly modelled as rational entities and cooperation
+is not a rational strategy, it has often been observed throughout history~\cite{Axelrod1390}.
+Trust is the basis for any transaction between humans, be it trading or services. 
+The handshake to settle on the terms 
 of a transaction is a sign of respect, cooperation and trust. Once a service is
 provided by one agent, a trustworthy second agent in the transaction pays the debt 
 or runs the risk of loosing his reputation, which worsens the terms of following 
-transactions or even prevents him from further transactions, given the reputation 
-is spread. 
+transactions or even prevents him from further transactions.
 
 Over time, the way we perform transactions has changed. In the pre-industrial age,
 transactions where most common between people of the same small community with some traders
@@ -49,20 +50,33 @@ Stellar Lumens, etc) as well as off-chain transaction systems such as the Lightn
 have been proposed. However no cryptocurrency has proven horizontal scalability in practice
 as the time of writing.
 
-Trustchain is a solution developed by the Blockchain lab which is associated with the TU Delft
-is a proposal for a blockchain fabric. It takes an approach that is closer to the equivalent
-of non-digital transactions by relying on a generic trust and reputation layer instead of 
-full cryptographic proof. It enables horizontal scalability, full decentralizaiton
-and reliable transaction for any type of application. Scalability is achieved through a multi-chain
-architecture in which every node only keeps track of transactions it was involved in on a personal
-blockchain. Global consensus is then established on checkpoints instead of all transactions. 
+Trustchain, developed by the Blockchain lab which is associated with the TU Delft,
+is a proposal for a scalable, multi-chain fabric. It takes an approach that is closer to the equivalent
+of non-digital transactions. Trust are not replaced with costly calculations but instead made 
+the basic currency in the network. Security is achieved through long-lived identities and reputation
+which is built over time through succesful interactions. Reputation built in one context is then 
+influencing other contexts in the future and identities increase their value through continous
+good behavior. Misbehaving on the other hand leads to the loss of reputation and consequently to
+worse terms in transactions in the extreme case, begin outcast. Transparency and consequences breed 
+honesty, and honesty breeds trust. 
+
+In previous work we have presented the Multichain architecture of TrustChain. It enables horizontal scalability, full decentralization
+and reliable transactions for any type of application. Also, the concept of implicit consensus was
+introduced in which global consensus is established on checkpoints instead of all transactions. 
 This does not prevent double spending but instead makes it discoverable after it happend. This
 way, before performing a transaction we can check the transaction history of the other party 
-see whether their chain turns out to be valid. However, a valid transaction history does not 
-always mean that the transactions were actually meaningful in case one entity can control 
-more than one node. The validity of a chain and succesful interactions build trust in the 
-node to act correctly. Still, having a valid transaction history does not neccessarily mean 
-that a person is trustworthy. One famous attack is the Sybil-attack in which a node creates many 
+see whether their chain turns out to be valid. The validity of a chain and succesful interactions build trust in the 
+node's intention to act correctly. However, a valid transaction history does not 
+always mean that the transactions were actually meaningful. One famous attack is the Sybil-attack in which a node creates many 
 sybils with which is performs valid interactions in order to boost the reputation of one node. 
 Once a reputation has been established, the attacker is able to exploit people in the network
 if they think the reputation is high enough to take the risk of a transaction.
+
+Therefore, we have introduced Peronsalized Temporal PageRank, an algorithm that determines a 
+ranking of trustworthiness of a node's peers and their peers in a sybil-resistant fashion. Yet, 
+this ranking is only local and reputation is only useful for building trust once it is shared 
+with others. Therefore a mechanism for distributing the subjective trustrankings and their
+aggregation is crucial for the success of a global trustworthiness ranking. This will be the 
+goal of this thesis. 
+
+The rest of this thesis is organized as follows. ...

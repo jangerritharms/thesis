@@ -1,10 +1,9 @@
 \chapter{Problem description}
-
-% The problem definition is the basis for the problem statement, research questions and dissertation objective.
+The problem definition is the basis for the problem statement, research questions and dissertation objective.
 
 % The general problem area.
 % e.g. "The effect of nutrition on athletic performance in children is an underexplored topic."
-A globally accepted trust distribution has ever been a futuristic dream of a world without third parties and secure world-wide peer to peer transactions between unknown actors. However, a scalable solution in a deployed, production-grade software, has yet to be presented. 
+% A globally accepted trust distribution has ever been a futuristic dream of a world without third parties and secure world-wide peer to peer transactions between unknown actors. However, a scalable solution in a deployed, production-grade software, has yet to be presented. 
 
 % Problem definition
 %   * context
@@ -19,3 +18,51 @@ A globally accepted trust distribution has ever been a futuristic dream of a wor
 % It is clearly and explicitly written.
 % It is relevant to the field (or the client, if applicable).
 
+
+% In bitcoin we use proof of transactions and an uncheatable consus mechanism to avoid the problem of having trust in the interacting party. However this is very costly. In real-life we don't have complete control, we always need to trust someone. If we buy food, we first give money and expect to get the food in return. 
+
+% Everyone node has a local Temporal PageRank ranking of nodes around itself. Each node stores this ranking periodically on its hashchain. Now we need to find a way to combine multiple trust rankings into a large ranking. 
+% Then, next we can define a consensus algorithm which 
+
+% Right now we have a system to determine our personal view of the reputation in a sybil-resistant way with Temporal PageRank. However a complete reputation system needs to at least fullfil these requirements: [Reputation Systems: Facilitating Trust in Internet Interactions.]
+% * Entities are long-lived, so that there is an expectation of future interaction
+% * Feedback about current interactions is captured and distributed. Such information must be visible in the future.
+
+% We can use the taxonomy on reputation systems to compare the current implementation with the one that we require in the future. Also identify the work that has been done on systems with multiple dimensions of reputation. We would like to end up with a reputation layer that is application agnostic however trust is context dependent. One of the largest problems will be how to provide a reputation fabric that is generic enough to be able to combine multiple dimensions of reputation to a score that is application agnostic. 
+
+% We don't distribute the personal trust rankings and therefore we cannot establish the trustworthiness of an unkown node on the system. Also the reputation system is too much simplified in order to create an application agnostic reputation system.
+
+Any reputation system requires a few basic properties in order to be useful for 
+building trust among relative strangers. According to Resnick et al.~\cite{resnick2000reputation} those are:
+
+\begin{itemize}
+\item long-lived entities
+\item feedback about current interactions is captured and distributed.
+\item past feedback guides decisions
+\end{itemize}
+
+Reputation systems have been shown to work well on online centralized marketplaces such
+as Ebay, Amazon or home sharing service Airbnb. None of those are resistant to advanced 
+attacks though. Decentralization makes the problem of validated reputation even more difficult
+as there is no full network connectivity, churn and other factors that are in the way of global 
+consensus on a ranking. A node in a distributed network can only really make a statement about 
+the trustworthiness of the nodes it has had direct interaction with. Assuming transitivity, we 
+can also say something about the peers of our direct peers. But still this is a subjective view
+of the network with only a small subset of the nodes and their interactions. Nodes that are 
+relative strangers to a node and its peers cannot be a level of trustworthiness. Therefore,
+the reputation of one node's surrounding nodes needs to be spread and combined with the rankings of others
+in order to come up with a local ranking which approximates the global trustworthiness ranking.
+Such a mechanism has, to the best of our knowledge, not been shown in a real-world distributed application without making any
+simplifying assumptions. Therefore, we can formulate the following research question:
+
+\begin{center}
+\textit{Given the aggregation of a subset of the subjective trustworthinessrankings established through the use of the Temporal PageRank algorithm, 
+can we formulate a bound on the accuracy of our global trustranking estimate?}
+\end{center}
+
+In order to answer this question we consider the Tribler system, a bittorrent client developed
+by the Blockchain lab, which implements the TurstChain architecture. Each transaction between two 
+clients in Tribler creates a block on the hashchains of both participating nodes, storing the 
+amount uploaded and downloaded from.  
+
+%
