@@ -1,5 +1,5 @@
 \chapter{Problem description}
-The problem definition is the basis for the problem statement, research questions and dissertation objective.
+% The problem definition is the basis for the problem statement, research questions and dissertation objective.
 
 % The general problem area.
 % e.g. "The effect of nutrition on athletic performance in children is an underexplored topic."
@@ -33,7 +33,7 @@ The problem definition is the basis for the problem statement, research question
 % We don't distribute the personal trust rankings and therefore we cannot establish the trustworthiness of an unkown node on the system. Also the reputation system is too much simplified in order to create an application agnostic reputation system.
 
 Any reputation system requires a few basic properties in order to be useful for 
-building trust among relative strangers. According to Resnick et al.~\cite{resnick2000reputation} those are:
+building trust among strangers. According to Resnick et al.~\cite{resnick2000reputation} those are:
 
 \begin{itemize}
 \item long-lived entities
@@ -42,22 +42,32 @@ building trust among relative strangers. According to Resnick et al.~\cite{resni
 \end{itemize}
 
 Reputation systems have been shown to work well on online centralized marketplaces such
-as Ebay, Amazon or home sharing service Airbnb. None of those are resistant to advanced 
-attacks though. Decentralization makes the problem of validated reputation even more difficult
-as there is no full network connectivity, churn and other factors that are in the way of global 
-consensus on a ranking. A node in a distributed network can only really make a statement about 
-the trustworthiness of the nodes it has had direct interaction with. Assuming transitivity, we 
-can also say something about the peers of our direct peers. But still this is a subjective view
-of the network with only a small subset of the nodes and their interactions. Nodes that are 
-relative strangers to a node and its peers cannot be a level of trustworthiness. Therefore,
-the reputation of one node's surrounding nodes needs to be spread and combined with the rankings of others
-in order to come up with a local ranking which approximates the global trustworthiness ranking.
-Such a mechanism has, to the best of our knowledge, not been shown in a real-world distributed application without making any
-simplifying assumptions. Therefore, we can formulate the following research question:
+as Ebay, Amazon or home sharing service Airbnb. The above properties are quite 
+easy to fulfill in a centralized system. Long-lived entities can be enforced
+through requiring document checks on sign-up, requiring real names and invalidating
+email adresses after use. Feedback of interactions can be stored in databases, 
+distributions is as simple as connecting a rest-api to the database. Obviously
+users will want to use feedback to guide their decisions. In a decentralized 
+system, users keep track of their own transactions, sharing these transactions
+is their own decisions. 
+
+In previous work we have shown how to create a multi hashchain based transaction
+storage. The manipulation resistance of such a system depends mainly on the 
+availability of data. In the theoretical case that all agents have all transaction
+data of the network, all attacks would be detectable. This case is impossible
+to achieve in a distributed system, but with a good dissemination strategy this
+optimal state can be approximated. 
+
+The distribution of data has until now been up to the agent itself. 
+No policies have yet been defined on how to distribute
+the transaction data and no incentive was offered to share the data. Given that
+feedback on the interactions of the past are the only way to decide between 
+trustworthy and untrustworthy agents, it is of high importance to have a good
+dissemination mechanism in place.
 
 \begin{center}
-\textit{Given the aggregation of a subset of the subjective trustworthinessrankings established through the use of the Temporal PageRank algorithm, 
-can we formulate a bound on the accuracy of our global trustranking estimate?}
+\textit{How to define a dissemination mechanism in order to make sharing of 
+interactions outcomes strategy-proof and make attacks detectable?}
 \end{center}
 
 In order to answer this question we consider the Tribler system, a bittorrent client developed
@@ -65,4 +75,16 @@ by the Blockchain lab, which implements the TurstChain architecture. Each transa
 clients in Tribler creates a block on the hashchains of both participating nodes, storing the 
 amount uploaded and downloaded from.  
 
-%
+\paragraph{Attacks that we are trying to make detectable.}
+We will look at the most important attacks on distributed reputation systems 
+that are known at this point. 
+
+\begin{itemize}
+  \item block-withholding
+  \item double-spend
+  \item sybil
+  \item self-promoting
+\end{itemize}
+
+\paragraph{A mechanism is strategy-proof} if under no circumstances can an agent
+attain an advantage by not sharing information.

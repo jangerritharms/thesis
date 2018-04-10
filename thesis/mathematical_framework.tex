@@ -1,0 +1,55 @@
+\chapter{Mathematical framework}
+Cooperation is, next to mutation and selection, an important factor in the evolution of organisms and communities. Cooperation is found in many species, but nowhere so prevalent as in humans, which is due to our superior abilities of communication and reasoning. It lead to the creation of modern society and our ever increasing welfare. Cooperation is driven by reciprocity, the exchange of good deeds or more colloquial: “I help you, you help me.” Reciprocity contrasts with selfishness, which opposes cooperation. Reciprocity is generally beneficial for both parties if they interact multiple times and have knowledge of their previous interactions (iterated prisoners’ dilemma). 
+
+
+In the early days of human society, reciprocity was a key factor to create communities and settlements. Fast-forwarding to the modern time, communities are much larger with the most famous example being the internet. In such large communities, direct reciprocity often does not work anymore because there is an asymmetry in resources and abilities. “I help you, you help me.” only works if both parties can be of service to each other. In very large communities, the probability of interaction with the same party is very low. Also usually one party provides and the other party consumes the service, as seen with the sharing economy services like Airbnb or Uber. Then a concept known as indirect reciprocity comes into play which is directly tied to the concepts of trust and reputation. Colloquially, indirect reciprocity can be described as “I help you, someone helps me.” The intuition is then that nodes acquire a good reputation when acting altruistically and thus gain a higher chance of also receiving altruistic from the community. This requires an infrastructure to communicate the reputation of members of the community. The natural form of this communication in real-world communities is gossip. More and more online communities are using such a reputation system to improve the reciprocity and reliability of their service. They use central databases to keep track of the reputations of all users. This has advantages: the central database is available, searchable and complete. However, the disadvantages are severe: each service and community on the internet uses it’s own reputation system with different rules, scales and information which cannot be accessed by it’s users. This means the company is owner of the reputation of all its users and not the users themselves. A driver on Uber cannot take her reputation to Lyft but has to start new. Also, users cannot combine all their different reputations to build up a digital profile of themselves as proof of their trustworthiness to new communities they join. What we are missing is a universal reputation database to create trust between unrelated parties in the very large online community. The reputation database should be owned by and accessible to everyone, scale horizontally and be tamper-proof.
+
+
+We envision a decentralized, multi-chain based reputation system with linear scalability. \textbf{Interactions} between users (nodes) are recorded on their personal blockchain according to the TrustChain protocol~\cite{trustchain-protocol}. Based on the history of a node’s interactions it has a reputation in the system and other nodes trust it to a certain extent, given by the expected value of cooperation in future interactions. Encounters, reputation and trust exist in a certain context. Contexts influence each other. 
+
+Reputation systems in general and distributed reputation systems in particular pose some challenges to the designer:
+
+\begin{itemize}
+    \item Reputation systems can be subject to the sybil-attack: an attacker creates a large number of fake nodes which endorse the attacker with high reputation which the attacker can subsequently take advantage of. 
+    \item A distributed network is not fully connected: not all nodes are online at all times and information could be missing
+    \item In a distributed system we are reliant on nodes sending correct information but they can reject connections or send wrong information
+\end{itemize}
+
+In previous work we have shown that we can record encounters in a multi-chain system, calculate subjective reputation of other nodes to prevent freeriding and make the reputation ranking sybil-resilient. However the calculation of reputation is local and subjective. This is problematic: if an agent acts altruistically, she can only benefit if nodes are aware that she did. In this work we focus on a way to distribute the personal views of reputation of nodes on the network to work towards consensus on the reputation of nodes.
+
+
+For simplicity, we assume a single context for the following definition of the key concepts which are the basis for this reputation system.
+We consider a distributed network of $n$ entities. We borrow the definitions for the interaction model from~\cite{trustchain}.
+
+\paragraph{Definition 1} (\textit{Ordered interaction model}). An ordered interaction model $M=\langle P,I,a,w\rangle$ consists of two sets and two functions.
+\begin{itemize}
+    \item $P$, a finite set of agents
+    \item $I$, a finite set of interactions
+    \item $a : I \rightarrow P \times P$, a function mapping each interaction to the agents involved in it.
+    \item $w : I \times P \rightarrow \mathbb{R}_{\leq0}$, a function which describes the contribution of an agent in an interaction
+\end{itemize}
+
+Evidence of interactions are recorded in blocks on the personal hashchains of agents. In practice, each node is aware of a subset of the interactions and nodes in the network.
+
+\paragraph{Definition 2} (\textit{Subjective interaction history}). A subjective interaction history $H_p = \langle P_p, I_p, a_p, w_p \rangle$ defines the knowledge of an agent $p$.
+\begin{itemize}
+    \item $P_p$, a finite set of agents known to $p$
+    \item $I_p$, a finite set of interactions known to $p$
+    \item $a_p : I_p \rightarrow P_p \times P_p$, a function mapping each interaction to the agents involved in it
+    \item $w_p : I_p \times P_p \rightarrow \mathbb{R}_{\leq0}$, a function which describes the contribution of an agent in an interaction
+\end{itemize}
+
+\paragraph{Definition 3} (\textit{Interaction evidence}). Evidence of interactions is stored in form of transaction blocks on personal blockchains. One block $b_{p,i} = \langle H(b_{p,i-1}),{seq}_p, {txid}, {pk}_q, w, {sig}_p \rangle$ correspondes to one interaction $i \in I$. $B_p,p$ is then the set of blocks that are the evidence of the personal interactions $I_p,p = \{ i \in I : p \in a(i) \}$ of node $p$. An agent $p$ has a \textbf{subjective interaction evidence} $B_p$ which is the set of blocks corresponding to all interaction $I_p$ known to agent $p$.
+
+\paragraph{Definition 4} (\textit{Reputation mechanism}). A reputation mechanism is function that maps from a subjective interaction evidence $B_p$ to a set of reputation values, $F: B_p \rightarrow \mathbb{R}^{\lvert P_p \rvert}$, where $F_q(B_p)$ is the reputation of agent $q$ as seen by node $p$.
+
+\paragraph{Definition 5} (\textit{Private information set}). An agent $p$ has a private information set $\mathbb{I_p} = \langle B_p, F(B_p), A_p \rangle$. 
+\begin{itemize}
+    \item $B_p = B_p,p \cup B_p,-p$ the set of blocks known to agent $p$, defined as the union of $B_p,p$, the blocks of interactions which involved agent $p$, and $B_p,-p$, the blocks of those interactions which did not involve agent $p$
+    \item $F(B_i)$ is a reputation ranking of all nodes known to agent $p$, given the evidence $B_p$, calculated using a reputation mechanism $F$
+    \item $A_p = \{\langle pk_q, B_{p+q}^{(t)},F_q(B_{p+q}^{(t)})\rangle \}$ is the set of auditions (defined later), that have engaged in pairwise auditing with agent $p$
+\end{itemize}
+
+\paragraph{Definition 6} (\textit{Pairwise audition}). A pairwise audition is an exchange of private information between agents $p$ and $q$ such that after audition both agents have the same subjective interaction evidence $B_{p}^{(t+1)} = B_{q}^{(t+1)}= \{B_p,p^{(t)}, B_p,-p^{(t)}, B_q,q^{(t)}, B_q,-q^{(t)} \}$, both agents add their results to their set of auditions, $A_p^{(t+1)} = A_p^{(t)} \cup \{\langle pk_q, B_{p}^{(t+1)},F_q(B_{p}^{(t+1)})\rangle\}$
+
+After a pairwise audition agent $p$ knows about the correctness of node $q$'s chain and disseminate 

@@ -1,82 +1,116 @@
 \chapter{Introduction}
-Eventhough humans are most commonly modelled as rational entities and cooperation
-is not a rational strategy, it has often been observed throughout history~\cite{Axelrod1390}.
-Trust is the basis for any transaction between humans, be it trading or services. 
-The handshake to settle on the terms 
-of a transaction is a sign of respect, cooperation and trust. Once a service is
-provided by one agent, a trustworthy second agent in the transaction pays the debt 
-or runs the risk of loosing his reputation, which worsens the terms of following 
-transactions or even prevents him from further transactions.
+% Eventhough humans are most commonly modelled as rational entities and cooperation
+% is not a rational strategy, it has often been observed throughout history~\cite{Axelrod1390}.
+% Trust is the basis for any transaction between humans, be it trading or services. 
+% The handshake to settle on the terms 
+% of a transaction is a sign of respect, cooperation and trust. Once a service is
+% provided by one agent, a trustworthy second agent in the transaction pays the debt 
+% or runs the risk of loosing his reputation, which worsens the terms of following 
+% transactions or even prevents him from further transactions.
 
-Over time, the way we perform transactions has changed. In the pre-industrial age,
-transactions where most common between people of the same small community with some traders
-travelling between communities, however transaction always happened with direct 
-personal contact. In the post-industrial age, large multi-national companies enabled transactions
-and trade on a global scale. The most prevalent type of transaction were asymmetric transactions between
-customer and business. Customers trusted the company to provide high quality service 
-for the given money without exploiting the flaws of the system. Lately, the internet enabled
-peer-to-peer transactions via a trusted third party, also called the ``sharing economy.''
-The most well-known examples of this are Airbnb and Uber. They provide the infrastructure to connect strangers with 
-matching offer and demand, leading to direct transactions between customers. Trust in the latter
-example is two-fold: a reputation system establishes trust between customers and both
-parties trust in the platform to solve conflicts should they arise.
+% Over time, the way we perform transactions has changed. In the pre-industrial age,
+% transactions where most common between people of the same small community with some traders
+% travelling between communities, however transaction always happened with direct 
+% personal contact. In the post-industrial age, large multi-national companies enabled transactions
+% and trade on a global scale. The most prevalent type of transaction were asymmetric transactions between
+% customer and business. Customers trusted the company to provide high quality service 
+% for the given money without exploiting the flaws of the system. Lately, the internet enabled
+% peer-to-peer transactions via a trusted third party, also called the ``sharing economy.''
+% The most well-known examples of this are Airbnb and Uber. They provide the infrastructure to connect strangers with 
+% matching offer and demand, leading to direct transactions between customers. Trust in the latter
+% example is two-fold: a reputation system establishes trust between customers and both
+% parties trust in the platform to solve conflicts should they arise.
 
-However, both multi-national companies and the sharing economy have flaws. Large multi-national
-companies can get very powerful to the point where they are hard to control, giving them
-the freedom to change the rules or cheat the system. Companies can acquire a monopoly 
-position or multiple companies can agree on prices, leading to a artificially high price
-for the product they provide. Also, companies can pressure smaller sub-contractors to 
-produce at very low cost, which leads to bad working conditions. The sharing economy offers
-a market place which directly connects service provider and customer for a small fee. The
-problem here is a very different one. The reputation system is locked to the specific platform, 
-a trusted user of Airbnb cannot use the reputation on any other platform. Thus the platform 
-is the owner of the reputation, not the service provider. Even, between different platforms
-that offer the same service like Uber and Lyft, driver profiles are not sharable. Also their
-market is fragmented, meaning some cities might be served better by one service but if you
-use the other service you are excluded from getting a ride. The discussion leads to the 
-conclusion that what is missing is a global, fair and open marketplace 
-in which relative strangers can reliably exchange goods and services, without trusting 
-intermediators with either their data or stake. 
+% However, both multi-national companies and the sharing economy have flaws. Large multi-national
+% companies can get very powerful to the point where they are hard to control, giving them
+% the freedom to change the rules or cheat the system. Companies can acquire a monopoly 
+% position or multiple companies can agree on prices, leading to a artificially high price
+% for the product they provide. Also, companies can pressure smaller sub-contractors to 
+% produce at very low cost, which leads to bad working conditions. The sharing economy offers
+% a market place which directly connects service provider and customer for a small fee. The
+% problem here is a very different one. The reputation system is locked to the specific platform, 
+% a trusted user of Airbnb cannot use the reputation on any other platform. Thus the platform 
+% is the owner of the reputation, not the service provider. Even, between different platforms
+% that offer the same service like Uber and Lyft, driver profiles are not sharable. Also their
+% market is fragmented, meaning some cities might be served better by one service but if you
+% use the other service you are excluded from getting a ride. The discussion leads to the 
+% conclusion that what is missing is a global, fair and open marketplace 
+% in which relative strangers can reliably exchange goods and services, without trusting 
+% intermediators with either their data or stake. 
 
-Bitcoin was offered as the answer to the above request. Trust is replaced with cryptographic
-proof enabling the transaction of money with extremely low probability of fraud or tampering. 
-The high level of security comes at the cost of efficiency and speed. The processing of 
-transaction through creating the proof-of-work consensus is costly in terms of resources. In 
-2017 the processing of transaction was using as much energy as all of Denmark. This also 
-leads to high transaction costs. At the same time Bitcoin has the infamous restriction of
-a maximum of 7 transactions per second, which is far from the throughput of convetional bank
-transaction systems. Many other crypto currencies have been developed (Ethereum, Ripple, 
-Stellar Lumens, etc) as well as off-chain transaction systems such as the Lightning network 
-have been proposed. However no cryptocurrency has proven horizontal scalability in practice
-as the time of writing.
+% Bitcoin was offered as the answer to the above request. Trust is replaced with cryptographic
+% proof enabling the transaction of money with extremely low probability of fraud or tampering. 
+% The high level of security comes at the cost of efficiency and speed. The processing of 
+% transaction through creating the proof-of-work consensus is costly in terms of resources. In 
+% 2017 the processing of transaction was using as much energy as all of Denmark. This also 
+% leads to high transaction costs. At the same time Bitcoin has the infamous restriction of
+% a maximum of 7 transactions per second, which is far from the throughput of convetional bank
+% transaction systems. Many other crypto currencies have been developed (Ethereum, Ripple, 
+% Stellar Lumens, etc) as well as off-chain transaction systems such as the Lightning network 
+% have been proposed. However no cryptocurrency has proven horizontal scalability in practice
+% as the time of writing.
 
-Trustchain, developed by the Blockchain lab which is associated with the TU Delft,
-is a proposal for a scalable, multi-chain fabric. It takes an approach that is closer to the equivalent
-of non-digital transactions. Trust are not replaced with costly calculations but instead made 
-the basic currency in the network. Security is achieved through long-lived identities and reputation
-which is built over time through succesful interactions. Reputation built in one context is then 
-influencing other contexts in the future and identities increase their value through continous
-good behavior. Misbehaving on the other hand leads to the loss of reputation and consequently to
-worse terms in transactions in the extreme case, begin outcast. Transparency and consequences breed 
-honesty, and honesty breeds trust. 
+% Trustchain, developed by the Blockchain lab which is associated with the TU Delft,
+% is a proposal for a scalable, multi-chain fabric. It takes an approach that is closer to the equivalent
+% of non-digital transactions. Trust are not replaced with costly calculations but instead made 
+% the basic currency in the network. Security is achieved through long-lived identities and reputation
+% which is built over time through succesful interactions. Reputation built in one context is then 
+% influencing other contexts in the future and identities increase their value through continous
+% good behavior. Misbehaving on the other hand leads to the loss of reputation and consequently to
+% worse terms in transactions in the extreme case, begin outcast. Transparency and consequences breed 
+% honesty, and honesty breeds trust. 
 
-In previous work we have presented the Multichain architecture of TrustChain. It enables horizontal scalability, full decentralization
-and reliable transactions for any type of application. Also, the concept of implicit consensus was
-introduced in which global consensus is established on checkpoints instead of all transactions. 
-This does not prevent double spending but instead makes it discoverable after it happend. This
-way, before performing a transaction we can check the transaction history of the other party 
-see whether their chain turns out to be valid. The validity of a chain and succesful interactions build trust in the 
-node's intention to act correctly. However, a valid transaction history does not 
-always mean that the transactions were actually meaningful. One famous attack is the Sybil-attack in which a node creates many 
-sybils with which is performs valid interactions in order to boost the reputation of one node. 
-Once a reputation has been established, the attacker is able to exploit people in the network
-if they think the reputation is high enough to take the risk of a transaction.
+% In previous work we have presented the Multichain architecture of TrustChain. It enables horizontal scalability, full decentralization
+% and reliable transactions for any type of application. Also, the concept of implicit consensus was
+% introduced in which global consensus is established on checkpoints instead of all transactions. 
+% This does not prevent double spending but instead makes it discoverable after it happend. This
+% way, before performing a transaction we can check the transaction history of the other party 
+% see whether their chain turns out to be valid. The validity of a chain and succesful interactions build trust in the 
+% node's intention to act correctly. However, a valid transaction history does not 
+% always mean that the transactions were actually meaningful. One famous attack is the Sybil-attack in which a node creates many 
+% sybils with which is performs valid interactions in order to boost the reputation of one node. 
+% Once a reputation has been established, the attacker is able to exploit people in the network
+% if they think the reputation is high enough to take the risk of a transaction.
 
-Therefore, we have introduced Peronsalized Temporal PageRank, an algorithm that determines a 
-ranking of trustworthiness of a node's peers and their peers in a sybil-resistant fashion. Yet, 
-this ranking is only local and reputation is only useful for building trust once it is shared 
-with others. Therefore a mechanism for distributing the subjective trustrankings and their
-aggregation is crucial for the success of a global trustworthiness ranking. This will be the 
-goal of this thesis. 
+% Therefore, we have introduced Peronsalized Temporal PageRank, an algorithm that determines a 
+% ranking of trustworthiness of a node's peers and their peers in a sybil-resistant fashion. Yet, 
+% this ranking is only local and reputation is only useful for building trust once it is shared 
+% with others. Therefore a mechanism for distributing the subjective trustrankings and their
+% aggregation is crucial for the success of a global trustworthiness ranking. This will be the 
+% goal of this thesis. 
 
-The rest of this thesis is organized as follows. ...
+% The rest of this thesis is organized as follows. ...
+
+\paragraph{The economy} is changing, from local trade, over global entities that
+we trust to the internet economy. The internet allows for global transactions between
+strangers.
+
+
+\paragraph{Global transactions} in the internet fabric rely on the trust that 
+the other party acts correctly. On ebay the buyer needs to first make a transaction
+of money and hope that the product will be as described. 
+Trust is dependent on the reputation of the actors in the network
+and that reputation is built through interactions with other trustworthy people.
+A reputation keeps track of the reputation of agents in the network. 
+
+\paragraph{Mostly} these reputation systems are centralized and one entity manages the data and 
+enforces rules and punishments for bad behaviour. However trust in these entities
+is not always justified as shown by the databreaches or deliberate data sharing
+of companies like facebook.
+
+\paragraph{Therefore we are developing} a decentralized system for reputation 
+which is owned by both everyone and noone. But decentralized systems are hard
+to create because nodes can manipulate data and can control communication. One
+of hardest attacks to protect against is the Sybil attack.  
+
+\paragraph{In this work} we developed and explored a new mechanism for 
+disseminating and verificating data in pairs, we called it pairwise auditing.
+The idea is that instead of trusting by default, we only trust transactions with
+peers that are connected to our graph database through another node than the 
+one being audited. In order to give the node a chance, he can provide interaction
+data of his peers. By providing more and more data, the chance that a connection
+with the graph of the auditer is found increases. This means, agents with a valid
+transaction history will have connections of their peer network with the peer
+network of the auditer, while Sybils will not create such a connection. During
+the audit, the Sybil transactions will be ignored.
+

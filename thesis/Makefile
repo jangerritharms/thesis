@@ -1,5 +1,6 @@
 # LaTeX Makefile
 FILE=report
+FILE_CHAPTER=report_chapter
 
 all: $(FILE).pdf
 
@@ -20,6 +21,13 @@ clean:
 	rm -rf *.toc
 	rm -f ${FILE}.pdf
 
+
+$(FILE_CHAPTER).pdf: report_chapter.tex *.bib *.sty
+	pdflatex -shell-escape $(FILE_CHAPTER).tex
+	pdflatex -shell-escape $(FILE_CHAPTER).tex
+	bibtex $(FILE_CHAPTER).aux
+	pdflatex -shell-escape $(FILE_CHAPTER).tex
+	pdflatex -shell-escape $(FILE_CHAPTER).tex
 
 $(FILE).pdf: *.tex *.bib *.sty
 	pdflatex -shell-escape $(FILE).tex
