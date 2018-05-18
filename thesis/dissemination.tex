@@ -1,9 +1,33 @@
 \chapter{Information dissemination}
 
-\section{Pair-wise auditing}
+\paragraph{The strength of a reputation system} largely pivots on the availability
+of data. Reputation is built through a history of interactions, but only those
+that know about the history can estimate the true nature of the agent. Also, 
+unfair actions can only be detected if the information about those actions is 
+widespread. In centralized reputation systems, this availability in guaranteed,
+as long as the central server with all data is available and not manipulated.
+In decentralized systems this guarantee does not exist, availability of data
+depends on the willingness of agents to share their private data.
+
+Therefore our goal is to create a mechanism that gives agents an incentive to
+share their private data. More specifically, this dissemination mechanism should
+make the sharing of private data strategyproof, that is, sharing all private
+data should never be less advantageous than not sharing. 
+
+\section{Pairwise auditing}
+
+agents group in pairs and assign a score(endorsement) to each other. The endorsement should increase
+with more data shared between the two parties. There is a maximum endorsement which 
+can be calculated when all data is available. The score is used as another factor
+when determining the trustworthiness of an agent.
 
 \subsection{Definition}
 \subsection{Incentive design}
+\paragraph{Endorsements} without any endorsements, agents are seen as not trustworthy. 
+Therefore agents need to exchange data with at least a few agents in order to 
+become trustworthy. Endorsements should not be accepted by default but rather
+only be accepted
+
 \paragraph{Strategy-proofness}
 \subsection{Endorsement}
 
