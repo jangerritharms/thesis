@@ -73,7 +73,7 @@ basis of which the responder decides, this dishonest behaviour cannot be detecte
 other agents.
 
 \section{Research question}
-From the above discussion it becomes clear that removing the global consensus from blockchain
+From the above discussion it becomes clear that removing the global consensus from any blockchain
 farbics opens the system to many forms of attacks. The missing guarantees on information makes it
 hard to check the correct behaviour of other agents. This makes sharing of information and 
 validation of transactions an essential building block of a blockchain system without global
@@ -84,7 +84,90 @@ the following research question:
 
 \begin{center}
     \textit{How can we design a scalable, decentralized accounting system that ensures the distribution,
-    validation and honest usage of transaction records?}
+    correctness and honest usage of transaction records?}
 \end{center}
 
- 
+The research question entails some requirements for the system that we are trying to develop. In 
+the following we will explain each of those in more detail.
+
+
+\subsection{Accounting system}
+\label{sec:accounting_system}
+The system we are trying to build is an accounting system. An accounting system keeps track of 
+transactions of a resource of value between at least two parties. Accounting systems have many 
+applications; two common examples are a banking system and a reputation system. Each entity in 
+the accounting system has a unique identifier and from the history of the transactions recorded 
+in the system a certain balance can be assigned to each identifier. When a new transaction is issued 
+the balance is increased or decreased and usually some threshold is put inplace to restrict the 
+infinite spending of resources. This implies that the order of transactions is of importance. As an 
+example consider an entity A with the balance of 5 a minimum threshold of 0 and two transaction 
+spending 4 units and 3 units two parties B and C, respectively. Obviously, it is not possible that
+both transactions are accepted. Either, A first spends 4 units on the interaction with B and cannot
+afford the transaction with C or the other way around. If entity A tries to submit both transactions
+at the exact same time, it is the task of the accounting system to create an order of two transactions
+and restrict the expenditure beyond the balance threshold.
+
+\subsection{Scalability}
+Accounting systems can exist in many different sizes and contexts, they do not even have to be
+digital for some applications. However in this work we are concerned with planet-scale accounting
+which even enables micro-transactions with high frequency. Therefore scalability is one of the 
+main factors. Before the ascent of internet applications such dimensions were unheard of but in
+the last decade services such as Facebook, WeChat or YouTube have shown that an application can 
+grow to have billions of users. Our ambition is to lay the theoretical and practical basis for 
+future systems that scale to these sizes. In practice that means that the transaction throughput
+of the global systems needs to grow with the amount of users and that no global limit is in place
+that restricts further growth.
+
+\subsection{Decentralization}
+Ownership of all transaction data can, depending on the context, give the owner power, leverage and 
+value. Furthermore, a central entity creates a target for attackers and with sufficient resources
+available an adversary will in the end be able to compromise the system. We see accounting systems
+as a part of the infrastructure that enables applications such as banking or reputation systems. No 
+single entity should be owner of such infrastructure. That is why we are considering a decentralized
+solution. In the context of an internet application a centralized model assumes that one single (central)
+trusted entity has access to all information and all users know and connect to that single entity. In a 
+decentralized model, we cannot assume that any other entity is trustworthy or omniscent. Instead entities
+are equal and communicate with each other. All users know about their own transactions and are owner of
+their data, with full control over whom to share them with. 
+
+\subsection{Distribution}
+In a perfectly decentralized system each entity only knows about their own transactions. For an 
+accounting system that means that each entity needs to check for themselves that they do not exceed the
+balance threshold. Yet, an entity's interest could be to spend as much as possbile, which makes the 
+self-control mechanism ineffective. In the context of reputation systems, an entity's interest could be
+to show their good behaviour to others. In those situations a distribution mechanism needs to be put 
+inplace because in a decentralized system we can no longer assume that information is simply available from
+the central entity. Perfect distribution of data would mean that each user is informed about each transaction
+happening on the accounting system's network. However in practice such a situation virtually impossible to 
+uphold, especially when scaling to global high-frequency microtransactions. A balance needs to be found 
+between the distribution of information, the scalability of the system and the storage and processing 
+capabilities of each entity.
+
+\subsection{Correctness}
+In order to ensure the correctness of data multiple aspects need to be considered. First of all data needs
+to be stored in a tamper-proof manner, that is, once a transaction is accepted by all parties that transaction
+should not be changeable afterwards. Also the order of transactions needs to be definite, the reason for 
+this was explained in Section \ref{sec:accounting_system}. Finally, entities need to be able to validate the
+correctness of the state of the system.
+The distribution of data informs entities in the system about the behaviour of other agents, but without
+validation of that data, missing or wrong information cannot be found. This is another aspect that is often
+solved by a central entity that continuously analyzes the information received by users. In a decentralized
+system the validation has to be performed by each entity. For example entity A has a balance of 2 units but
+is trying to spend 3 units in a transaction to entity B. Without a central entity the only party to
+prevent A from transaction is entity B. B is only able to detect the invalid transaction if A has shared all
+it's transactions with B and if B uses some validation precedure before engaging in a new transaction. It is
+important to realize that validation is only possible if information is distributed. 
+
+\subsection{Honest usage}
+Finally, the system should make it possible to ensure the honest behaviour of entities. To show how the 
+previous two components are not enough to ensure this, we can continue with the example from the previous
+section. So even if B knows that the balance of A is insufficient to commit the transaction, both could 
+collude and still commit the transaction. Afterwards, there is no way of knowing whether B was acting 
+wrong on purpose or whether A did not share its information correctly. 
+
+In order to ensure correct usage of the given information it needs to be possible to distinguish good from
+bad behaviour. Without a central entity that knows the truth about every entity it is not straightforward to 
+know which entity is the responsible one for a wrong transaction.
+
+
+\section{Limitations and assumptions}
