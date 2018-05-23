@@ -1,34 +1,48 @@
 \chapter{Related work}
+In the previous two chapters we have shown that a need exists for a decentralized accounting system 
+in order to create a global infrastructure for secure, anonymous digital transactions that does not 
+require control through a trusted third party. This need has been identified before and work has 
+been performed both in the scientific community as well as the industry. In this chapter we will 
+summarize those efforts, describe the short-comings of those approaches and define a basis for the 
+work performed in this work.
 
-\section{Context}
+\section{Applications of decentralized accounting systems}
+The general concept of accounting is quite old as it is simply a recording of transactions between
+two or more parties. Before the digital age those recordings were simply written text on paper, 
+nowadays those recordings are stored in databases. We are concerned with another type, namely 
+decentralized accounting systems. We identified three types of applications for decentralized 
+accounting systems: cryptocurrencies, distributed work systems and reputation systems. 
 
-\paragraph{To understand the relevance} of this work we need to put it into the
-perspective of the context of reputation systems and their applications. 
-With the wide-spread use of the internet for trade, sharing and communicating,
-interactions between strangers living far apart are wide-spread. Many applications
-allow for exploitation through manipulation and taking advantage of the asymmetry
-of information. For example a buyer needs to pay for products before even seeing
-and afer receiving the money the seller actually does not have any incentive to
-deliver a product. This opens the door for exploitation. In order to solve this
-problem a reputation system is put into place in ebay, which shows publicly what
-other buyers said about the seller in the past. If the seller has not delivered
-a product a few times, the reputation will tainted with negative reviews and 
-buyers will be reluctant to interact with this seller in the future. Also, having
-no reputation at all will seem suspicious and buyers will have little trust in
-the seller. This influences the prices of products that this seller can ask for.
+\subsection{Cryptocurrencies}
+In the years 2007 and 2008 the global financial crisis shattered the global economy, lead to many
+people loosing house and job and diminished the trust clients had in banks to keep their money safe.
+Politics discussed the problem and proposed to regulate the banks more but with little impact. 
+However something else promised to change the banking world: the first white-paper for a 
+decentralized digital currency without any need for a trusted third party, Bitcoin, was announced. 
+
+\subsubsection{Bitcoin}
+Before the announcement of Bitcoin it was assumed that in order to verify the correctness of 
+transactions between parties and prevent cheating with digital money a bank or credit card company
+was needed. Bitcoin proved them wrong by creating a hash-based chain of transaction blocks, a global 
+ledger, that is shared among all users of the network. The acceptance of transactions is managed by 
+a process called ``mining'' which ensures that only the majority of CPU power can publish new 
+block. A blocks contains a fixed number of transactions and the Bitcoin network makes sure that a
+block is created once every 10 minutes. All mining node will execute the proof-of-work mechanism: 
+in order to publish a block a value needs to be found that, when hashed with a certain hashing 
+function like SHA-256, starts with a certain number of zeros. Depending on how many CPUs are active
+on the network the problem can be increased in difficulty by requiring more zeros at the beginning 
+of the hashed value. Once a new block is published other nodes will validate the transactions and 
+if they agree, will show their acceptance by working on creating the next block. This system ensures
+that as long as a majority of CPU power is owned by honest nodes, they will outpace the rest of the
+network in solving the hashing puzzle and creating valid blocks. Nodes will accept the longest chain
+and the transactions will be valid.
+
+The Bitcoin approach solved many problems assuming that an honest majority exists: first and 
+foremost the double-spending of funds is prevented because the Bitcoin blockchain creates one global
+order of valid transactions. Also spamming 
 
 \subsection{Reputation systems}
 
-Reputation is a concept that not only exists on internet platforms, but it is 
-an important part of everyday life. Everyone has opinions about friends, colleagues,
-companies, newspapers, weather forecasts and many more things. Reputation and 
-trust are subjective quantities, we are influenced by gossip from our peers. If
-all of our friends tell us that a certain company makes crappy laptops, we are
-probably choosing for a different companies laptop.
-
-In this work we will focus on reputation systems for internet platforms. In this
-category there are two different approaches, the centralized approach and the 
-decentralized approach.
 
 \paragraph{Centralized} ...
 
