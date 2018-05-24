@@ -39,9 +39,62 @@ and the transactions will be valid.
 
 The Bitcoin approach solved many problems assuming that an honest majority exists: first and 
 foremost the double-spending of funds is prevented because the Bitcoin blockchain creates one global
-order of valid transactions. Also spamming 
+order of valid transactions. Also the Sybil-attack is prevented by pairing the voting power to the
+available CPU power, which means Sybils can only run on real hardware, removing the advantage of
+fake identities. But these measures of attack prevention come at a price of efficiency. The surging 
+price of Bitcoins especially in the year 2017 led to a surge in transactions, transaction fees and
+energy usage. The increasing price of Bitcoins makes mining them more profitable which means more 
+nodes are joining the mining operation. Therefore the difficulty for the proof-of-work problem is 
+increased, such that it takes more computing power to find a correct value. This again increases the
+amount energy consumed in the whole network. At the same time the number of transactions processed
+is a constant of the Bitcoin currency, approximately 7 transactions per second. At the time of 
+writing the energy conusmption is at least 2.55 GW which makes it comparable to contries such as 
+Ireland. Summarized Bitcoin was a large step towards decentralized accounting but unsolved 
+scalability issues still prevent it from being actually useful as an infrastructure such as the one 
+we envision.
 
-\subsection{Reputation systems}
+\subsubsection{Alternative coins and improvement measures}
+Bitcoin served as a first proof-of-concept for trustless digital currencies or for our purposes, a
+``secure'' decentralized accounting system, but the shortcomings were also obvious. Once the 
+populartiy increased, other enthousiasts, startups and incumbent companies started to create their 
+own spin-off digital currency. Each of these so-called ``alternative coins'' used blockchains as 
+a core technology to store transactions but tried to solve the scalability issues using different 
+approaches. The discussion of all alternative coins goes beyond the scope of this chapter, therefore
+we will quickly introduce some of the main differences between the largest systems. 
+
+The block time is one parameter to tweak in order to increase transaction throughput. Ethereum, the
+second largest cryptocurrencies currently uses a block time of 15 seconds with a proof-of-work 
+consensus. Also block size is a factor in the throughput rate, but increasing block time and size 
+only creates a constant factor to the rate of transactions.
+
+Ethereum is currently testing a proof-of-stake mechanism which should replace the energy intesive 
+proof-of-work. In short this mechanism will require ``minders'' to put some amount of currency into
+a wallet in order to participate in the process. If a miner does not perform the validation of 
+transactions correctly that ``stake'' will be lost for the miner. This will solve the energy 
+consumption problem but it will not solve the overall scalability issue of the system. 
+
+Another feature in development in multiple currencies is the ``Lightning network''. The lightning 
+network will allow two parties that expect to conduct multiple transactions with each other to 
+create a ``channel''. Both parties store some funds in the channel and can then interact freely 
+through this channel without needing to interact with the master network of the currency. Only the
+opening and netbalance at closing time will be writting to the chain while all other interactions 
+are only recorded locally. This should increase the possible throughput significantly but due to the
+early stages of development the actual implications of large-scale use are not proven at the time of
+writing. But considering that Bitcoin has a transaction limit of 200000 transactions a day, it would 
+still take 5000 days or 13.7 years to open one channel each for a billion people.
+
+The IOTA project ...
+
+Sharding ...
+
+Conclusion
+
+
+\subsection{Distirubted work systems}
+In the field of distributed computing many applications include some mechanism in which a node is
+performing work for other nodes or the network in general. Seuken et al. call these distributed 
+work systems. Some examples are of distributed work systems are 
+
 
 
 \paragraph{Centralized} ...
