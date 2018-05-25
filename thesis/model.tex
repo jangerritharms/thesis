@@ -20,7 +20,7 @@ Politics discussed the problem and proposed to regulate the banks more but with 
 However something else promised to change the banking world: the first white-paper for a 
 decentralized digital currency without any need for a trusted third party, Bitcoin, was announced. 
 
-\subsubsection{Bitcoin}
+\paragraph{Bitcoin.}
 Before the announcement of Bitcoin it was assumed that in order to verify the correctness of 
 transactions between parties and prevent cheating with digital money a bank or credit card company
 was needed. Bitcoin proved them wrong by creating a hash-based chain of transaction blocks, a global 
@@ -53,7 +53,7 @@ Ireland. Summarized Bitcoin was a large step towards decentralized accounting bu
 scalability issues still prevent it from being actually useful as an infrastructure such as the one 
 we envision.
 
-\subsubsection{Alternative coins and improvement measures}
+\paragraph{Alternative coins and improvement measures.}
 Bitcoin served as a first proof-of-concept for trustless digital currencies or for our purposes, a
 ``secure'' decentralized accounting system, but the shortcomings were also obvious. Once the 
 populartiy increased, other enthousiasts, startups and incumbent companies started to create their 
@@ -93,22 +93,68 @@ Conclusion
 \subsection{Distirubted work systems}
 In the field of distributed computing many applications include some mechanism in which a node is
 performing work for other nodes or the network in general. Seuken et al. call these distributed 
-work systems. Some examples are of distributed work systems are 
+work systems. Some examples of distributed work systems are peer-to-peer file-sharing network,
+packet forwarding in mobile ad-hoc networks and volunteer scientific distributed computing. As our 
+research group is mostly concerned with file-sharing networks and the concepts are similar in 
+general we will stick to that example to discuss the latest developments.
 
+Many different file-sharing networks have been built in the past, the most prominent being Napster,
+Gnutella and BitTorrent. In contrast to centralized file-sharing, in peer-to-peer systems there is 
+no server that contains all data, but instead users share data directly, one peer downloading and 
+one peer uploading. With no infrastructure needed, no costs and no single point of failure such a
+systems seems optimal. Talking in terms of distributed work systems, the act of uploading is 
+equivalent of performing work while the act of downloading consumes work. There is, however, a 
+social dilemma here: uploading to another node does not lead to an immediate reward for the
+uploading node, therefore, if we assume that bandwidth is a precious resource it is cheaper to not 
+upload, yet if all agents on the network realize this, no agent will upload and thus no agent is 
+able to download. The agents that do not upload any data are known as free-riders and free-rider 
+protection in peer-to-peer file-sharing networks is a subject of ongoing research.
 
+Accounting systems pose a possible solution to the free-riding problem. Let's first imagine a 
+centralized accounting systems keeping track of all uploading and downloading behavior, uploading 
+data increases the balance of agents, downloading decreases the balance. Now, the accounting system
+can enforce that agents keep their balance around 0, so they upload approximately as much as they
+download. Therefore, an accounting system can solve the free-riding problem, however as mentioned 
+multiple times, a decentralized accounting system is hard to implement. Accounting mechanisms have
+first been related with this subject in the DropEdge paper, however a lot of work has been done on
+the very related subject of reputation systems, which will be discussed in the next section. Seuken
+et al. define an incentive-compatible accounting mechanism which removes any advantage for users 
+that misreport their own contributions in the network. They present their DropEdge algorithm and 
+show that it's possible to increase the efficiency of BitTorrent clients using accounting. A 
+negative result of their work is that an accounting mechanism cannot prevent sybil attacks. Some
+short-comings of the approach is strategic manipulations of data and dissemination of data. 
 
-\paragraph{Centralized} ...
+\subsection{Reputation systems}
+One of the reasons that decentralized accounting systems are hard to create is that agents in
+peer-to-peer applications do not have a complete view of the network and thus also not all 
+information of the network, at least not without a global consensus mechanism. In the file-sharing
+example from the previous section agents decide to upload to other agents based on some partial 
+knowledge of the network and contributions of agents. It can be argued that an accounting mechanism
+cannot be correct if it acts on partial information and instead the particular balance of an agent 
+as seen by another agent is rather a reputation. The goal is then to create trust between users in 
+order to facilitate cooperation. Such a system will be called a reputation system. 
 
-\paragraph{Decentralized} ...
+Whether reputation systems can be called an application of accounting systems can be argued about. 
+In general accounting systems track transactions between accounts, the full history of transactions
+determines the state of the network. According the framework of Mui et al. trust is the expectation
+of reciprocation for an agent given that agent's history of behavior. So a reputation system can act 
+on the data of an accounting system and add additional conclusions. The previous example of agents
+uploading and downloading helps to understand this. An accounting system keeps track of the 
+transactions and calculates the balance of an agent, for example +10MB, for an agent that has 
+uploaded 10MB more than downloaded. Also it is possible to account the total uploaded and downloaded
+data, for example 1010MB and 1000MB respectively. A simple accounting system stops at this point, 
+the system behaves correctly when no error has been done in calculating the balances and the data is
+correct. A reputation system adds another layer of interpretation to this data. The simplest 
+reputation function only checks whether the balance is positive or not, or if the choice is between
+multiple agents, whose balance is the most positive. Another reputation function might weight agents
+with a 0 balance but 10GB of uploaded (and downloaded) data more trustworthy than an agent with 10MB
+positive balance but only 100MB uploaded data. Thus we can see a reputation system as a layer on top
+of an accounting system.
 
-\subsection{Applications}
-
-\paragraph{Market}
-\paragraph{Sharing economy}
-\paragraph{BitTorrent}
-\paragraph{Tribler}
+Describe some reputation systems ...
 
 \section{TrustChain}
+TrustChain was built as a system to create trust between two strangers
 
 \subsection{Data structure}
 \subsection{Accounting mechanism}
