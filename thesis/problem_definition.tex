@@ -1,0 +1,368 @@
+\chapter{Formal Problem Definition and Analysis}
+In the previous two chapters we have introduced the problem of state-of-the-art commercial 
+reputation systems and explained how a distributed reputation could solve this problem but requires
+among other things a strong transaction recording and distribution mechanimsm. In this chapter we
+formally define a model in which we can analyze this mechanism. We will first reintroduce the
+notation which has been defined in previous work on the subject of reputation systems. Afterwards we
+apply that notation to the TrustChain solution which will be the basis of the solution defined
+in later chapters of this thesis. Finally, we can specifically point out the shortcomings of that
+solutions. The next chapter will then introduce a new extension of TrustChain which will tackle
+those shortcomings.
+
+
+\section{Basic model and notation}
+\label{sec:notation}
+For this model we use the notation that was defined by Mui in \cite{mui2002computational}. The goal 
+is to develop the notation for a model of trust and reputation in a social network. Mui developed 
+this notation to study a computation model for trust and reputation which fits the subject of this 
+work perfectly. For the sake of simplicity we will further simplify the model and ignore the context
+dependence of the social networks, so the definitions assume the reputation and trust are about a
+single context.
+
+We first define a social network in general.
+
+\begin{defn}[Social network]
+    A social network is a society of a set of agents $A = \{a_1, a_2, \dots a_N\}$ that allows for agents to communicate and
+    interact with each other. A social network has size $N$ if there are $N$ uniquely identifiable
+    agents $a_i$ in $A$.
+\end{defn}
+
+This definition of a social network can include any society, so it could be the world wide economy,
+or Facebook, but from the previous discussions it should be clear that trust and reputation always 
+act in a social network. Without the context of the social network those concepts would be of no
+use. In most global scale networks we can not assume full observability, therefore Mui defines, with
+reference to the work of Granovetter \cite{granovetter1985economic}, the embedded social network.
+
+\begin{defn}[Embedded social network]
+    \label{def:embedded}
+    An embedded social network with respect to agent $a_i$ is the unique society of agents $A_i$
+    that agent $a_i$ is aware of at certain moment in time.
+\end{defn}
+
+It should be clear from definition \ref{def:embedded} that we make no full observability assumption. 
+Each agents acts within the subjective embedded social network. 
+
+The social network makes it possible for interactions to happen between agents. We call those
+interactions ``encounters''. For the moment we use the simplified definition from Mui and assume
+that during an encounter both parties chose an action from the set of cooperation and defection:
+ $\alpha \in \{\textit{cooperate}, \textit{defect}\}$. We will later extend this definition to the 
+usecase of Trilber. As explained before ({\color{red}WHERE?}) this fits the game of Prisoner's 
+Dilemma which is the theoretical basis for reputation systems in general. 
+
+\begin{defn}[Encounter]
+    An encounter $e \in E = \alpha^2$ is an interaction between agent $a_i$ and agent $a_j$ such that $a_i$
+    executed action $\alpha_i$ and $a_j$ executed action $\alpha_j$.
+\end{defn}
+
+An agent's encounters are the evidence on which other agents build their opinion of that particular
+agent and therefore are the building block for trust. An agent's behavior in the past encounters of 
+an define whether other agents will trust that agent or not. Formally Mui defines that history as
+follows.
+
+\begin{defn}[History]
+    $D_{j,i} = \{ E^* \}$ is the knowledge that $a_j$ has about previous encounters of agent $a_i$,
+    which include at least the direct interactions between the two agents but can also include other
+    nteractions of $a_i$ which were ``observed'' by $a_j$.
+\end{defn}
+
+That fact that encounters happen within the embedded social network that connects the two parties in
+the encounter means that the history does not necessarily include all encounters by a certain agent.
+With the definition of the history it is possible to define the two concepts of interest, reputaiton
+and trust. Consider the case that an agent $a_i$ is determining the reputation of another agent $a_j$
+which is in the embedded social network $A_i$. The reputation of $a_j$ in that embedded social
+network $A_i$ is solely depended on the history $D_{i,j}$, the encounters which $a_j$ took part in 
+and are known to $a_i$'s embedded social network. Mui then defines reputation $\theta_{i,j}$ simply 
+as a value between 0 and 1, where a low value means that $a_i$ thinks $a_j$ has a low intention to
+reciprocate and a high value means the opposite.
+
+\begin{defn}[Reputation]
+    $\theta_{i,j} | D_{i,j} \in [ 0, 1 ]$ is the reputation of agent $a_j$ as seen by $a_i$ given
+    the history $D_{i,j}$. 
+\end{defn}
+
+Given this definition we are also able to define the ``true reputation'' $\theta'$ which is the reputation 
+as calculated using the complete history of all agents encounters, or $\theta'_j | E \in [ 0,1]$.
+Slightly deviating from the model of Mui in order to stay closer to previous work on the specific usecase of 
+the TrustChain architecture we will define reputation as a direct function of this history.
+
+\begin{defn}[Reputation function]
+    $R: D \times A \rightarrow \theta^N$ is a function that maps from the known history of encounters $D$ to a
+    reputation value $\theta$ for each of the $N$ agents in $A$.
+\end{defn}
+
+Finally, the definition of trust as given by Mui is the expectation an agent $a_i$ has that another 
+agent $a_j$ will reciprocate actions in a future encounter.
+
+Given the above definitions a circular relationship between reputation, trust and reciprocity can be
+induced. Acting reciprocatively in an embedded social network increases an agent's reputation, which 
+in turn increases the trust other agents have in that agent. More trust should then lead to other 
+agent's acting reciprocatively which closes the circle. 
+
+However Mui states explicitly that a ``decrease in any of the three variables should lead to the 
+reverse effect'', thus this circular relationship only holds true if the history of actions is to a 
+large amount transparent to other agents. Also if agents act purposefully wrong and not according
+to the reputation they calculate the effectivity of the system breaks down. In practice this boils 
+down to problem of a tamper-proof record of encounters and the dissemination of information about 
+those encounters. The next section discusses how this model can be implemented in a system
+architecture.
+
+\section{Implementation of the model in TrustChain and Tribler}
+The definition of the model given in the previous section is from a theoretical point of view for a
+general reputation system. It is not immediately obvious how this model applies to an Implementation
+of a distributed reputation system with a specific application. In this section we shall shed light
+on how the TrustChain architecture and its application context Tribler fit this model. The results
+are summarized in Table~\ref{tab:layersofreputation}. 
+
+\subsection{Application context: Tribler}
+In order to fit the model to the application context of Tribler, which is one context in which 
+TrustChain can be used we have to map the concepts given in the section~\ref{sec:notation} onto the
+concepts in the torrent client context.
+
+An agent in the model of Mui will generally refer to an instance of the Tribler client running on a
+machine of a user. A single user can therefore run multiple agents on the same machine. Each
+instance of the client has a unique identifier. Instances of a client in a distributed system are 
+generally also called nodes. Encounters between agents, in this case the Tribler
+clients, are transactions of data on the torrent network or relaying of data for the onion routing. 
+In both cases one agents uploads data and another agent downloads data, so the action space is a 
+real number, where positive values refer to the amount of data uplaoded and negative numbers to the 
+amount of data downloaded. 
+
+The mapping of data upload and download is somewhat difficult to map directly to the cooperate and 
+defect actions, and therefore good and bad reputation. In general downloading is seen as consuming 
+value and uploading is seen as contributing value to the network. However Tribler's additional layer 
+of security adds relaying of data as an action to perform and in that case relaying, uploading and 
+downloading the same amount of data, should increase the reputation while downloading more than 
+uploading should decrease the reputation. Qualitatively, agents will have a good reputation if they
+contribute, that is upload, and relay a lot.
+
+Finally, the difference between trust and reputation is not very straightforward either. However, 
+while the reputation is a well defined number, trust can be seen as a value that is more depended
+on the network structure. As an example, imagine that we are evaluating our trust in two nodes with 
+a similar reputation, that is a similar amount of uploaded and downloaded data. One node has many 
+interactions with different nodes, most of which are known to us, while the other node has had 
+only a few large interactions with previously unheard of nodes. Taking the definition of Mui as 
+basis for trust, our expectation of reciprocity will be higher for the node that had successful 
+interactions with nodes that we had successful interactions with than for the other node. This fits
+the definition made in \cite{josang2007survey}, who state that ``Trust systems produce a score that
+reflects the relying party's subjective view of an entity's trustworthiness, whereas reputation 
+systems produce and entity's (public) reputation score as seen by the whole community.'' Therefore
+we can define a score, calculated from a certain (subjective) point of view in the network based on 
+the known repuatation of nodes, as trust. Such functions have been defined in previous work, for 
+example NetFlow in~\cite{trustchain}.
+
+\begin{table}
+    \centering
+    \caption{Mappings of the theorical model of trust systems to the higher layers of trust systems}
+    \label{tab:layersofreputation}
+    \begin{tabular}[]{|c|p{2cm}|p{2cm}|p{2cm}|p{2cm}|p{2cm}|} \hline
+        Definition & Agent                           & Encounter & Action & Reputation & Trust \\ \hline \hline
+        Mui        & individuals in a social network & Event between two agents & \{ \textit{cooperate}, \textit{defect} \} & Value between 0 and 1 showing the perception that suggests an agent's intentions and norms & Expectation that an agent will reciprocate. \\ \hline
+        Tribler    & Instance of the Tribler client  & Transaction of data &  Two real numbers showing the upload and download during an encounter & Summed upload and download over history & Subjective value calculated by trust function based on reputation \\ \hline
+        TrustChain & & & & & \\ \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Implementation context: TrustChain}
+Similar to the application context the model can be mapped to the implementation layer, that is the 
+TrustChain architecture. This way we created a relation between the most basic theoretical layer
+of reputation systems, the computational definition by Mui, the implementation layer all the way to
+the application layer of Tribler. This allows for discussions of the problem in the context of each 
+of these layers without loosing the well-definedness property of concepts.
+
+TrustChain is an implementation of a distributed blockchain-based database specifically designed to create trust 
+globally between relative strangers in a digital social network. In TrustChain agents are simply public- 
+and private key pairs. Each agent can be identified by the unique public key which is used in each
+encounter. Each agent records transactions, in which that agent takes part, as a block on a private 
+chain. The transactions are the equivalent of encounters in Mui's notation.
+
+\begin{defn}[Transaction block]
+    A transaction block that describes a transaction between agent $a_i$ and $a_j$ can be defined as 
+    a 6-tuple $B^{TX}(t) = \lAngle \textit{tx}, \textit{pk}_i, \textit{seq}_i, \textit{pk}_j, \textit{seq}_j, \textit{hash}_{B(t-1)} \rAngle$.
+    {\color{red}This is still wrong. We either have to introduce the block proposal/agreement scheme or include two hashes here. }
+    where:
+        \begin{itemize}
+            \item $\textit{tx}$ contains the actions performed during the transaction
+            \item $\textit{pk}_i$ is the public key of the initiator of the transactions, agent $a_i$
+            \item $\textit{seq}_i$ is the sequence number of the block in the history of interactions of agent $a_i$
+            \item $\textit{pk}_j$ is the public key of the responder of the transactions, agent $a_j$
+            \item $\textit{seq}_j$ is the sequence number of the block in the history of interactions of agent $a_j$
+            \item $\textit{hash}_{B(t-1)}$ is the hash of the previous block
+        \end{itemize}
+\end{defn}
+
+As TrustChain is designed to be application agnostic, the possible actions in encounters are
+not pre-defined but can be anything that can be described by static data. If TrustChain is applied
+to the Tribler context a transaction block records the amount of data uploaded and downloaded between
+the two parties of the encounter. Trust and reputation are not directly represented in TrustChain as
+the system itself is only a way to record encounters, not to interpret them. The interpretation of
+records of encounters is left to the application context. Still, just like in the trust function 
+defined previously we can assume that in a TrustChain based system the set of encounters, which in 
+TrustChain corresponds to the observed transactions is the single input to the function.
+
+The system does allow to define the embedded social network, the society in which an agent acts as
+defined by Mui. The embedded social network of an agent $a_i$ in the TrustChain fabric are the 
+agents $A_i$ which agent $a_i$ has directly interacted with, that is the public keys that agent $a_i$
+is aware of and knows to exist. This also means that in the case of TrustChain the embedded social
+network can be described solely by the set of encounters $E_i$ of an agent. 
+However in a global network that embedded social network is usually 
+a very small fraction of the complete social network. This means that chances are low for an agent to
+be aware of the good behavior of other agents which is one of the fundamental properties that a 
+reputation system needs to fulfill. This brings the discussion to the problem that was described in
+chapter~\ref{chap:problem}.
+
+\section{Strategic manipulations}
+
+
+\section{Problem analysis and possible solutions}
+In the previous section we have combined the model of Mui~\cite{mui2002computational} with the 
+TrustChain architecture and the Tribler application context to create a well-defined basis for
+discussion in each of these layers. We showed that in TrustChain, an agent's embedded social network 
+and the agent's true reputation can be inferred simply from the complete set of interactions that 
+the agent had. Those are stored in the form of a chain of blocks on the agents machine. Now what is
+problematic is that the agent's own interactions form a miniscule subset of all interactions in the 
+complete social network, which leads to problems of security and the mechanism of the reputation 
+system. The goal from a system designer's point of view must be to ensure that agents observe more 
+interactions than their own, without being subject to strategic manipulations.
+
+\subsection{Dissemination mechanisms}
+Achieving the desired dissemination of transaction records is not a new problem in distributed 
+system as it is similar to synching the two stateful disconnected systems, for example a database.
+Dissemination mechanisms have been researched for many decades. \cite{hedetniemi1988survey} is an 
+early summary of the most important techniques in on dissemination Hedetniemi et al. describe 
+gossiping, broadcasting and shortly mention receiving and polling. We shall briefly introduce the 
+concepts here.
+
+\paragraph{Gossiping} Gossiping is the a mechanism in which pairwise exchange of information takes 
+place. Imagine a set of agents in which each agent has knowledge of a unique set of encounters that
+all other agents are not aware of. The goal is to reach a state in which all agent have the
+information on all encounters. During gossipping, an agent chooses a set of partners and with each 
+partner the agent exchanges all information. This is done by each agent and after a certain number
+of interactions the dissemination is complete. Different variants exist for gossiping, for example
+only allowing one-way communication, allowing multi-party exchanges and restricting the number of 
+exchanges per agent. 
+
+\paragraph{Broadcasting} Broadcasting is a process in which information originates from one 
+agent in the network, who needs to transmit the information to all other agents in the system. Again
+information transmission happens in pairs of two agents, and communication only happens between 
+adjacent nodes in the network. In contrast to gossiping where new information originates at all 
+nodes, in broadcasting all nodes communicate one piece of information.
+
+\paragraph{Receiving} In receiving all agents send some unique information to a specific agent, called
+the receiver. 
+
+\paragraph{Polling} Polling a information accumulation process in which a single originating agent sends requests for
+information to all other agents who then respond with an information carrying message. 
+
+The survey shows that dissemination of information in itself is a well understood topic and many 
+implementation of such protocols are widely available. However some problems exist when taking into
+account the possibility of strategic manipulation. Those will be discussed in the next section.
+
+\section{Problems of implementation of dissemination algorithms}
+The previous section shows that information dissemination mechanisms are possible and well-understood. However 
+problems exist when considering their implementation in global-scale distributed systems in which 
+manipulation is possible. 
+
+\subsection{Complete synchronization and scalability}
+All of the dissemination mechanisms mentioned in \cite{hedetniemi1988survey} consider the goal of
+complete information exchange. This would also be a disireable situation in the context of reputation
+systems. If each agent has knowledge of all encounters, they could calculate the true reputation of
+all agents and simply agree on whom to trust. The system would also be secure against malicious 
+behavior. 
+
+However, a global reputation system that tracks all interactions of all agents creates a huge amount
+of data which would need to be transmitted and stored on all agent's devices. This seems like an
+unfeasible target. Instead a ``high level'' of information dissemination should be strived for.
+
+It should be clear the whether the state of complete synchronization can be achieved depends on the
+rate at which new interactions are recorded and the rate at which information dissemination happens.
+In fact, Bitcoin achieves full synchronization (except for the newest blocks which are seen as ``not
+yet confirmed'') through restricting the block time and size. With a block size of 4MB and a 10 minute
+block time, there is enough time between new blocks such that nodes can synchronize with the updated
+state of the system.
+
+\subsection{Incentive}
+Another intricacy of distributed system is that the designer of the system has no control over the 
+actual behavior of agents. That is why incentives need to be put in place in order to make it disadvantageous
+to deviate from the designed behavior. Given the right incentives and rational agents that try to 
+maximize their value function the designer can be sure that no misbehavior will spread as it would 
+decrease the value function of those agents.
+
+The problem with the TrustChain system is that while it's security and the reputation system it aims
+to enable rely on the dissemination of data, there is no incentive in place to guarantee that agents
+engage in any dissemination activity. In contrast, assuming that data storage, computation power and 
+bandwidth are costly resources in the eyes of agents, it is actually disadvantageous for agents to 
+observe interactions of other agents, store them and verify them against their previous knowledge in
+order to detect any malicious behavior. It is therefore possible to free-ride, not in the context 
+of an application like Tribler, but in terms of information dissemination: agents can decide to not 
+share and verify information and still take part in the network as valid agents. 
+This problem needs to be solved in order to guarantee a secure system that defends itself against malicious users
+and free-riders. 
+
+In order to solve the problem we need to realize how incentives can be created. Bitcoin solves the 
+incentive for sharing transaction blocks by given nodes a reward for mining a block. Only if the 
+node broadcasts the block, can the award be claimed. Also other nodes want to stay updated on the 
+state of the chain in order to mine a block on the most recent chain as new blocks for shorter chains
+will not be accepted. 
+
+Instead of giving awards in order to encourage behavior, we can also punish nodes in order to discourage
+bad behavior. For example, double spending is discouraged because the records of transactions make 
+the attack detectable such that other agent can punish the attacker. 
+
+Another way would be to combine the sharing of information with the reputation system built on top 
+of TrustChain. In that way good reputation can not only be built through behaving well in the 
+application context but also by being a good agent in the TrustChain network. Helping the network to
+defend against malicious nodes by obtaining and spreading information should then be rewarded. 
+
+All ideas require a feature that TrustChain does not offer at the moment: the recording of exchanges
+of information. All we have presented before about TrustChain is concerned with transaction in the 
+application layer but not the record layer. However, in order to reward the exchange of information 
+or punish free-riding on this layer, this information needs to be stored in a tamper-proof manner
+just like the transactions. That is the state of an agent, which we argued can be described by the
+encounters that the agent had in the past, should include also the information exchange behavior.
+
+% 1. A network in which each agent is acting independently without synchronization. Network state — Agents $P={p1, p2, …}$, encounters E=${e_1, e_2, …}$, encounter $e_1 = <c, p1, p2, s1, s2>$ contribution, related parties
+
+
+% 2. Each agent has his own state — encounters $E_p = {e_p,1, e_p,2, …}$ which is a subset of E. Also $E^p$ are the transactions in which p is one of the transacting parties.
+
+
+% 3. In this model agents can perform two actions which change their state: interact and distribute. An interaction creates a new encounter $e_{new}$. A distribute actions transfers knowledge from one agent to the other. While not obvious, such a distribution of knowledge also changes the overall network state, as it creates knowledge of the fact that the receiving agent knows about the received transactions.
+
+
+% 4. A reputation function takes as input the complete state of an agent, that is all encounters that agent knows about and outputs a reputation score for each known agent. $r_p := E_p -> P \times R$ This reputation function calculates an objective value which is the same for all agents with the same data.
+
+
+
+% 5. True reputation: We define the true reputation of agents as the reputation calculated by the reputation function r with as input the complete state of the network.
+
+
+
+% 6. The agent takes that reputation to decide whether to give resources to another agent or not. The problem is that the local reputations are not the true reputations and the larger the difference, the more it deteriorates the reputation system. (How can we prove this?!) The goal must be to approach the true reputation.
+
+
+% 7. There are two ways to approach the true reputation:
+%     1. We combine rankings
+%         * 
+%     2. We obtain more data
+%         * 
+
+
+% 8. From both approaches we find that we actually want to achieve strategy-proof sharing of all data and strategy-proof compilation of data.
+
+
+% 9. We can enforce behavior by making the alternative disadvantageous. 
+
+
+% 10. Right now there is not way to check whether an agent helps with verifying transactions or compiling data. We also don’t check if agents present the same rankings to every agent. In order to make not verifying and compiling data disadvantageous we need to make sure that it’s possible to detect such behavior. 
+
+
+% 11. Possible attacks:
+%     1. Together with a group we all list a certain node in our rankings low, such that we 
+
+
+% 12. Thus we can define the requirements for our system:
+%     1. the history of encounters should be immutable
+%     2. the history of encounters needs to be ordered for each agent
+%     3. the throughput of encounters needs to be horizontally scalable
+%     4. fully distributed
+%     5. we should be able to detect when an agent does not crawl data, does not report a double spend or does not give the same ranking to other agents

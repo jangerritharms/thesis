@@ -1,6 +1,18 @@
 \documentclass[whitelogo]{tudelft-report}
 \usepackage{natbib}
 \usepackage{changes}
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem} % reset theorem numbering for each chapter
+
+\theoremstyle{definition}
+\newtheorem{defn}[thm]{Definition} % definition numbers are dependent on theorem numbers
+\newtheorem{exmp}[thm]{Example} % same for example numbers
+
 \begin{document}
 
 %% Use Roman numerals for the page numbers of the title pages and table of
@@ -29,13 +41,13 @@
 %\makecover
 
 %% Uncomment following 16 lines for a cover with a picture on the lower half only
-\title[tudelft-white]{Towards global consensus on trust}
-\subtitle[tudelft-black]{Aggregation of temporal PageRank trust vectors}
-\author[tudelft-white]{J.\ Harms}
-\affiliation{Technische Universiteit Delft}
-\coverimage{cover.jpg}
-\setpagecolor{tudelft-cyan}
-\makecover[split]
+% \title[tudelft-white]{Towards global consensus on trust}
+% \subtitle[tudelft-black]{Aggregation of temporal PageRank trust vectors}
+% \author[tudelft-white]{J.\ Harms}
+% \affiliation{Technische Universiteit Delft}
+% \coverimage{cover.jpg}
+% \setpagecolor{tudelft-cyan}
+% \makecover[split]
 
 
 %% Include an optional title page.
@@ -43,7 +55,7 @@
 
 % \input{preface}
 
-\tableofcontents
+% \tableofcontents
 
 %% Use Arabic numerals for the page numbers of the chapters.
 \mainmatter
@@ -52,9 +64,11 @@
 
 \input{problem_description}
 
-\input{model}
+\input{problem_definition}
 
-\input{attacks}
+\input{related_work}
+
+\input{agent_state_transparency}
 
 \input{dissemination}
 

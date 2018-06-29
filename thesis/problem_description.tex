@@ -1,173 +1,141 @@
 \chapter{Problem description}
-In the introduction we make a case for the decentralization of applications that handle private
-information or resources and argues that scalability is one of the main problems of the promising
-blockchain technology to make such systems a reality. Trustchain is an approach that removes the 
-main bottleneck that restricts the scalability of the most common blockchain fabrics, namely global
-consensus. However the lack of agreement on a single accepted set of transactions has many 
-implications for attack resistance and correctness guarantess of the system. This chapter 
-introduces these implications and defines the problem that this work is supposed to tackle.
+\label{chap:problem}
+\paragraph{Abstract.} Our audacious ambition is to design and create a layer of reputation on top of the core infrastructure of the internet that enables application agnostic trustful relationships between relative strangers. Such a global reputation systems needs to be distributed, scalable, tamper-proof, robust against strategic manipulation and misbehavior. Reputation system require public visibility of reputations however the state of large distributed systems are inherently unobservable. Together with a general subjectivity due to the nature of the concept of trust this creates a discrepancy between agents perception of the trustworthiness of their peers. The main question underlying this work is how diminish this discrepancy. 
+locality?; trust vector or number; reputation or trust system?; automated trust system; quantifiable?;  
 
-\section{Attacks}
 
-\subsection{Double-spend attack}
-One of the most challenging attacks that exist in distributed systems is the \textit{double-spend}
-attack in which an adversary creates two conflicting transactions with two different agents without
-telling each about the other, effectively using resources twice. In centralized systems this attack
-is prevented by the central server which processed transactions in order and realizes that the 
-resources were spent in the first version of the transaction. Bitcoin was the first decentralized
-accounting system that solved this problem without a central, trusted entity. However the mining
-which creates a single accepted sequence for transactions is costly in terms of time and resources.
-Without global consensus Trustchain (discussed in more detail in section 3) is not able to prevent 
-the double-spend attack. Instead, the double-spend attack will be recorded and therefore made 
-detectable. The attacker sends two conflicting transactions to two different agents and keeps one,
-but both partners write the conflicting blocks on their chains. If those two agents share their 
-blocks with each other or both share their blocks with a third agent, the attack becomes detectable
-because the two blocks are conflicting. The prevention of this attack therefore requires 
-dissemination of transaction data across the network and constant checking for conflicting 
-transactions by all agents.
+% 1. As discussed in the introduction in order to facilitate the digital economy in the future an open, distributed reputation system is required. The reputation system will enable trustful relationships between strangers and will need to be at the core of the internet itself.  
+In the introduction we have made a case for our audacious ambition to design and create a layer 
+of reputation on top of the core infrastructure of the internet that enables application agnostic 
+trustful relationships between relative strangers. This requires a distributed, scalable reputation
+system. Reputation systems appear in many forms but we are concerned with their digital form as only
+digital networks can reach global scale with fast information distribution. Reputation systems have
+previously been formally defined to include at least three components \cite{resnick2000}:
 
-\subsection{Sybil attack}
-During a sybil attack an adversary takes control over many entities at the same time without making
-this known to the network. The attacker can then use those entities to gain influence without any
-real cost because the controlled entities can create proof of transactions without actually 
-performing them.
+\begin{itemize}
+    \item Long-lived identities
+    \item Recording and distribution of feedback about interactions
+    \item Use of feedback to guide interactions
+\end{itemize}
 
-This problem is very hard to detect because controlled entities can look like real agents to 
-external observers. In centralized systems this is often prevented by requiring multiple 
-authentication steps, for example scanning an identity card. Also if the creation of new agents has
-some costs, the adversary needs to evaluate the possible advantage against the cost of creating
-multiple agents.
-In Bitcoin and other proof-of-work based cryptocurrencies the attack is avoided because the power
-to create a new block is proportional to computational power, so whether the computational power
-is spread over multiple agents or not does not matter to the voting power in the system.
+We need entities to be identifiable and in existence for a long time to ensure that future interactions
+between known entities are likely. If changing of identities is easy, a bad reputation is easily 
+discarded and exchanged for a clean slate. We need to capture and distribute feedback of interacitons
+such that entities are aware of the history and reputation of other entities on the system. Finally,
+users should actually make use of the feedback on not just ignore it.
 
-For other decentralized systems the sybil attack continues to be a challenging problem. Many 
-solutions have been proposed which analyze the topology of the network. Also an initial negative 
-balance has been proposed by some. Specifically for the Trustchain two algorithms, namely NetFlow
-and Temporal PageRank. Yet, while the two algorithms allow for sybil-resistant calculation of a 
-metric which is related to the balance of agents. Also the accuracy of the algorithms depends on 
-the amount of data that is available, making it neccessary to share data between agents in order
-to better be able to estimate the probability of sybils. The sybil attack will further be discussed
-in chapter 4.
+Next to the requirements of reputation systems we also have requirements for specific usecase of a
+global reputation system without centralized institutations.
 
-\subsection{Blockwithholding attack}
-In decentralized systems it can be advantageous for agents to not share some information about
-their transactions that would otherwise render them in a weaker position. This is not possible
-in centralized systems because users do not keep their own data which instead is stored on the
-central server. Thus it is not the user's decision to share or not share information with others.
+% 2. The reputation system we define needs to have some properties:
 
-In common blockchain fabrics all information is shared with everyone and only information that is 
-accepted by everyone is true. By removing the global consensus this guarantee is no longer intact.
-If user's own their data, they can decide to share it or not. Agents can claim that information was
-lost during transactions or that a transaction did not take place.
+\begin{itemize}
+    \item distributed: no entity should be owner of the reputation of all people, no single point of
+    failure should exist
+    \item scalable: future applications similar to those that exist today with centralized reputation
+    systems should be able to handle billions of users.
+    \item robust against strategic manipulation: once reputation increases in worth users of the 
+    system will try to exploit the system by attacking it, alone or by colluding and the
+    architecture needs to be robust against such attacks
+\end{itemize}
+  
+This introduces additional challenges: enforcing long-lived identities is even harder without the 
+assumption of a trusted central entity that can check the validity of new entities. Also creating
+a central distributed record with synchronization at scale is a topic of ongoing research and 
+generally seen as an unsolved problem. Finally, reputation system in general and distributed systems
+specifically are intrinsically weak in protection against malicious behavior, although they are 
+robust in terms of complete failures as no single point of failure exists.
 
-\subsection{Dishonest behaviour}
-Some application types may require agents to act according to a specific set of rules. For example
-in the Tribler application, if an agent (responder) receives two requests for contribution the 
-agent should contribute to the one agent that has contributed the most in the past as that agent 
-deserves to be rewarded for those past contributions. Without global consensus the agent determines
-the ``goodness'' of the requesters on the basis of an unobserved information set, which is a subset
-of the global network information. However the agent can also decide to not stick to the rules and
-contribute to the lesser of the two requesters. Without consensus on the information set on the 
-basis of which the responder decides, this dishonest behaviour cannot be detected and punished by
-other agents.
+As of today, no single algorithm or architecture can provide a solution that conforms with all these 
+requirements. Only by combining multiple components and iterating their design can we approach a 
+reputation layer that is able to conform with the requirements. This layer needs to combine these
+components:
 
-\section{Research question}
-From the above discussion it becomes clear that removing the global consensus from any blockchain
-farbics opens the system to many forms of attacks. The missing guarantees on information makes it
-hard to check the correct behaviour of other agents. This makes sharing of information and 
-validation of transactions an essential building block of a blockchain system without global
-consensus. Yet, the question is how to enforce dissemination of transaction records without a
-trusted third party. Also which information is neccessary to distribute accross the network and how
-can we make sure that validation of that information is done by all nodes. Formally we can define 
-the following research question:
+\paragraph{Identity.} At the lowest level there is the identity layer that ensures an entity is 
+identifiable for other entities in the network. The most basic version of this is a simple public-
+private key pair for signing and encrypting data. But creating a new key pair is cheap, therefore 
+this is not enough and in a later iteration of this identity system digital entities will need to be 
+bound to real-world, verified entites like government-issued passports or biometric identifiers.
 
+\paragraph{Communication.} The internet creates a global communication network with high connectivity
+across the world but it is currently not in a state that direct communication between devices is 
+straight-forward. The large increase in connected devices expended the address space of IPv4 and IPv6
+transition has been slow, thus network address translation creates subnetworks with local adress 
+spaces. Connection from such a subspace to a server with a public adress is still simple like it is
+the case with most client-server applcations on the internet, but direct communication when both 
+devices are behind NATs is still not standardized. Also new routing solutions are required to ensure
+communication based on the actual identity layer mentioned before instead of the IPv4 and DNS identity
+layer.
+
+\paragraph{Record and distribution mechanism} Reputation is based on feedback on interactions. 
+This feedback needs to be recorded and distributed, such that other entities in the
+network have a chance to respond to the history of feedback of their peers. Without a central entity
+which is aware of all transactions, each node will record some transactions. It is a challenge to 
+create a global record which is correct, tamper-proof and well distributed across the network.
+
+\paragraph{Interpretation of records} Based on the recorded feedback each agent can interpret them
+to form an opinion about other nodes. For a reputation system the records are seen as positive or
+negative behavior and each agent can output a ranking of reputations for all peers this agent knows
+of. Those rankings are calculated based on a reputation function. In the past our research group has
+analyzed different reputation functions like NetFlow~\cite{OTTE2017}, 
+MaxFlow~\cite{meulpolder2009bartercast} and PageRank~\cite{page1999pagerank}.
+
+\paragraph{Application layer} We imagine that the reputation system we are developing can be used 
+for any type of application that requires two entities to trust each other. This reputation layer 
+will be accessible for anyone however no application will be able to delete data or lock data into
+their proprietary platform. 
+
+%     \item identity layer: digital identities are related to real-world entities and can either be real-people or entities like institutions or companies. The most simple first solution is just to identify entities by their public-private key pair.
+%     * encounter record and distribution layer: encounters between digital identities needs to be recorded and distributed. Encounters are the basis for the reputation of entities, but reputation is only useful if it is gossiped such that other people can make decisions on the knowledge they have.
+%     * interpretation layer: based on the known history of encounters, a reputation can be given to the known entities and decisions can be based on this. This layer contains the reputation function: NetFlow, MaxFlow, PageRank etc.
+
+Each layer adds another level of protection: if identities are expensive and hard to create, fake 
+identities will be less easy to create, protecting the system against spamming. Creating an immutable
+record and distributing that information to everyone makes knowledge tamper-proof, unchangeable and 
+forever, making all information reliable. On the interpretation layer additional securities can be 
+enabled: we envision a concept of locality to secure against distributed attacks with global 
+collaborations of malicious nodes - if we only trust agents with a certain level of latency 
+attackers can only choose from nodes in the vicinity and supply of those nodes is limited. 
+
+The concept of trust is however vague. In the analog world, trust is more of a feeling than a 
+rational calculation, yet computing systems are deterministic, precise and rational. The vagueness 
+partly stems from the subjective interpretation of actions which in the digital system is the 
+reputation function used, but also from the difference in what each person knows about another one,
+or in digitally speaking subsets of information that each one agent has. 
+Yet, from a practical point of view it would be desirable if people could agree on the reputation 
+and trustworthiness of agents, because it makes actions predictable and gives reputation its value. 
+
+To see this we should go back to the discussion of indirect reciprocity, which is one of the five
+forms of fostering cooperation which were introduced in chapter~\ref{chap:introduction}. People act
+prosocially at a personal cost in order to build an altruistic reputation which is rewarded with 
+third-parties acting prosocially towards them. Reputation is valuable because people with higher 
+reputation can expect more cooperation in future interactions. This indirect reciprocity mechanism 
+works as long as agents agree on what is good and what is bad reputation. Once there is ambiguity 
+about the reputation of agents this value decreases as even people with a bad reputation could be 
+seen as good people by others due to that ambiguity. Also only if reputation has actual value to 
+agents, we can ensure prosocial behavior in the network. Therefore we need agreement on the 
+reputation of agents. 
+
+Agreement on the interpretation layer can be achieved by defining a function for all agents to use
+which calculates a quantitative reputation from the history of feedback. Usually this history is 
+public, visible to everyone, however this is difficult to achieve in a distributed system. Here the
+second problem comes into play. The information a network node acts upon 
+is a different subset of complete information on the network for each agent; each agent is 
+in a different state. This situation is undesirable but inherent to systems with the requirements 
+stated in the previous section. Thus, a first step towards agreeing on the reputation of agents is 
+if agents agree on which data should be used as an input to the reputation function. In 
+other words we have to make sure that agents disseminate their knowledge and obtain knowledge from 
+other agents such that information is well distributed and available.
+
+However, in most contexts sharing and obtaining information comes at a cost which is not negligible.
+Thus agents may be reluctant to spend resources without any direct reward. There is an obvious 
+network effect to agents knowing more about their peers but agents can also gain reputation by 
+cooperating with agents with low reputation. Thus there is no incentive to obtain a better view of
+the network.
+
+The question that we are trying to answer is therefore:
 \begin{center}
-    \textit{How can we design a scalable, decentralized accounting system that ensures the distribution,
-    correctness and honest usage of transaction records?}
+    \textit{How can we design a scalable, distributed feedback recording and distribution mechanism
+    that makes dissemination and verification of transaction records incentive compatible?}
 \end{center}
 
-The research question entails some requirements for the system that we are trying to develop. In 
-the following we will explain each of those in more detail.
-
-
-\subsection{Accounting system}
-\label{sec:accounting_system}
-The system we are trying to build is an accounting system. An accounting system keeps track of 
-transactions of a resource of value between at least two parties. Accounting systems have many 
-applications; two common examples are a banking system and a reputation system. Each entity in 
-the accounting system has a unique identifier and from the history of the transactions recorded 
-in the system a certain balance can be assigned to each identifier. When a new transaction is issued 
-the balance is increased or decreased and usually some threshold is put inplace to restrict the 
-infinite spending of resources. This implies that the order of transactions is of importance. As an 
-example consider an entity A with the balance of 5 a minimum threshold of 0 and two transaction 
-spending 4 units and 3 units two parties B and C, respectively. Obviously, it is not possible that
-both transactions are accepted. Either, A first spends 4 units on the interaction with B and cannot
-afford the transaction with C or the other way around. If entity A tries to submit both transactions
-at the exact same time, it is the task of the accounting system to create an order of two transactions
-and restrict the expenditure beyond the balance threshold.
-
-\subsection{Scalability}
-Accounting systems can exist in many different sizes and contexts, they do not even have to be
-digital for some applications. However in this work we are concerned with planet-scale accounting
-which even enables micro-transactions with high frequency. Therefore scalability is one of the 
-main factors. Before the ascent of internet applications such dimensions were unheard of but in
-the last decade services such as Facebook, WeChat or YouTube have shown that an application can 
-grow to have billions of users. Our ambition is to lay the theoretical and practical basis for 
-future systems that scale to these sizes. In practice that means that the transaction throughput
-of the global systems needs to grow with the amount of users and that no global limit is in place
-that restricts further growth.
-
-\subsection{Decentralization}
-Ownership of all transaction data can, depending on the context, give the owner power, leverage and 
-value. Furthermore, a central entity creates a target for attackers and with sufficient resources
-available an adversary will in the end be able to compromise the system. We see accounting systems
-as a part of the infrastructure that enables applications such as banking or reputation systems. No 
-single entity should be owner of such infrastructure. That is why we are considering a decentralized
-solution. In the context of an internet application a centralized model assumes that one single (central)
-trusted entity has access to all information and all users know and connect to that single entity. In a 
-decentralized model, we cannot assume that any other entity is trustworthy or omniscent. Instead entities
-are equal and communicate with each other. All users know about their own transactions and are owner of
-their data, with full control over whom to share them with. 
-
-\subsection{Distribution}
-In a perfectly decentralized system each entity only knows about their own transactions. For an 
-accounting system that means that each entity needs to check for themselves that they do not exceed the
-balance threshold. Yet, an entity's interest could be to spend as much as possbile, which makes the 
-self-control mechanism ineffective. In the context of reputation systems, an entity's interest could be
-to show their good behaviour to others. In those situations a distribution mechanism needs to be put 
-inplace because in a decentralized system we can no longer assume that information is simply available from
-the central entity. Perfect distribution of data would mean that each user is informed about each transaction
-happening on the accounting system's network. However in practice such a situation virtually impossible to 
-uphold, especially when scaling to global high-frequency microtransactions. A balance needs to be found 
-between the distribution of information, the scalability of the system and the storage and processing 
-capabilities of each entity.
-
-\subsection{Correctness}
-In order to ensure the correctness of data multiple aspects need to be considered. First of all data needs
-to be stored in a tamper-proof manner, that is, once a transaction is accepted by all parties that transaction
-should not be changeable afterwards. Also the order of transactions needs to be definite, the reason for 
-this was explained in Section \ref{sec:accounting_system}. Finally, entities need to be able to validate the
-correctness of the state of the system.
-The distribution of data informs entities in the system about the behaviour of other agents, but without
-validation of that data, missing or wrong information cannot be found. This is another aspect that is often
-solved by a central entity that continuously analyzes the information received by users. In a decentralized
-system the validation has to be performed by each entity. For example entity A has a balance of 2 units but
-is trying to spend 3 units in a transaction to entity B. Without a central entity the only party to
-prevent A from transaction is entity B. B is only able to detect the invalid transaction if A has shared all
-it's transactions with B and if B uses some validation precedure before engaging in a new transaction. It is
-important to realize that validation is only possible if information is distributed. 
-
-\subsection{Honest usage}
-Finally, the system should make it possible to ensure the honest behaviour of entities. To show how the 
-previous two components are not enough to ensure this, we can continue with the example from the previous
-section. So even if B knows that the balance of A is insufficient to commit the transaction, both could 
-collude and still commit the transaction. Afterwards, there is no way of knowing whether B was acting 
-wrong on purpose or whether A did not share its information correctly. 
-
-In order to ensure correct usage of the given information it needs to be possible to distinguish good from
-bad behaviour. Without a central entity that knows the truth about every entity it is not straightforward to 
-know which entity is the responsible one for a wrong transaction.
-
-
-\section{Limitations and assumptions}

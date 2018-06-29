@@ -23,15 +23,15 @@ clean:
 
 
 $(FILE_CHAPTER).pdf: report_chapter.tex *.bib *.sty
-	pdflatex -shell-escape $(FILE_CHAPTER).tex
-	pdflatex -shell-escape $(FILE_CHAPTER).tex
+	xelatex -shell-escape $(FILE_CHAPTER).tex
+	xelatex -shell-escape $(FILE_CHAPTER).tex
 	bibtex $(FILE_CHAPTER).aux
-	pdflatex -shell-escape $(FILE_CHAPTER).tex
-	pdflatex -shell-escape $(FILE_CHAPTER).tex
+	xelatex -shell-escape $(FILE_CHAPTER).tex
+	xelatex -shell-escape $(FILE_CHAPTER).tex
 
 $(FILE).pdf: *.tex *.bib *.sty
-	pdflatex -shell-escape $(FILE).tex
-	pdflatex -shell-escape $(FILE).tex
+	xelatex -shell-escape $(FILE).tex
+	xelatex -shell-escape $(FILE).tex
 	bibtex $(FILE).aux
-	pdflatex -shell-escape $(FILE).tex
-	pdflatex -shell-escape $(FILE).tex
+	xelatex -shell-escape $(FILE).tex
+	xelatex -shell-escape $(FILE).tex

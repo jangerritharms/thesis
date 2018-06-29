@@ -1,0 +1,121 @@
+\chapter{Internal agent state transparency}
+% As previously shown, the TrustChain solution is a scalable, high-throughput, immutable append-only database. However, it is lacking state transparency  which makes sharing of information not enforceable. We can define an extended architecture which adds state transparency to TrustChain
+% 1. We have shown that the fact that states of agents are not recorded on the blockchain adds all kinds of ambiguities about their behavior such that we cannot enforce rules in the system, as we cannot verify their behavior.
+% 2. By recording the root hash of the Merkle tree of the database on each block, agents will be required to prove of which blocks their database exists. However, just this is not enough as from the hash itself no other agent can verify that the database is consistent with the data received by other agents. 
+% 3. In order to solve this second problem, we have two options:
+%     1. In each interaction in which blocks are transferred/exchanged, the sending party needs to sign a transfer block which includes the root hash of the Merkle tree of the blocks sent.
+%     2. With each block transfer, both agents exchange all blocks such that they achieve the exact same state of the database (anti-entropy). In that case they don’t need to record the exchanged blocks but can each calculate the hash of the database and if they agree, they know that their databases are the same.
+% 4. This makes available some powerful verification tools:
+%     1. First of all, the addition publicly shows the knowledge of an agent. That means an agent cannot lie about not having some information or having information. Telling the truth about his information is strategy-proof.
+%     2. We can replay the life-time of an agent and completely verify the behavior including application specific rules. 
+
+In the previous chapters we analyzed the problem of information dissemination of data for a 
+distributed repuation system built on the architecture of TrustChain. We have argued that in order
+to make the dissemination strategy proof, which is neccessary to guarantee that no agent deviates 
+from the desired behavior without being detected and properly dealt with, we need to publicly record
+the action of sharing knowledge. In this chapter we propose an extension of the TrustChain architecture
+that enables strategy proof information dissemination and validation in a distributed TrustChain 
+based network without deminishing the scalability properties.
+
+\section{Concept proposal}
+In the previous chapter we formally defined the internal state of an agent as not only the encoutners
+of agent's own encounters but the complete knowledge of the network the agent has. That knowledge 
+can be represented by the set of encounters the agent is aware of. Based on this we can define a 
+desired property that a fabric like TrustChain needs to fulfill in order to provide strategy-proof 
+sharing of information.
+
+\begin{defn}[Interal agent state transparency]
+    The internal agent state is transparent, and therefore this property is fulfilled, iff:
+
+    \begin{itemize}
+        \item an agent $a_i$ can require an agent $a_j$'s internal state from any point in time
+        \item an agent $a_i$ can determine whether an agent $a_j$ is lying about her internal state
+    \end{itemize}
+\end{defn}
+
+When the property is fulfilled there should be an exchange protocol after which an agent is aware 
+of all information the other agent has as well as a verfication protocol which validates that the 
+claimed internal state is indeed valid and complete.
+
+In order to achieve internal agent state transparency for TrustChain, any exchanged information
+needs to be public. We will later describe the incentive for agents to actually perform
+this exchange. So, conceptually a record exchange can be defined as follows.
+
+\begin{defn}[Record exchange]
+    A record exchange $X_k$ of size $m$ contains a list of transaction blocks $X_k = \{ B^{TX}_{k,0}, B^{TX}_{k,1}, \dots B^{TX}_{k,m}\}$.
+\end{defn}
+
+Finally, the complete state can be described by the union of performed transactions and transactions
+obtained through exchagnes.
+
+\begin{defn}[Internal state composition]
+    The internal state $S_i$ of agent $a_i$ with true transaction history $D'_i$ and $k$ exchanges
+    can be inferred as follows.
+
+    $S_i = D'_i \bigcup \{ X_{i,0} \bigcup X_{i,1} \bigcup \dots X_{i,k} \}$
+\end{defn}
+
+\section{Implementation of internal agent state transparency in TrustChain}
+In the previous section we conceptually defined the internal agent state transparency for TrustChain.
+This section will describe how those concepts can be implemented in a working distributed software
+system. 
+
+First and foremost, a new type of record needs to be created in which no application specific 
+transactions, but system transactions of other records will be documented. We therefore extend the
+TrustChain architecture (described in detail in {\color{red} WHERE?}) with exchange blocks 
+
+\begin{defn}[Exchange blocks]
+    An exchange block $B^{EX} = \lAngle \textit{ex}_{\text{up}}, \textit{ex}_{\text{down}}, \textit{pk}_i, \textit{seq}_i, \textit{pk}_j, \textit{seq}_j, \textit{sig}_i, \textit{sig}_j, \textit{hash}_{B(t-1)} \rAngle$ is defined as a tuple, where:
+    
+    \begin{itemize}
+        \item $\textit{ex}_{\text{up}}$ is the top hash of the list of hashes of blocks the initiator $a_i$ shared with $a_j$
+        \item $\textit{ex}_{\text{down}}$ is the top hash of the list of hashes of blocks the responder $a_j$ shared with $a_i$
+        \item $\textit{pk}_i$ is the public key of the initiator of the exchange, agent $a_i$
+        \item $\textit{seq}_i$ is the sequence number of the block in the history of interactions of agent $a_i$
+        \item $\textit{pk}_j$ is the public key of the responder of the transactions, agent $a_j$
+        \item $\textit{seq}_j$ is the sequence number of the block in the history of interactions of agent $a_j$
+        \item $\textit{sig}_i$ is the signature by the initiating agent $a_i$
+        \item $\textit{sig}_j$ is the cryptographic signature by the responding agent $a_j$
+        \item $\textit{hash}_{B(t-1)}$ is the hash of the previous block
+    \end{itemize}
+\end{defn}
+
+Each exchange block describes a pairwise exchange of blocks. The exchange is deliberately made 
+bidirectional in order to provide an incentive for both agents to sign the exchange and keep to the 
+promise of publishing the exchange on their chain. Instead of publishing the exact blocks exchanged,
+a list of block hashes is created and the hash of that list is published in the exchange block. One 
+hash for the block transferred from agents $a_i$ to $a_j$ and another hash for the blocks transferred in the 
+other direction. This reduces the amount of data put directly on the chain, however it makes it 
+impossible to infer the internal state of the agent from the chain only. That is why each agent 
+internally needs to keep track of the actual content of the exchanges. 
+
+\begin{defn}[Exchange storage map]
+    Each agent keeps track of the content of all exchanges with an exchange storage map 
+    $F: \textit{hash}_{B^{EX}(t)} -> X(t)$ which maps the hashes of exchange blocks to the respective record
+    exchange, so the list of blocks the agent received in the exchange described by $B^{EX}(t)$.
+\end{defn}
+
+The combination of exchange root hashes and the exchange storage kept by each agent enables tamper-proof
+exchange of information. This enables agents to determine the state of another agent. Consider an 
+agent $a_i$ that tries to determine the state of agent $a_j$. Agent $a_i$ requests both the chain 
+and the exchange map from agent $a_j$. If $a_j$ does not respond, agent $a_i$ is not able to determine 
+the state and has to assume that $a_j$ does not respond in order to hide malicious behavior. Therefore
+$a_i$ will add $a_j$ to the list of blocked agents.
+
+\begin{algorithm}
+\caption{Determining the internal state of another agent}\label{euclid}
+\begin{algorithmic}[1]
+\Procedure{determineState}{}
+\State {$a_i: \text{Initiator}$}
+\State {$a_j: \text{Responder}$}
+\State {$\textit{chain} \gets \textit{request\_chain($a_j$)}$}
+\State {$\textit{exchanges} \gets \textit{request\_exchanges($a_j$)}$}
+\State {$\textit{state} \gets \{\}$}
+\If {$\text{not } \textit{chain} \text{or not } \textit{exchanges}$} \Return false
+\EndIf
+\ForAll{$\textit{block} \text{ in } \textit{chain}$ }
+\State{ \If {$\textit{block} \text{ is a transaction}$}}
+\EndFor
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
