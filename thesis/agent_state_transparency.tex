@@ -56,6 +56,7 @@ obtained through exchagnes.
 \end{defn}
 
 \section{Implementation of internal agent state transparency in TrustChain}
+\label{sec:implementation_state_transparency}
 In the previous section we conceptually defined the internal agent state transparency for TrustChain.
 This section will describe how those concepts can be implemented in a working distributed software
 system. 
@@ -99,23 +100,126 @@ The combination of exchange root hashes and the exchange storage kept by each ag
 exchange of information. This enables agents to determine the state of another agent. Consider an 
 agent $a_i$ that tries to determine the state of agent $a_j$. Agent $a_i$ requests both the chain 
 and the exchange map from agent $a_j$. If $a_j$ does not respond, agent $a_i$ is not able to determine 
-the state and has to assume that $a_j$ does not respond in order to hide malicious behavior. Therefore
-$a_i$ will add $a_j$ to the list of blocked agents.
+the state and has to assume that $a_j$ does not respond in order to hide malicious behavior. In that case
+$a_i$ will add $a_j$ to the list of blocked agents. 
 
 \begin{algorithm}
-\caption{Determining the internal state of another agent}\label{euclid}
+\caption{Determining the internal state of another agent}\label{alg:internal_state}
 \begin{algorithmic}[1]
 \Procedure{determineState}{}
 \State {$a_i: \text{Initiator}$}
 \State {$a_j: \text{Responder}$}
 \State {$\textit{chain} \gets \textit{request\_chain($a_j$)}$}
-\State {$\textit{exchanges} \gets \textit{request\_exchanges($a_j$)}$}
-\State {$\textit{state} \gets \{\}$}
-\If {$\text{not } \textit{chain} \text{or not } \textit{exchanges}$} \Return false
+\State {$F \gets \textit{request\_exchanges($a_j$)}$}
+\State {$\textit{state} \gets []$}
+\If {$\text{not } \textit{chain } \text{or not } F$} \Return false
 \EndIf
-\ForAll{$\textit{block} \text{ in } \textit{chain}$ }
-\State{ \If {$\textit{block} \text{ is a transaction}$}}
+\ForAll{$\textit{B} \text{ in } \textit{chain}$ }
+\If {$\textit{B} \text{ is an exchange}$}
+\State{ $\textit{state} = \textit{state } \bigcup F(B)$ }
+\EndIf
+\State{ $\textit{state} = \textit{state } \bigcup \{ B\}$ }
 \EndFor
+\Return \textit{state}
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
+
+If both the chain and exchanges are available, the agent $a_i$ loops through the chain. Each block 
+of the chain is added to the state and if the block is an exchange block, also all blocks that were
+transmitted during the exchange documented by that block, which can be looked up in the exchange map
+are added to the state. The result is the complete internal state of agent $a_j$. The algorithm is 
+described formally in algorithm \ref{alg:internal_state}.
+
+\section{Making sharing strategy proof}
+\label{sec:strategy_proof_sharing}
+{\color{red} How is strategy proof even defined?}
+We have described how the internal agent state transparency property can be added to the TrustChain 
+architecture, however this in in itself does not make dissemination of information strategy proof. 
+It only creates a tool to document information exchanges in a tamper-proof manner. The next step is
+to use the knowledge about information exchanges conducted by the agent to make decisions about 
+future interactions. 
+
+One solution is to build a system internal reputation which is based on the amount of data shared 
+with other agents. Agents that exchange more data with other agents and initiate exchanges to obtain
+more data should have increased reputation. Helping the system defend itself against attackers and 
+making information widely available would then be advantageous as other agents see the good behavior,
+have a better opinion of that agent and share data with them. 
+
+Another solution is to define policies that require a certain amount of data exchange for each 
+transactions. Let's say that the system designer introduces a policy which requires honest agents to
+only interact with other agents that have at least one data exchange for each transaction they conduct.
+This is simple to verify: the agent scans through the chain and counts the transaction and exchange
+blocks and verifies that there are at least as many exchange as transaction blocks. Otherwise the 
+agent will simply not interact with that agent.
+
+\section{Possible ways to work around the security}
+In this section a few examples of maliciously acting agents will be analyzed theoretically. The 
+same will be done in experimental analysis with a proof-of-concept. We assume that all agents that 
+interact with each other also verify each other's chain and internal state.
+
+First of all, what the original TrustChain implementation allowed was to free-ride on information
+sharing and verification. That is, even though honest nodes were polling other agents for information
+on transactions and verified that no double-spends happend, other nodes were able to not do that and
+still interact with honest agents. 
+
+\begin{defn}[Lazy free-rider]
+    We define a lazy free-rider as an agent that performs normal in transactions but never performs
+    an exchange of information on transactions.
+\end{defn}
+
+In a network of honest agents, the lazy free-rider will quickly be found and blacklisted as that 
+agent will simply not have any exchange blocks in the chain. 
+
+A more elaborate way of free-riding is to exchange blocks and create exchanges but delete the data
+as soon as it arrives. 
+
+\begin{defn}[No storage free-rider]
+    A no storage free-rider is an agent that does exchange data but does not store the received data.
+\end{defn}
+
+A no storage free-rider can only commit a few interactions before being detected as a fraud. Let's 
+consider the first verification. The no storage free-rider agent only has the genesis block which 
+is cheap to share. Therefore the first verification will go through and an exchange block will be 
+created. However, the second verification is more difficult to pass as some information will have
+been received as recorded in the exchange block but cannot be conjured on request. Any further 
+verifier should therefore find that the agent is not able to provide the blocks of the first exchange
+recorded on the agents chain. 
+
+\section{Making verification strategy proof - Verification of verifiers}
+Another way of free-riding on the original TrustChain architecture is to not actually validate any 
+data. Even if we solve sharing of data, agents can still save computing power by not scanning their 
+peers for malicious behavior in the hope that other agents on the network do perform the validations
+and will inform them once they find something. The new extension makes it possible to detect this 
+behavior in case they fail to report a malicious transaction. 
+
+\begin{defn}[Validation free-rider]
+    An agent that does perform honestly in terms of transactions and exchanges but does not validate
+    the behavior peers is called a validation free-rider.
+\end{defn}
+
+The proposed extension of TrustChain enables an agent $a_i$ to determine the internal state of agent
+$a_j$, that is obtain the list of all blocks of $a_j$. Consider that $a_j$ is a validation free-rider
+and $a_i$ has obtained $a_j$'s internal state. If $a_j$ has obtained the knowledge of a malicious 
+transactions, for example two conflicting blocks of a double-spend, $a_j$ will not have realized it 
+as the validation has never been performed. However $a_i$ is aware of all blocks that $a_j$ has and 
+therefore also aware that $a_j$ should be aware of the conflicting blocks if $a_j$ was honest. Now, 
+$a_j$'s free-riding will be detected if $a_j$ has performed an interaction with the agent resopnsible
+for the conflicting transactions. That is because any honest agent would have detected the conflict 
+and ignored that agent except for colluters or validation free-riders. 
+
+\section{Considerations of asynchronous transactions}
+In the previous discussion we have actually simplified the system to one in which each agent only 
+performs one transaction at a time. This makes it more straight-forward to understand the properties
+and see that the extension does provide a strategy-proof dissemination. In a real-world system,
+depending on the use case, a user might need to quickly engage in multiple transactions and 
+communication delays do not allow to finish transactions first and then continue with the next. In 
+previous work we have shown how TrustChain can work in an asynchronous way, by splitting the 
+transaction blocks into a block proposal and a block agreement. This also creates additional 
+complexity for the exchange blocks as the asynchronous reception of blocks needs to be recorded in
+order to keep the property of internal agent state transparency.
+
+\begin{defn}[Async exchange block]
+\end{defn}
+
+\section{}

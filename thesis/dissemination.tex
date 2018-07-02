@@ -1,1 +1,125 @@
 \chapter{Reputation consensus through anti-entropy}
+% A specific implementation of the extension of TrustChain
+
+% A policy that makes dissemination and verificaiton strategy-proof
+In the first chapters of this thesis we introduced the incentive problem of information dissemination 
+in distributed reputation systems. In the previous chapter we introduced an extension of the TrustChain
+architecture that allows for agents in the network to obtain and verify each other's internal 
+information state. But in order to achieve the goal of strategy-proof dissemination of information
+a tangible mechanism is required that applies the advanced tools that the new architecture provides.
+In this chapter we analyze one such mechanism which is based on the anti-entropy concept. We first
+describe the mechanism conceptually, then discuss the implementation details and finally elaborate
+on some intrinsic properties the mechanism could introduce in actual applications. In the next
+chapter an implementation will be analyzed experimentally with small agent sets in order to prove
+that properties from the theoretical analysis can be observed in practice.
+
+\section{Conceptual description}
+% The exact protocol: before each transaction we exchange all data and verify each other's chain
+
+% What this allows us to do is: we can agree on a ranking that includes all of both agents data. 
+
+% We give the receiver a chance to proof that he is worth
+
+% We make sure that an agent has to obtain all data before making a transaction. 
+Section~\ref{sec:strategy_proof_sharing} explained that the architecture itself does not solve the 
+incentive problem. It rather provides the evidence on which an incentive mechanism can be built. 
+Many different mechanism are possible, depending on the specific needs of the application context. 
+This offers a lot of flexibility for system designers which is different from existing architectures
+which a very static in their protocol and have pre-defined security and scalability properties.
+
+\subsection{Design choice: security vs scalability}
+Security, decentralization and scalability are three properties that are traded against each other 
+in the design of a decentralized system. It can be argued that TrustChain was designed with scalability
+as the highest priority while Bitcoin was designed with security as highest priority property. We
+argue that the extension that allows for internal agent state transparency allows for flexibility in
+the design choice of security and scalability. In this section we propose a mechanism that trades 
+some of the scalaiblity of TrustChain for stronger security in order to show that a secure mechanism
+is possible on top of the TrustChain architecture. 
+
+\subsection{Concept: anti-entropy}
+The mechanism is based on the concept of anti-entropy, which was described in \cite{demers1987epidemic}
+for the purpose of maintaining mutual consistency between multiple replicas of a database. Updates
+to the database can arrive at any single site and need to be forwarded to all other replicas. Demers
+et. al. study three different mechanisms to disseminate the updates to other sites: direct mail, 
+anti-entropy and rumor mongering.
+
+In the direct mail mechanism, a database forwards the update to all other database immediately, which
+seems like the most straight forward approach but is restricted by the fact that each database does
+not know about all other databases. 
+
+Anti-entropy is a process in which each database periodically chooses a partner database and both 
+exchange all database contents in order to resolve any differences between the two. The process was
+found to be reliable but slower than direct mail. 
+
+The final mechanism is called Rumor Mongering. Sites consider updates ``hot rumors'' after receiving
+them for the first time. While the site considers the rumor ``hot'', it choses periodically another
+site and informs it about the rumor. When the site has encountered a certain amount of sites which
+were already aware of the ``hot rumor'', that update is retained but site stops with actively
+propagating the update. 
+
+For the purpose of this work, we will focus on the concept of anti-entropy. Direct mail is not a
+viable option because for large social networks the embedded social networks are a very small 
+subset and the rest of the agents in the network would not be informed of updates. Rumor mongering 
+effects are best observed in larger networks however this work is concerned with conceptual analysis
+and the experimental analysis in the next section concerns small networks. Also there are more 
+algorithms than these three but anti-entropy fits the architecture of TrustChain very well and is 
+a good starting point for analyasis of dissemination mechanisms. The analysis of other mechanisms
+will be subject of future work.
+
+\subsection{Replicated databases vs TrustChain}
+The context of the work of Demers et. al. is similar to the context that this work is concerned with
+in many regards. Replicated databases are a distributed system as all instances of the database are
+independent, equal entities, just like the agents in the TrustChain network. Each agent has an 
+internal state which is equal to the set of transactions that agent is aware of which is equal to
+the state of the database which is equal to the entries that database is aware of. Our goal is to 
+propagate information on new transactions just like the goal of Demers et. al. was to propagate 
+updates to the databases. 
+
+In the context of reputation systems anti-entropy allows for two agents to align on their knowledge
+of the social network, that is to obtain the same embedded social network and agree on the reputation
+of all agents in that network.
+Two agents, $a_i$ and $a_j$ have two different internal states, represented by the sets of encounters
+$E_i$ and $E_j$. There can be some overlap between the two sets, but that is not guaranteed. Agent 
+$a_i$ chooses to synchronize states with agent $a_j$. Both agents send their own set of known 
+encounters and merge them. This results in a new set $E_{i,j} = E_i \bigcup E_j$. In the context 
+of TrustChain this translates to the exchange of transaction blocks, such that after the exchange 
+both agents have the exact same set of transaction blocks. As the reputation of peers is calculated
+from the set of transactions both agents agree on a single reputation vector. If the two agents also
+use the same function for trust calculation both can even agree on a single trust vecotr. The two 
+agents have reached consensus on trust and reputation. 
+
+The exchange of information will be recorded in the form of exchange blocks on the chain of both 
+participating agents as explained in the previous chapter, section~\ref{sec:implementation_state_transparency}.
+
+The consensus is only reached at one point in time and is not maintained. Once any of the two agents
+conducts another anti-entropy exchange or a transaction, the other agent is not required to be 
+informed or to observe the interaction. That is after the exchange both internal states can diverge
+until the same two agents happen to perform another state synchronization. 
+
+In the work of Demers et. al. database instances chose partners for anti-entropy exchanges at random
+which is a valid strategy as each peers updates seem equally important. In contrast, reputation 
+systems should value the information about possible future interaction partners as more important.
+Therefore, our proposed mechanism requires agents to at least perform an anti-entropy exchange with
+those agents that they will have an interaction next. That way, both parties of a transaction are 
+required to obtain and verify each others information in order to make sure that the transaction 
+will be done on top of a valid state. If any party does not agree with the state of the opposite 
+party, the transaction will not take place. If any party performs a transaction eventhough the 
+information clearly shows misconduct on the part of the partner, they will also be held responsible 
+for not performing their validation responsibility. Without the requirement of validating transaction
+partners, agents can purposefully exchange data with honest agents but perform interactions with 
+dishonest agents and later claim to have had no knowledge of the dishonesty of the partners. 
+
+\section{Implementation of anti-entropy exchanges}
+In the previous section we described the anti-entropy method for information exchanges between 
+agents. This section elaborates on the implementation details of the mechanism in the TrustChain 
+architecture. 
+
+
+
+\section{Advanced implicaitons of anti-entropy}
+Additional considerations: 
+
+locality
+
+strategy proofness 
+
