@@ -1,4 +1,5 @@
 \chapter{Internal agent state transparency}
+\label{chap:state_transparency}
 % As previously shown, the TrustChain solution is a scalable, high-throughput, immutable append-only database. However, it is lacking state transparency  which makes sharing of information not enforceable. We can define an extended architecture which adds state transparency to TrustChain
 % 1. We have shown that the fact that states of agents are not recorded on the blockchain adds all kinds of ambiguities about their behavior such that we cannot enforce rules in the system, as we cannot verify their behavior.
 % 2. By recording the root hash of the Merkle tree of the database on each block, agents will be required to prove of which blocks their database exists. However, just this is not enough as from the hash itself no other agent can verify that the database is consistent with the data received by other agents. 

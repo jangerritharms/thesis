@@ -1,4 +1,5 @@
 \chapter{Reputation consensus through anti-entropy}
+\label{chap:mechanism}
 % A specific implementation of the extension of TrustChain
 
 % A policy that makes dissemination and verificaiton strategy-proof
@@ -112,14 +113,88 @@ dishonest agents and later claim to have had no knowledge of the dishonesty of t
 \section{Implementation of anti-entropy exchanges}
 In the previous section we described the anti-entropy method for information exchanges between 
 agents. This section elaborates on the implementation details of the mechanism in the TrustChain 
-architecture. 
+architecture. We start with an application agnostic example of the exchange of information and the 
+transaction process.. In the next section we expand on the considerations for application specific 
+implementations.
 
+We consider an agent $a_i$, who is about to conduct another interaction. What the interaction is 
+about and how the partner is chosen are specific to the application context. For this example we 
+assume that $a_i$ can randomly choose an agent from the network. Once $a_i$ has chosen a partner $a_j$,
+$a_i$ starts the communication and is therefore the \textit{initiator} while $a_j$ is the \textit{responder}. 
 
+The initiator starts the interaction by sending the chain and exchange history to the responder. The
+chain{\color{red} Is this explained somewhere} includes the blocks that describe the transaction and 
+exchange history {\color{red} Is this explained somewhere} of the initiator while the exchange 
+history includes the index of blocks exchanged for each exchange block. On reception, the responder 
+can verify the chain using the algorithm \ref{alg:verify_chain}. The algorithm first checks,
+wether the chain is a complete sequence without missing blocks in between. If the check is positive,
+the number of exchange and transaction blocks is compared, as well as the public keys of partners
+such that each transaction can be paired with a succesful exchange previous to the transaction.
+
+\begin{algorithm}
+\caption{Chain }\label{alg:verify_chain}
+\begin{algorithmic}[1]
+\Procedure{verifyChain}{}
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+Once that check also succeeds, the responder is able to build a block index that indexes the internal
+state of an agent. The block index is a summary of the contents of the internal state and shows
+which transactions of which agents are knwon to the agent. This is an optimization that allows agent
+to request only specific blocks instead of the complete database of another agent. This is a lot 
+faster if agents that already share a lot of data. Agent $a_j$ compares the calculated block index
+with his own index and request the difference in blocks, so those that $a_i$ has but $a_j$ does not 
+have from $a_i$.
+
+The initiator receives the request and replies with the blocks that $a_j$ requires to perform the 
+complete internal state validation. Should the responder, for whatever reason, wrongly require more
+blocks, so also blocks that are not in $a_i$'s posession, the interaction will be canceled. 
+
+The responder receives the missing blocks. At this point $a_j$ should be in the posession of all
+of $a_i$'s blocks plus some blocks that $a_j$ has over $a_i$. Agent $a_j$ is then able to perform
+the complete internal state verification according to algorithm~\ref{alg:verify_state}. A state is
+valid if:
+
+\begin{algorithm}
+    \caption{Chain }\label{alg:verify_state}
+    \begin{algorithmic}[1]
+    \Procedure{verifyChain}{}
+    \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{itemize}
+    \item the chain is valid as per algorithm~\ref{alg:verify_chain}
+    \item the hashes of the blocks according the the exchange indexes match the hashes recorded on
+    the chain's exchange blocks
+    \item Any recorded misbehavior of other agents is reflected by those agents' public keys in the 
+    ignore and block list
+\end{itemize}
+
+If the internal state of $a_i$ is determined to be valid by $a_j$, the responder shows approval by 
+sending the own chain, exchange history and blocks (which can be calculted by taking the opposite
+difference from before) to agent $a_i$. 
+
+Once the initiator receives that data from the responder, the second validtion of chain and state, 
+this time agent $a_j$ as subject, can be conducted. If also this checks out, the valdiation phase is 
+completed and the initiator can publish an exchange block proposal, which includes the hashes of the
+exchanged blocks. The responder receives that proposal and the hashes contained in the proposal block
+match the hashes that $a_j$ calculates for the excahnged data, the block is signed and returned.
+
+This concludes the anti-entropy exchange, after this the two agents perform a normal interaction.
+
+\section{Consideration of application specific features}
+choosing partners -- we now chose partners randomly but probably for many applications there are 
+better strategies
+application specific rules -- we could perform addiitonal verification for application context, for
+example no downloading after a certain negative balance boundary
 
 \section{Advanced implicaitons of anti-entropy}
-Additional considerations: 
-
-locality
-
-strategy proofness 
-
+locality -- when you need to exchange all information and storage has avlue, it is cheapter to 
+interact with agents that have a largely similar information set
+sybil attack -- when we can apply application specific rules and we require agents to perform checks
+of all agents they interact with, we can introduce a rule that says agents cannot upload to agents
+that are completely new to the network (they first have to prove themselves). This way an agent 
+cannot create fake agents that all download from one agent and thus increase that agents balance 
+without actual downloading happening
