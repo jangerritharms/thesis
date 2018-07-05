@@ -14,28 +14,57 @@
 % 1. Since the ground-breaking work of Darwin we know that evolution of species is guided by natural selection, so mutation and inheritance lead to the strongest variation surviving. However, the classic view of the strongest survives does not explain how cooperation can occur, which requires some sort of altruism. Game theory explains …
 %  Nowak, Axelrod, 
 
-The theory of evolution has been studied for many centuries as it is a bewildering thought that from
-the raw elements that make up our planet a living organism arose and evolved into our sophisticated,
-complex society. Since the ground-breaking work of Darwin some mechanisms that fuelled that
-evolution have been widely accepted in the scientific community, namely natural selection, the 
-survival of the strongest random mutation of a species that inherits its phenotype to the next 
-generation, creating a fitter generation. This theory about competition between individuals was the
-accepted truth about evolution but in the late 1960s doubts arose about the completeness of this 
+Trust is the bedrock of society. From the evolution of species, global markts all the way to the 
+modern sharing economy, trust has always had an important impact on almost every aspect of our lives.
+Trust is built through previous succesful interaction and the knowledge about those interactions,
+which we call reputation. In small communities, knowledge about other is gained through gossiping 
+or personal experience, but nowadays the internet creates huge, global communities. Protecting and
+distributing the knowledge about interactions in the digital world is a tough challenge we are faced
+with when designing a global trust system. This work sets an important step towards solving this 
+problem, putting a scalable, distributed and secure trust system within our reach. This first chapter 
+introduces some key concepts around trust and expalins the context of this work.
+
+\section{Theory behind trust and cooperation: Prisoner's dilemma}
+We first describe the theoretical basis for trust and it's relation with cooperation. Trust is often
+studied in the context of game theory, especially the game called Prisoner's dilemma fist described
+in~\cite{chammah1965prisoner}. The game describes a dilemma common in many real-world situations, for
+example the problem of two partners caught for a crime that are questioned in two separate rooms. 
+Each prisoner has two options, either deny all allegations, which is more generally called cooperating
+ or betray the partner, which is called defecting in general game theory. If both stay 
+silent, both will get a sentence of one year. If one betrays the other, the snitch is set free while the 
+betrayed gets three years in prison. If both betray each other, they both have to serve two years.
+When analyzing the game without any additional knowledge and considering the payoffs for one of the
+prisoner's it is always advantageous to betray the other. Either the other also betrays, in which case
+two years is better than three, or the other stays silent in which case betraying sets us free. 
+However, when considering both prisoners' outcomes together it would be best for both to stay silent.
+
+
+While the game is quite simple the implications are far reaching. The game is able to show the 
+connection between trust and cooperation. If both prisoners trust each other to never betray a 
+partner, both will cooperate and get a small sentence, the best combined outcome. Yet any mistrust
+makes both fail at beating the system. The problem also describes many real world problems, called 
+the tragedy of the commons. For example, the gobal warming is a problem that can only be solved if
+all peoples and all nations cooperate. Yet, the low cost and convenient usability of fossil fuels 
+make it advantageous to defect and damage the environment. Either the others try to save the environemnt
+in which case a single defection will have a small impact, or the other will also damage the environment
+in which case a single cooperator will fail anyways. Only, if everyone trusts each other that
+everyone does the best they can to save the environment, then it is possible to beat the tragedy 
+of the commons.
+
+\section{Evolution and cooperation}
+While cooperating, according to theory, is not necessarily a winning strategy, it is in our nature 
+to do so, as has been shown by evolution theorists. The theory about competitve natural selection between individuals and mutation and inheritence of genes was the accepted truth about evolution since Darwin until in the late 1960s doubts arose about the completeness of this 
 theory. When looking at group behavior in species one will find that cooperation is a common theme
 among related individuals, yet there is no place for cooperation in the classic Darwin 
-theory.\cite{Axelrod1390} In their work Axelrod and Hamilton \cite{Axelrod1390} 
+theory~\cite{Axelrod1390}. In their work Axelrod and Hamilton \cite{Axelrod1390} 
 analyze how to combine the seemingly inferior individual's strategy of cooperating with the goal to 
-maximize fitness. At the basis of their experiments is a game called Prisoner's 
-Dilemma~\cite{chammah1965prisoner}, in which two players can choose to cooperate or defect: if both
-cooperate they fare best, if both defect they fare okay, yet if one cooperates and the other defects
-the cooperator farest the worst. This creates a social dilemma: not knowing what the other does,
-makes defecting the only reasonable strategy, yet if both would trust each other to cooperate, they
-would both win. Axelrod and Hamilton ran experiments on this game with multiple rounds with
-different strategies and found that if the game is played multiple rounds with the possibility of 
+maximize fitness. At the basis of their experiments is a again the Prisoner's 
+Dilemma. Axelrod and Hamilton ran experiments on this game with multiple rounds instead of only one with
+different strategies. They found that if the game is played repeatedly with the possibility of 
 meeting the same partner again in the future, cooperation between players can be established and be
 superior. Later research showed that this direct form of reciprocity, the act of returning a deed,
-is only one form of cooperation found in species and human behavior. Nowak and 
-Martin~\cite{nowak2006five} defined five forms in which cooperation can occur: kin selection, direct
+is only one form of cooperation found in human behavior. Nowak and 
+Martin~\cite{nowak2006five} defined in total five forms in which cooperation can occur: kin selection, direct
 reciprocity, indirect reciprocity, network reciprocity and group reciprocity. Conceptually these 
 forms can be described like this:
 
@@ -47,16 +76,14 @@ forms can be described like this:
     \item group selection: A group, in which members help each other, survives
 \end{itemize}
 
-These mechanisms for fostering cooperation entail an important concept: trust. We trust those that
-are close to us and we trust those that we have had succesful interactions with before. If two
-entities trust each other, they are able to cooperate and as a result, prosper. If trust is broken
-both parties will fare worse. 
-
+Each concept entails at its basis trust. We trust our family, our group, our contrymen, those with whom we had a lot
+of shared experiences and those we heard good things about. 
 % 2. Trust in economy and digital markets …. Advance of sharing economy, ….. When talking about trust, indirect reciprocity is the method of creating cooperation. Mui created a first mathematical model which relates reputation, trust and reciprocity. According to that model reputation stems from the history of encounters 
 % Mui, Martin
 
-Trust and cooperation lay the basis for human societies and have a long history. A prominent example
-is the evolution of economy as shown in Figure \ref{fig:economy}. In the pre-industrial age, most economy and trade was done in local
+\section{Trust and the economy}
+Trust also plays a major role in our economic system and has been for the the evolution of economy 
+as shown in Figure \ref{fig:economy}. In the pre-industrial age, most economy and trade was done in local
 communities with families that trusted each other over generations and traders that returned year
 after year. During industrial and post-industrial age companies have largely replaced local 
 producers and are trusted by millions of customers based on their brand name. Nowadays, in the 
@@ -78,9 +105,16 @@ possible: the seller is not taking advantage of the buyer's inconvenient situati
 cannot directly return that favor. Only by gossipping the event to other potential buyers who are 
 then more willingly to buy from the seller is the reciprocity circle closed.~\cite{nowak2006five}
 
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/economy.png}
+    \caption{Evolution of the economy}
+    \label{fig:economy}
+\end{figure}
+
 % 3. Reputation systems guide buyers towards to most trustworthy sellers on markets or help guests find houses on Airbnb that actually hold the promises made in the description. Reputation systems require three properties: dissemination, strong identities and  Yet companies take advantage of our trust and misuse our data, influence us and do not take appropriate measures to protect our data from attacks. Centralized systems are broken.
 % (eBay) Ba and Pavlou, survey of reputation systems, definition of reputation system, Pouwelse 
-
+\section{Solution to abuse of Trust: decentralization}
 These analog, gossip-based reputation systems are what guide our decisions in buying cars, new or 
 used, at which bank we store our money and at which restaurant we should have dinner.
 But reputation systems are also prevalent in the digital world: we make our decisions in buying used goods 
@@ -102,13 +136,6 @@ serve their customers or clients.
 % 4. The above discussion makes clear that the future digital economy requires a distributed reputation system. But making a reputation system distributed brings many additional challenges. A distributed system has no control entity which can enforce strong evidence for identities. Also single entities in a distributed system have most commonly no full view of the network, thus are not aware of all other entities or all encounters. The field is not entriely new but distributed reputation systems have been researched especially in the context of peer-to-peer file-sharing, and mobile ad-hoc system. Donation game is the game-theoretic model for this …. Although a lot of research has been conducted in the field of distributed reputation systems, major problems like the Sybil-attack, double spending, scalability and state consistency remain largely unsolved.
 % Game-theoretic modeling of reputation
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/economy.png}
-    \caption{Evolution of the economy}
-    \label{fig:economy}
-\end{figure}
-
 We envision a future in which collaborative consumption is possible without any intermediator. This
 future requires a reputation system which is application agnostic, owned by noone and ruled by 
 everyone. A distributed reputation system as a layer directly
@@ -126,8 +153,10 @@ remain an unsolved problem.
 % 5. This master thesis was written in the context of the blockchain lab at TU Delft which has a long history of research on the topic of distributed reputation systems. The research is targeted at Tribler, a secure BitTorrent client which is aimed at protecting against free-riders.
 % BarterCast
 
+\section{TrustChaina and Tribler}
+{\color{red} Old: needs to be extended}
 This report is related to research done at the Blockchain Lab at TU Delft, whose ambition it is to 
-be the first to create a working solution for this problem. In many years of research multiple 
+be the first to create a global trust system. In many years of research multiple 
 milestones have been reached. In \cite{meulpolder2009bartercast} we have solved the free-riding 
 problem in the peer-to-peer file-sharing context with a reputation system that tracks uploads and 
 downloads. With TrustChain \cite{OTTE2017} we have created our own blockchain fabric for bandwidth
@@ -136,6 +165,8 @@ to the reputation system. All work is implemented in Tribler, a BitTorrent clien
 layered anonymity. The implementation allows for testing of research ideas with real users in 
 production environments. 
 
+\section{Contribution}
+{\color{red} Old: needs to be improved}
 This work specifically will be concerned with the agreement on reputation in the network and closely
 related to that the dissemination of records of interactions. We
 will enlarge on the problem description in the next chapter. Afterwards the problem will be defined
