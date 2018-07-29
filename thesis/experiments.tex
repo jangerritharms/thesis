@@ -171,8 +171,8 @@ future rewards is voided. Agents have to disseminate their data in order to be a
 
 \subsection{Collaborating dissemination free-riders}
 The situation changes when multiple dissemination free-riders join forces and collaborate in creating
-a subnetwork. This situation can arise if a software is forked and an alternative release is published
-which does not contain any data exchanges. In order to analyze this situation we ran an experiment 
+a subnetwork. This situation can arise if a software is forked and an alternative release is published.
+ In order to analyze this situation we ran an experiment 
 with three honest agents and three dissemination free-riders. The transactions are plotted against 
 time in Figure \ref{fig:50percent}.
 
@@ -191,7 +191,36 @@ time in Figure \ref{fig:50percent}.
     \label{fig:50percent}
 \end{figure}
 
+Again each line in the plot refers to the successful transactions of one agent. The plot shows six 
+lines going almost in parallel which means that all agents fare equally well. From the graph it 
+is not immediately obvious how this is possible as in the previous experiment, dissemination free-riders
+were not able to get any successful transaction. Therefore an interaction matrix is shown in Figure 
+\ref{fig:50percent} which shows for each agent, how many interactions they had with each of their 
+peers. The plot shows fields with many interactions between the honest agents as well as for the 
+dishonest agents among each other. However the intersection of the two groups only shows blue fields
+and zero interactions. 
+
+The two plots together shows that dishonest agents can collaborate and prosper next to the honest 
+agents but they will create an isolated subnetwork which is completely separated from the network 
+of the honest agents. 
+
 \subsection{Malicious behavior}
+Next we look at two types of malicious behavior: forking and transaction hiding. Similar to the 
+free-riding, the combination of our anti-entropy mechanism and the internal agents state transparency 
+should isolate the malicious agents. The results of the experiments are presented in a similar 
+format as previously in Figure \ref{fig:malicious}.
+
+As expected the agents are not able to reach any significant amount of transactions. The transaction
+hider is able to obtain one successful interaction, which is the one that is supposed to be hidden 
+later on. The agent is not able to hide any transactions because any future partner expects the 
+complete chain from that agent. Any missing blocks in the chain will be seen as a manipulation attempt.
+
+The forking agents creates a fork with a chance of 25\%. The expected number of transactions before
+the fork happens is therefore 4. After the fork happens, the forking agent is detected by a partner 
+once the partner receives the two conflicting blocks. Depending on the peer selection which is 
+random, this can take some time. Therefore the forking agent is able to perform 9 interactions in the first 20 seconds of the experiment. 
+After those interactions the red  line of the forking agent is horizontal, meaning no more 
+successful interactions happen. 
 
 \begin{figure}
     \begin{subfigure}{\textwidth}
@@ -206,11 +235,27 @@ time in Figure \ref{fig:50percent}.
       \caption{Transactions over time of three honest agents with one strategic manipulator who tries to hide a transaction}
       \label{fig:DFR_empty_exchanges}
     \end{subfigure}\\
+    \caption{Experiments of honest agents with sinlge malicious agents}
+    \label{fig:malicious}
 \end{figure}
 
 \subsection{Verification free-rider}
+In the previous experiment we showed that malicious agents can be detected and isolated. In chapter
+{\color{red} WHERE EXACTLY} we have presented the replay verification mechanism to show that not 
+only malicious agents, but also those agents that knowingly interact with those malicious agents can
+be isolated. We first show how three honest agents act in the presence of one malicious agent and
+one verification free-rider. It is expected that the malicious agent should properly be ignored by
+the honest agents, but without replay verification, the verification free-rider interacts will all 
+peers equally. 
 
-\begin{figure}
+The results are presented in Figure \ref{fig:verification_doublespend_honest_combined}. As expected,
+the verification free-rider, represented by the blue dotted line in the figure is able to perform 
+just as well as the honest agents. The forking agent is mostly ignored. The interaction matrix in 
+Figure \ref{fig:verification_doublespend_honest_matrix} shows that most of the interaction of the 
+forking agent come from the verification free-rider who does not perform any checks and therefore 
+does not care about the fork.
+
+\begin{figure}[h!]
     \begin{subfigure}{\textwidth}
       \centering
       \includegraphics[width=.6\linewidth]{images/verification_doublespend_honest}
@@ -223,9 +268,22 @@ time in Figure \ref{fig:50percent}.
       \caption{Interaction matrix of three honest agents with one strategic manipulator who performs a fork and a verification free-rider}
       \label{fig:verification_doublespend_honest_matrix}
     \end{subfigure}\\
+    \caption{Experiment with three honest agents without replay verification, one malicious agent 
+    and one verification free-rider}
+    \label{fig:verification_doublespend_honest_combined}
 \end{figure}
 
-\begin{figure}
+Next we repeated the experiment, but this time the honest agents perform replay verification of their
+partners before every interaction. The results are shown in Figure \ref{fig:verification_doublespend_combined}. 
+
+The results show that after a long initial phase in which the blue and red curve seem to follow 
+the green curves, they do get shallower after around 100seconds. It is quite obvious, at least 
+from the 100 second mark onwards, that the blue and red curve are running excatly parallel. This is
+because after detecting the forking agent and the verification free-rider, the honest agents are 
+able to isolate the dishonest agents and ignore them for future interactions. Also the interaction
+matrix shows that in the end, both dishonest agents get few interaction with the honest agents. 
+
+\begin{figure}[h!]
     \begin{subfigure}{\textwidth}
       \centering
       \includegraphics[width=.6\linewidth]{images/verification_doublespending}
@@ -238,8 +296,7 @@ time in Figure \ref{fig:50percent}.
       \caption{Interaction matrix of three honest agents with replay verification with one strategic manipulator who performs a fork and a verification free-rider}
       \label{fig:verification_doublespending_matrix}
     \end{subfigure}\\
+    \caption{Experiment with three honest agents without replay verification, one malicious agent 
+    and one verification free-rider}
+    \label{fig:verification_doublespend_combined}
 \end{figure}
-
-\section{}
-
-\subsection{Sybil attack}
