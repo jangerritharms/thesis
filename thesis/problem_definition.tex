@@ -1,9 +1,11 @@
-\chapter{Formal Model Defnition}
-In the previous two chapters we have introduced the problem of state-of-the-art commercial 
-reputation systems and explained how a distributed reputation could solve this problem but requires
-among other things a strong transaction recording and distribution mechanimsm. In this chapter we
-formally define a model in which we can analyze this mechanism. We will first reintroduce the
-notation which has been defined in previous work on the subject of reputation systems. Afterwards we
+\chapter{Formal Model Definition and implementation details}
+The discussion of distributed trust systems requires a well-defined framework. In this chapter we
+formally define a model in which we can analyze a new information dissemination mechanism. Also, we
+explain in detail how the previously introduced TrustChain architecture is implemented. This should
+guide the reader towards a proper understanding of the practical intricacies of our system. 
+
+We shall first reintroduce the
+notation defined by Mui in previous work on the subject of reputation systems. Afterwards we
 apply that notation to the TrustChain solution which will be the basis of the solution defined
 in later chapters of this thesis. Finally, we can specifically point out the shortcomings of that
 solutions. The next chapter will then introduce a new extension of TrustChain which will tackle
@@ -211,56 +213,80 @@ reputation system needs to fulfill. This brings the discussion to the problem th
 chapter~\ref{chap:problem}.
 
 \section{Strategic manipulations}
+\label{sec:manipulations}
+The model of Mui can be mapped onto the TrustChain implementation context in a straight-forward 
+fashion. We showed that in TrustChain, an agent's embedded social network 
+and the agent's true reputation can be inferred simply from the complete set of block that 
+the agent had. Blocks are the receipt of an encounter between two agents. 
+
+If the trust system works as expected, a good reputation should have value to agents. All agents on 
+the network attempt to obtain a good reputation and be seen as a trusted partner. As such their 
+behavior should be meticulously agree with the rules. Yet, if the value is large enough and behaving
+well comes at a large enough cost, agents will aim to bend the rules or even break them in a smart 
+way in order to get the good reputation for free. As a designer of the trust system it is essential
+to predict the possible ways of manipulation and prevent them. In this section we will define several
+known types of attacks on trust systems and if applicable define how TrustChain can prevent them.
+
+\subsection{Forking}
+Forking is one of the most well-known attacks of blockchain based systems. In the cryptocurrency 
+context it is also known as double spending. As defined in Definition \ref{def:fork} an attacking agent 
+sends two conflicting transactions to two different partners. As long as the two partners are each not 
+aware of the other version of the transaction, both transactions are accepted. This practically 
+allows the attacker to reuse some reputation that normally would already have been lost or overwrite
+a transaction that would otherwise lower the attacker's reputation.
+
+\begin{defn}[Fork]
+    \label{def:fork}
+    An agent $a_i$ creates two blocks $B^{TX}$ and $B^{TX'}$, with sequence numbers $\textit{seq}_i$
+    and $\textit{seq}_i'$ and partner keys $\textit{pk}_j$ and $\textit{pk}_j'$, respectively. $a_i$
+    creates a fork if $\textit{seq}_i = \textit{seq}_i'$ and $\textit{pk}_j \neq \textit{pk}_j'$.
+\end{defn}
+
+The fact that agents in the TrustChain fabric are solely responsible for their own chain forking is
+easy and cannot be prevented. However in certain circumstances the attack can be detected, putting a
+negative mark on the attacker. Namely, if one of the agents who were subject to the attack learn 
+about the other version of the block, they can see that the attacker signed two conflicting blocks.
+This creates a proof-of-fraud and the agent can ignore the attacker in the future. 
+
+\subsection{Transaction hiding}
+Once agents have a longer history they will have records of positive and negative encounters. A 
+malicious agent then might try to hide any records of negative encounters, thus boosting the trust 
+other have in the attacker. The architecture of TrustChain is made to make such an attack detectable.
+The blockchain of the agent creates a tamper-proof, irreversible order for all transactions. Another
+agent can therefore require the complete sequence of blocks of a partner before interacting. Any 
+missing block will be seen as a malicious request. 
+
+The attack can also be mitigated if the partners of the attacker, who also own the blocks that proof
+the negative encounters of the attacker, disseminate that information to their peers. As such agents
+may already know about the true reputation of the attacker and decide to ignore that agent in the 
+first place.
+
+\subsection{Whitewashing}
+Agents that have lost reputation in a significant amount of transaction may decide to create a new 
+identity for themselves. Thus they can rid themselves from the bad reputation and start fresh. This 
+type of attack is called whitewashing. In the currently deployed version of TrustChain in Tribler 
+this attack cannot be prevented as the software is free and new agents do not need registering with
+any central institutions.
+
+Still the impact of such attacks can be limited by having some mistrust of new agents joining the 
+network. In that case a new agents need to ``pay their dues'' before being accepted by the network 
+as equals.
+
+\subsection{Sybil attack}
 
 
-\section{Problem analysis and possible solutions}
-In the previous section we have combined the model of Mui~\cite{mui2002computational} with the 
-TrustChain architecture and the Tribler application context to create a well-defined basis for
-discussion in each of these layers. We showed that in TrustChain, an agent's embedded social network 
-and the agent's true reputation can be inferred simply from the complete set of interactions that 
-the agent had. Those are stored in the form of a chain of blocks on the agents machine. Now what is
-problematic is that the agent's own interactions form a miniscule subset of all interactions in the 
-complete social network, which leads to problems of security and the mechanism of the reputation 
-system. The goal from a system designer's point of view must be to ensure that agents observe more 
-interactions than their own, without being subject to strategic manipulations.
+\subsection{Other attacks}
+Other obvious attacks are for example a direct tampering with a block. Such attacks can be 
+detected in a straightforward way by simply recalculating the hash and checking with the following 
+block and the signature of the agents.
 
-\subsection{Dissemination mechanisms}
-Achieving the desired dissemination of transaction records is not a new problem in distributed 
-system as it is similar to synching the two stateful disconnected systems, for example a database.
-Dissemination mechanisms have been researched for many decades. \cite{hedetniemi1988survey} is an 
-early summary of the most important techniques in on dissemination Hedetniemi et al. describe 
-gossiping, broadcasting and shortly mention receiving and polling. We shall briefly introduce the 
-concepts here.
-
-\paragraph{Gossiping} Gossiping is the a mechanism in which pairwise exchange of information takes 
-place. Imagine a set of agents in which each agent has knowledge of a unique set of encounters that
-all other agents are not aware of. The goal is to reach a state in which all agent have the
-information on all encounters. During gossipping, an agent chooses a set of partners and with each 
-partner the agent exchanges all information. This is done by each agent and after a certain number
-of interactions the dissemination is complete. Different variants exist for gossiping, for example
-only allowing one-way communication, allowing multi-party exchanges and restricting the number of 
-exchanges per agent. 
-
-\paragraph{Broadcasting} Broadcasting is a process in which information originates from one 
-agent in the network, who needs to transmit the information to all other agents in the system. Again
-information transmission happens in pairs of two agents, and communication only happens between 
-adjacent nodes in the network. In contrast to gossiping where new information originates at all 
-nodes, in broadcasting all nodes communicate one piece of information.
-
-\paragraph{Receiving} In receiving all agents send some unique information to a specific agent, called
-the receiver. 
-
-\paragraph{Polling} Polling a information accumulation process in which a single originating agent sends requests for
-information to all other agents who then respond with an information carrying message. 
-
-The survey shows that dissemination of information in itself is a well understood topic and many 
-implementation of such protocols are widely available. However some problems exist when taking into
-account the possibility of strategic manipulation. Those will be discussed in the next section.
-
-\section{Problems of implementation of dissemination algorithms}
-The previous section shows that information dissemination mechanisms are possible and well-understood. However 
-problems exist when considering their implementation in global-scale distributed systems in which 
-manipulation is possible. 
+\section{Dissemination and verification of records}
+The possible attacks mentioned in the previous section show that the TrustChain architecture, while
+allowing honest agents to detect malicious agents, is not secure in a preventive manner. The security
+relies on honest agents to assemble transaction records of other agents and check them against their
+current knowledge. We call these two processes dissemination and verification of transaction records.
+In this section the problems of these process will be discussed that need to be solved in order to 
+fight any malicious behavior in the network.
 
 \subsection{Complete synchronization and scalability}
 All of the dissemination mechanisms mentioned in \cite{hedetniemi1988survey} consider the goal of
@@ -280,24 +306,47 @@ yet confirmed'') through restricting the block time and size. With a block size 
 block time, there is enough time between new blocks such that nodes can synchronize with the updated
 state of the system.
 
-\subsection{Incentive}
+\subsection{Second-order manipulative behavior}
 Another intricacy of distributed system is that the designer of the system has no control over the 
 actual behavior of agents. That is why incentives need to be put in place in order to make it disadvantageous
 to deviate from the designed behavior. Given the right incentives and rational agents that try to 
 maximize their value function the designer can be sure that no misbehavior will spread as it would 
 decrease the value function of those agents.
 
-The problem with the TrustChain system is that while it's security and the reputation system it aims
-to enable rely on the dissemination of data, there is no incentive in place to guarantee that agents
-engage in any dissemination activity. In contrast, assuming that data storage, computation power and 
-bandwidth are costly resources in the eyes of agents, it is actually disadvantageous for agents to 
+The problem with the TrustChain system is that while it's security and validity as a trust system 
+rely on the dissemination and verification of data, there is no incentive in place to guarantee that agents
+engage in any such activity. Actually the opposite is true when assuming that data storage, computation power and 
+bandwidth are costly resources in the eyes of agents. It is actually disadvantageous for agents to 
 observe interactions of other agents, store them and verify them against their previous knowledge in
 order to detect any malicious behavior. It is therefore possible to free-ride, not in the context 
 of an application like Tribler, but in terms of information dissemination: agents can decide to not 
 share and verify information and still take part in the network as valid agents. 
-This problem needs to be solved in order to guarantee a secure system that defends itself against malicious users
-and free-riders. 
 
+We can thus define another class of malicious behavior which we will call second-order manipulations 
+which is distinct from those mentioned in Section \ref{sec:manipulations}, which we will refer to 
+as first-order manipulation. Agent behavior that does not immediately violate any rules for data 
+creation but rather does not help the network defend itself against attackers falls into this new 
+class. Specifically we define two such manipulations: dissemination free-riders and verification 
+free-riders.
+
+\begin{defn}[Dissemination free-rider]
+    A dissemination free-riders behave honestly except that they do not actively distribute 
+    any transaction records to peers.
+\end{defn}
+
+\begin{defn}[Verification free-rider]
+    A verification free-riders behave honestly except that they do not verify any data that they 
+    receive from the peers.
+\end{defn}
+
+Both types of second-order manipulators attack the security of the network through passively not 
+helping to defend it. The immediate effects of single agents behaving in this manner are small to 
+non-existent; the network security is held up by the honest majority and attackers will still be 
+identified. The second-order manipulators ride free on the security provided by their peers. However,
+should a large fraction of the network realize that free-riding is possible the security could be
+seriously be harmed.
+
+\subsection{Creating incentives}
 In order to solve the problem we need to realize how incentives can be created. Bitcoin solves the 
 incentive for sharing transaction blocks by given nodes a reward for mining a block. Only if the 
 node broadcasts the block, can the award be claimed. Also other nodes want to stay updated on the 

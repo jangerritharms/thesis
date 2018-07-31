@@ -106,6 +106,40 @@ been performed both in the scientific community as well as the industry. In this
 summarize those efforts, describe the short-comings of those approaches and define a basis for the 
 work performed in this work.
 
+\subsection{Dissemination mechanisms}
+Achieving the desired dissemination of transaction records is not a new problem in distributed 
+system as it is similar to synching the two stateful disconnected systems, for example a database.
+Dissemination mechanisms have been researched for many decades. \cite{hedetniemi1988survey} is an 
+early summary of the most important techniques in on dissemination Hedetniemi et al. describe 
+gossiping, broadcasting and shortly mention receiving and polling. We shall briefly introduce the 
+concepts here.
+
+\paragraph{Gossiping} Gossiping is the a mechanism in which pairwise exchange of information takes 
+place. Imagine a set of agents in which each agent has knowledge of a unique set of encounters that
+all other agents are not aware of. The goal is to reach a state in which all agent have the
+information on all encounters. During gossipping, an agent chooses a set of partners and with each 
+partner the agent exchanges all information. This is done by each agent and after a certain number
+of interactions the dissemination is complete. Different variants exist for gossiping, for example
+only allowing one-way communication, allowing multi-party exchanges and restricting the number of 
+exchanges per agent. 
+
+\paragraph{Broadcasting} Broadcasting is a process in which information originates from one 
+agent in the network, who needs to transmit the information to all other agents in the system. Again
+information transmission happens in pairs of two agents, and communication only happens between 
+adjacent nodes in the network. In contrast to gossiping where new information originates at all 
+nodes, in broadcasting all nodes communicate one piece of information.
+
+\paragraph{Receiving} In receiving all agents send some unique information to a specific agent, called
+the receiver. 
+
+\paragraph{Polling} Polling a information accumulation process in which a single originating agent sends requests for
+information to all other agents who then respond with an information carrying message. 
+
+The survey shows that dissemination of information in itself is a well understood topic and many 
+implementation of such protocols are widely available. However some problems exist when taking into
+account the possibility of strategic manipulation. Those will be discussed in the next section.
+
+
 \subsection{Decentralized accounting systems}
 The general concept of accounting is quite old as it is simply a recording of transactions between
 two or more parties. Before the digital age those recordings were simply written text on paper, 
