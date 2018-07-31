@@ -1,4 +1,4 @@
-\chapter{Reputation consensus through anti-entropy}
+\chapter{State consensus through anti-entropy}
 \label{chap:mechanism}
 % A specific implementation of the extension of TrustChain
 
@@ -184,14 +184,102 @@ match the hashes that $a_j$ calculates for the excahnged data, the block is sign
 
 This concludes the anti-entropy exchange, after this the two agents perform a normal interaction.
 
+\section{Example}
+
+In order to make the mechanism clearer, an example is provided in this section. We look at two
+agents, Alice and Bob. Alice wants to interact with Bob and starts the interaction. We assume that
+both agents are new to the network and only have their genesis blocks on the chain. In order to
+start the interaction, Alice sends her chain (only the genesis block) and an empty set of exchanges
+to Bob. Obviously the genesis block is accepted and Bob shows his approval by sending his own
+genesis block and an empty set of exchanges. Also Alice accepts the data and creates an exchange 
+block proposal. Figure \ref{fig:exchange_example} shows the chains of Alice and Bob after the 
+complete interactions. The block proposal is Alice's block 2. When Bob receives the block, he checks
+that the exchange hashes in the proposed exchange block match the hashes of the two genesis blocks 
+from Alice and himself. If he agrees, he documents the acquisition of the exchange block in a
+single-signed exchange block (Bob's block 2) and creates the agreement block (Bob's block 3) to the exchange block proposal. He 
+sends back the exchange block agreement to Alice, who herself creates a single-signed exchange block
+(Alice's block 3) for the acquisition of the exchange agreement block. At this point Alice is ready for the actual 
+transaction. How the transaction happens exactly is not of importance for this example. After the transaction was successfully conducted it also needs to be documented. Again,
+the same process as with the exchange is followed. Alice creates a transaction block proposal (Alice's block 4), Bob
+creates the acquisition block and the agreement block (Bob's block 4 and 5). Finally, Alice creates the acquisition block of the agreement block of the transaction.
+
+\begin{figure}
+    \centering
+    \includegraphics[height=0.9\textheight]{images/exchange_example}
+    \caption{Example of one interaction between two agents}
+    \label{fig:exchange_example}
+\end{figure}
+
+This example sheds light on the block creation process but is too simple to properly explain the 
+exchange and verification process. We extend the example with another agent, Charles, whom Bob would
+like to interact with after the previous interactions. Again, Charles is assumed to be new to the 
+network so the genesis block is the only block on his chain. Bob starts the interactions by sending
+his chain and exchanges. Now Charlie performs some checks: 
+
+\begin{itemize}
+    \item \textit{Is the chain complete?} - the chain is a full sequence (1 through 5) and Charlie 
+    is not aware of any later blocks than 5, so the chain seems valid
+    \item \textit{Are the exchanges correct?} - there are three exchange blocks on the chain, one
+    receiving the exchange block proposal, one for the actual exchange of the genesis block of A and
+    one for the transaction block proposal. Charlie recalculates the hashes stored in the exchange 
+    blocks from the blocks sent by Bob. If all the hashes are equal, the exchanges are accepted.
+\end{itemize}
+
+Once Charlie accepts all the checks, he sends his own chain and exchanges which are checked by Bob
+and the interaction continues as previously described. Table \ref{tab:blocks_example} shows the
+blocks that each agent has after the first and second round. After the second round, Charles has 
+all the blocks from Bob that he had after the first round.
+
+\begin{table}[h!]
+    \centering
+    \caption{The block databases of each agent for the example}
+    \label{tab:blocks_example}
+    \begin{tabular}{p{4cm}|p{3cm}|p{4cm}|p{3cm}}
+        \toprule
+        Database & Alice & Bob & Charles \\
+        \midrule
+        Before first round & A: $[1]$ & B: $[1]$ & C: $[1]$ \\ \hline 
+        After first round & A: $[1, 2, 3, 4, 5]$ \newline B: $[1, 3, 5]$ & A: $[1, 2, 4]$ \newline B: $[1, 2, 3, 4, 5]$ & C: $[1]$ \\ \hline
+        After second round &  A: $[1, 2, 3, 4, 5]$ \newline B: $[1, 3, 5]$ & A: $[1, 2, 4]$ \newline B: $[1, 2, 3, 4, 5, 6, 7, 8, 9]$ \newline C: $[1, 3, 5]$ & A: $[1, 2, 4]$ \newline B: $[1, 2, 3, 4, 5, 6, 8]$ \newline C: [1, 2, 3, 4, 5] \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+In order to make even clearer how the implementation works internally, Table \ref{tab:exchange_blocks}
+shows which mappings of exchange blocks to exchanged blocks exist.
+
+\begin{table}[h!]
+    \centering
+    \caption{All exchange blocks with their corresponding exchanged blocks}
+    \label{tab:exchange_blocks}
+    \begin{tabular}{l| p{5cm}}
+        \toprule
+        Block & Exchanged blocks \\
+        \midrule
+        Alice Block 2    & B: $[1]$ \\
+        Alice Block 3    & B: $[3]$ \\
+        Alice Block 5    & B: $[5]$ \\
+        Bob Block 2      & A: $[2]$ \\
+        Bob Block 3      & A: $[1]$ \\
+        Bob Block 4      & A: $[4]$ \\
+        Bob Block 6      & C: $[1]$ \\
+        Bob Block 7      & C: $[3]$ \\
+        Bob Block 9      & C: $[5]$ \\
+        Charles Block 2  & B: $[6]$ \\
+        Charles Block 3  & A: $[1, 2, 4]$, B: $[1, 2, 3, 4, 5]$ \\
+        Charles Block 4  & B: $[8]$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
 \section{Consideration of application specific features}
 choosing partners -- we now chose partners randomly but probably for many applications there are 
 better strategies
-application specific rules -- we could perform addiitonal verification for application context, for
+application specific rules -- we could perform additional verification for application context, for
 example no downloading after a certain negative balance boundary
 
-\section{Advanced implicaitons of anti-entropy}
-locality -- when you need to exchange all information and storage has avlue, it is cheapter to 
+\section{Advanced implications of anti-entropy}
+locality -- when you need to exchange all information and storage has value, it is cheaper to 
 interact with agents that have a largely similar information set
 sybil attack -- when we can apply application specific rules and we require agents to perform checks
 of all agents they interact with, we can introduce a rule that says agents cannot upload to agents

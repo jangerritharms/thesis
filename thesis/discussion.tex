@@ -1,5 +1,26 @@
 \chapter{Discussion}
+In this work we presented a strategy-proof mechanism for information dissemination. Applied to our 
+distributed blockchain based trust system we are able to effectively defend against dissemination 
+and verification free-riders. It creates an incentive for each agent on the network to help defend 
+the network against any lazy or malicious behavior. It thereby is a major step towards a secure, 
+distributed and scalable trust system.
 
-\subsection{Strategy proofness}
-\subsection{Attack resistance}
-\subsection{Future research}
+* we defined a new blockchain system based on TrustChain which provides internal agent state 
+transparency/gossip transparency
+* we formally proof that the architecture provides a complete view of the internal state of the 
+agent
+* we defined a specific mechanism that makes use of the archiecture
+* we experimentally proof that honest agents are able to eventually identify free-riders and malicious
+agents
+
+\section{Future research}
+
+\subsection{Further developing this mechanism}
+* incremental 
+* research scalability properties for this mechanism
+* locality by interacting with those that have similar information
+* sybil attack resistance by checking that new agents paid their dues
+
+\subsection{Next steps for the trust system}
+* locality with ping
+* 
