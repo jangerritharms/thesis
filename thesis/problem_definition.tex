@@ -1,4 +1,5 @@
 \chapter{Formal Model Definition and implementation details}
+\label{chap:model}
 The discussion of distributed trust systems requires a well-defined framework. In this chapter we
 formally define a model in which we can analyze a new information dissemination mechanism. Also, we
 explain in detail how the previously introduced TrustChain architecture is implemented. This should
@@ -273,7 +274,17 @@ network. In that case a new agents need to ``pay their dues'' before being accep
 as equals.
 
 \subsection{Sybil attack}
+One of the most serious attacks on trust systems is the Sybil attack. In a Sybil attack the attacker
+creates a set of new accounts, called the Sybils. Together with the attacking agent the set of 
+agents is called a Sybil region. Those Sybils create transaction records 
+between each other without actually performing the transactions with the goal of boosting the 
+reputation of one of the agents in the Sybil region. The attack is successful as honest agents 
+cannot distinguish between fake and real transaction records. That also makes the attack hard to 
+prevent.
 
+Multiple ways have been explored to prevent this attack. One way is to analyze the network topology
+and use it to detect Sybil regions. Another way is to increase the cost of registering new identities
+in the system. 
 
 \subsection{Other attacks}
 Other obvious attacks are for example a direct tampering with a block. Such attacks can be 
