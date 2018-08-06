@@ -1,0 +1,201 @@
+\chapter{Formal model}
+We aim to show in this section the importance of dissemination and verification of interactions 
+records. This is done by defining a model within which we can proof with rigorous math that record
+dissemination and verification are essential for securing the trust system. Also we define an 
+extension to our basic model which allows to protect the network against free-riders which 
+jeopardize the overall security. Our proposal is to introduce gossip transparency which can 
+effectively punish free-riders that do not acquire and disseminate interaction records. We further 
+show that it is possible to detect agents that consciously interact with malicious agents, exposing
+them as verification free-riders or accomplice.
+
+\section{Basic model}
+We make use of the ordered interaction model which has been introduced in previous work from 
+our group in \cite{OTTE2017}. 
+
+\begin{defn}[Ordered interaction model]. An ordered interaction model $M = \langle P, I, a, w \rangle$
+    consists of two sets and two functions.
+    \begin{itemize}
+        \item $P$, a finite set of agents
+        \item $I$, a finite set of interactions
+        \item $a : I \rightarrow P \times P$, a function mapping each interaction to the agents involved in it.
+        \item $w : I \times P \rightarrow \mathbb{R}_{\geq0}$, a function which describes the contribution of an agent in an interaction
+    \end{itemize}
+\end{defn}
+
+The interactions that one agent is involved in can be represented by the personal interaction history.
+
+\[ I_p = \{ i \in I : p \in a(i) \}\]
+
+The set $I_p$ is strictly totally ordered by $<$. Let $i_p(t)$ be the $t$th interaction of agent 
+$p$. The we can alternatively write the set of $I_p = \{ i_p(1), i_p(2), ... i_p(n) \}$.
+An interaction happen between two agents, therefore only those two agents observe the interaction.
+The set of observed interactions for the ordered interaction model is equal to the personal 
+interactions of the agent. The observations help to define the knowledge that one agent has about
+another. 
+
+\begin{defn}[Observed peer interactions] 
+    \label{def:peer_history}
+    An agent $q$ with personal $I_q$ observes only a partial history
+    of its peers equal to their direct interactions.
+    \[ I_{q,p} = \{ i \in I : p \in a(i), q \in a(i) \}\]
+\end{defn}
+
+\begin{defn}[Reputation function] 
+    A reputation function $R$ takes as input an observed peer history $I_{p,q}$ and determines the score $S^R_{p,q}(I_{p,q}) \in \mathbb{R}$.
+\end{defn}
+
+The fact that interactions are only observed by the interacting agents makes the system vulnerable
+against attacks. We can define a fork and double spend attack. 
+
+\begin{defn}[Fork and double spend]. A malicious agent $p$ can have two conflicting interactions 
+    $i \in I$ and $j \in I$ at the exact same time. Both interactions have a different partner $a(i) = \{p, q\}$ 
+    and $a(j) = \{p, r\}$ Accordingly, the personal history of $p$ $I_p = \{i_p(1) ... i_p(t), i_p(t)', i_p(t+1), ... i_p(n)\}$ is not a totally ordered set anymore.
+    The attack can be detected if for any agent $s$ with observed peer history of peer $p$ both 
+    $i_p(t) \in I_{s,p}$ and $i_p(t)' \in I_{s,p}$.
+\end{defn}
+
+\begin{thm}[Detectability of fork] 
+    The fork and double spend cannot be detected if agents only observe their own interactions.
+\end{thm}
+\begin{proof}
+    Let $p$ be the attacking agent and let $i$ and $j$ be the conflicting interactions of the attacks.
+    Further, let $q$ be the partner in interactions $i$ such that $a(i) = \{p, q\}$ and let $r$ be
+    the partner of interaction $j$ such that $a(j) = \{p, r\}$. According to the definition 
+    \ref{def:peer_history} $i \in I_{q, p}, j \notin I_{q, p}$ and $i \notin I_{r, p}, j \in I_{r, p}$.
+    Moreover, all other agents $s \in P$ are aware of neither $i$ or $j$ because only direct 
+    interactions are observed.
+\end{proof}
+
+We have shown that the current model of the network does not offer the possibility for agents to 
+detect a fork. This is a major security issue which needs to be resolved. 
+
+\section{Extended model}
+In order to defend against the double spend attack, agents need to observe more interactions. We 
+therefore extend the model with \textit{exchanges} which allow agents to communicate their knowledge.
+This process is generally known as gossiping. {\color{red} cite some papers that discuss gossiping}
+We further make the assumption that the network is static, so no agents leave or join the network.
+
+\begin{defn}[Ordered interaction and exchange model]. An ordered interaction model $O = \langle M, I, b, x \rangle$
+    consists of two sets and two functions. 
+    \begin{itemize}
+        \item $M$, an ordered interaction model
+        \item $E$, a finite set of exchanges
+        \item $b : E \rightarrow P \times P$, a function mapping each exchange to the agents involved in it.
+        \item $x : E \times P \rightarrow I^+$, a function which describes the interactions that an agent received in an exchange. $+$ refers to the Kleene plus.
+    \end{itemize}
+
+    We assume that agents choose a random peer with uniform probability for an exchange and 
+    exchange their complete history.
+\end{defn}
+
+Then we can redefine the knowledge that an agent has about its peers as follows.
+
+\begin{defn}[Observed peer interactions] 
+    \label{def:peer_history}
+    Let $O$ be an ordered interaction and exchange model. An agent $q$ with personal history $I_q$ 
+    observes the personal history of its peer $p$. The observed history is equal to their direct 
+    interaction and $p$'s interactions that $q$ received from other peers through exchanges.
+    \[ I_{q,p} = \{ i \in I : p \in a(i), q \in a(i) \} \cup \{ j \in I : e \in E, q \in b(e), j \in x(e, q), p \in a(j)\}\]
+\end{defn}
+
+\begin{thm}[Detectability of fork in extended model] 
+    The fork and double spend will eventually be detected in the ordered interaction and exchange 
+    model.
+\end{thm}
+\begin{proof}
+    Let $p$ be the attacking agent and let $i$ and $j$ be the conflicting interactions of the 
+    attacks. Further, let $q$ be the partner in interactions $i$ such that $a(i) = \{p, q\}$ and let 
+    $r$ be the partner of interaction $j$ such that $a(j) = \{p, r\}$. Due to uniform random peer selection
+    eventually $q$ will choose $r$ for an exchange, or the opposite. In that case $q$ will receive 
+    interaction $j$ and $r$ will receive interaction $i$. In that case $q$ and $r$ fullfil 
+    the conditions $i \in I_{q,p}$ and $j \in I_{r,p}$, respectively, for detection of the attack.
+\end{proof}
+
+We find that the exchange and verification of data is essential for defending the network against 
+the double spend attack. However, if we assume that the exchange and verification of data creates a
+cost for the agent, an agent might decide to not perform those activities. This jeopardizes the 
+security of the network.
+
+\begin{defn}[Dissemination free-rider]
+    Given an Ordered interaction and exchange model $O$ a dissemination free-rider $p$ is an agent 
+    who does not exchange data. Specifically, $E_p = \{ e \in E : p \in b(e) \} = \emptyset$. 
+\end{defn}
+
+\begin{thm}[Reputation of dissemination free-rider] 
+    A dissemination free-rider in the ordered interaction and exchange model does not loose 
+    reputation with respect to an honest agent.
+\end{thm}
+\begin{proof}
+    The reputation function takes as input the observed peer history which does not include any encounters $e \in E$. Two agents $q$ and $r$ with a similar personal history $I_p$ and $I_q$ can
+    therefore have the same score if evaluated by an agent $p$, $S^R_{p,q}(I_{p,q}) = S^R_{p,q}(I_{p,q}), E_q = \emptyset, E_p \neq \emptyset$. Thus, a dissemination free-rider does not loose any
+    reputation.
+\end{proof}
+
+
+\section{Gossip transparency}
+From the previous discussion it should be clear that dissemination of interaction records is an 
+essential part of the security of the global trust system. Yet without recording and spreading the 
+knowledge about exchanges it is possible to free-ride without contribution to the spreading of 
+information without any repercussions. In this section we define the concept of gossip transparency.
+By recording the sharing behavior in a similar way as interactions, agents are able to determine 
+each others reputation based on both interactions and exchanges. 
+
+The problem that we identified in the previous section is that although exchanges are a solution to
+defending against the double spending attack we are not able to provide an incentive for agents to 
+reliably perform exchanges and verify the received data. We now explore a model that does allow this
+by recording and disseminating exchanges in a similar way as interactions. We introduce the concept
+of an encounter between two agents in which both agents either perform an interaction of exchange 
+of records.
+
+\begin{defn}[Ordered encounter model]
+    An ordered encounter model $M = \langle P, N, c, \tau, \omega, \chi \rangle$ consists of two 
+    sets and four functions.
+    \begin{itemize}
+        \item $P$ a finite set of agents
+        \item $N$ a finite set of encounters
+        \item $c : N \rightarrow P \times P$ a functions mapping the encounter to the two agents involved
+        \item $\tau : N \rightarrow \{\textit{interaction}, \textit{exchange}\}$ a function mapping 
+        the encounters to the two possible types of encounters, interactions and exchanges
+        \item $\omega : N \times P \rightarrow \mathbb{R}_{\geq0}$ a function describing the contribution
+        of agents in interaction encounters
+        \item $\chi : N \times P \rightarrow N^*$ a function describing the encounter information an 
+        agent received in an exchange encounter, where $*$ is the Kleene star
+    \end{itemize}
+\end{defn}
+
+The encounters that one agent is involved in can be represented by a totally ordered set.
+
+\[ N_p = \{ n \in N : p \in c(n) \}\]
+
+The model allows to observe exchanges as well as interactions. We can define the observed encounters
+as follows.
+
+\begin{defn}[Observed peer encounters] 
+    \label{def:peer_history}
+    Let $O$ be an ordered encounter model. An agent $q$ with personal history $N_q$ 
+    observes the personal history of its peer $p$. The observed history is equal to their direct 
+    interaction and $p$'s interactions that $q$ received from other peers through exchanges.
+    \[ N_{q,p} = \{ n \in N : p \in c(n), q \in c(n) \} \cup \{ m \in N : \exists e \in N, q \in c(e), m \in \chi(e, q), p \in c(m)\}\]
+\end{defn}
+
+Finally, the reputation function should act on the observed peer encounters instead of the previously
+defined observed peer interactions.
+
+\begin{thm}[Detection of free-riders]
+    In an ordered encounter model dissemination free-riders can be detected and penalized through 
+    a reputation function.
+\end{thm}
+
+\begin{defn}[Verification free-rider]
+    Given an Ordered interaction and exchange model $O$ a verification free-rider $p$ is an agent 
+    that exchanges data but does not check whether that data is valid. 
+\end{defn}
+
+
+{\color{red}
+\begin{itemize}
+    \item Explain that because the reputation function only takes the interactions into account the
+    it's possible to not exchange data and therefore free-ride 
+    \item Also it's possible to not perform verification as a collaborator or free-rider
+    \item We need to define another model in which interactions and exchanges are both recorded
+\end{itemize}}
