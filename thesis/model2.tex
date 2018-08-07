@@ -1,0 +1,246 @@
+\chapter{Formal model}
+We aim to show in this section the importance of dissemination and verification of interactions 
+records. This is done by defining a model within which we can proof with rigorous math that record
+dissemination and verification are essential for securing the trust system. Also we define a
+mechanism which allows to protect the network against free-riders which 
+jeopardize the overall security. Our proposal is to introduce gossip transparency which can 
+effectively punish free-riders that do not acquire and disseminate interaction records. We further 
+show that it is possible to detect agents that consciously interact with malicious agents, exposing
+them as verification free-riders or accomplice.
+
+\section{Model definition}
+We make use of the ordered interaction model which has been introduced in previous work from 
+our group in \cite{OTTE2017}. We restate it in Definition \ref{def:base} for clarity.
+
+\begin{defn}[Ordered interaction model]. 
+    \label{def:base}
+    An ordered interaction model $\hat M = \langle \hat P, \hat I, \hat a, \hat w \rangle$ consists of two sets and two 
+    functions.
+    \begin{itemize}
+        \item $\hat P$, a finite set of agents
+        \item $\hat I$, a finite set of interactions
+        \item $\hat a : I \rightarrow P \times P$, a function mapping each interaction to the agents 
+        involved in it.
+        \item $\hat w : I \times P \rightarrow \mathbb{R}_{\geq0}$, a function which describes the 
+        contribution of an agent in an interaction
+    \end{itemize}
+\end{defn}
+
+The model allows for the analysis of any type of applications in which a network of agents performs
+transactions that can be described by a quantitative amount. However, the model does not explicitly
+model the information exchange which this work is very much concerned with. We show that this 
+exchange of information is also an essential component of the reputation system, especially in a 
+distributed network. We therefore define a related model which does explicitly model information 
+exchanges.
+
+\begin{defn}[Ordered encounter model]. 
+    \label{def:base}
+    An ordered interaction model $M = \langle P, I, E, a, w, x \rangle$ is a 6-tuple consisting
+     of three sets and three functions. For convenience we define a set $N = I \cup E$. 
+    \begin{itemize}
+        \item $P$, a finite set of agents
+        \item $I$, a finite set of interactions
+        \item $E$, a finite set of exchanges
+        \item $a : N \rightarrow P \times P$, a function mapping each interaction to the agents 
+        involved in it.
+        \item $w : I \times P \rightarrow \mathbb{R}_{\geq0}$, a function which describes the 
+        contribution of an agent in an interaction
+        \item $x : E \times P \rightarrow I^+$, a function which describes the interactions that an 
+        agent received in an exchange. $+$ refers to the Kleene plus.
+    \end{itemize}
+\end{defn}
+
+An interaction is a transaction in the application context. In the Tribler context it would be the 
+transaction of data between two users. During an exchange on the other hand agents communicate knowledge
+of interactions. The functions $x$ describes a set of interactions that an agent obtains through an 
+exchange. The process of exchanging data is also called gossiping. We will formally introduce the 
+knowledge concept in Definition~\ref{def:subjective_network_state}.
+
+We call the set $N$ the encounters of the model. An encounter happens between two agents for one of
+two reasons: to perform a transaction of some value or to exchange information. For each agent we 
+can describe the set of encounters which that agent participated in as the agent history. 
+
+\begin{defn}[Agent encounter history]
+    Given an ordered encounter model $M$ the agent encounter history is defined as follows:
+    \begin{equation}
+        H_p = \{ n \in N : p \in a(n) \}
+    \end{equation}
+\end{defn}
+
+
+The history of an agent $p$ is set of encounters that is totally ordered by $<$. If we denote the 
+$t$th encounter of $p$ as $n_p(t)$ then we can alternatively write $N_p = \{ n_p(1), n_p(2), ..., n_p(i)\}$.
+This notation will be handy in a later definition.
+
+Encounters between agents are not public. This creates a discrepancy between the true set of 
+encounters $N$ and the observed encounters from an agent $p$'s point of view. Agents only have 
+knowledge of those encounters which they participated in or which they obtained through an exchange.
+We can then define the subjective network state, which is the knowledge an agent has about the state of
+the network.
+
+\begin{defn}[Subjective network state]
+    \label{def:subjective_network_state}
+    Given an ordered encounter model $M$ and an agent $p$, the subjective network state of agent $p$
+    is defined as follows:
+    \begin{equation}
+        N_p = \{ n \in N : n \in H_p \} \cup \{ x(e, p) : e \in E \}
+    \end{equation}
+\end{defn}
+
+The subjective network state also implies the known agents $P_p = \{ q \in P : n \in N_p, q \in a(n) \}$
+Without full observability there is also no guarantee that agents know the full history of their 
+peers. Actually the subjective network state defines also $p$'s observed peer history of an agent $q$.
+
+\begin{equation}
+    H_{p, q} = \{ n \in N_p : q \in a(n) \}
+\end{equation}
+
+Similar the observed peer history is a totally ordered set. It is not necessarily equal to the 
+complete history though. For example, an agent $q$'s history $H_{q} = \{n_q(1), n_q(2), n_q(3) \}$
+could be observed by an agent $p$ as $H_{p, q} = \{n_q(1), n_q(3)\}$.
+
+Finally, a reputation mechanism needs to be defined. Agents estimate the reputation of their peers
+from their subjective network state. 
+
+\begin{defn}[Reputation mechanism] 
+    A reputation function $R$ takes as input the subjective network state $N_{p}$ and determines 
+    a reputation score $S^R_{p,q}(I_{p,q}) \in \mathbb{R}$ for all known agents $P_p$.
+\end{defn}
+
+\section{Fork and double spend defense}
+We analyze in the following the impact and defense against a double spend attack. That is a potent 
+attack on a network that can be modelled by an ordered encounter model. Conceptually, an attacker 
+has two conflicting interactions at the same time which breaks the total order of the attackers 
+encounter history.
+
+\begin{defn}[Fork and double spend]. A malicious agent $p$ can has two conflicting interactions 
+    $i \in I$ and $j \in I$ at the exact same time. Both interactions have a different partner $a(i) = \{p, q\}$ 
+    and $a(j) = \{p, r\}$ Accordingly, the personal history of $p$ $H_p = \{i_p(1) ... i_p(t), i_p(t)', i_p(t+1), ... i_p(n)\}$ is not a totally ordered set anymore.
+    The attack can be detected if for any agent $s$ $i_p(t) \in N_{s}$ and $i_p(t)' \in N_{s}$ are
+    true.
+\end{defn}
+
+In the following we show that gossiping is essential for the network to defend against such an 
+attack. 
+
+\begin{thm}[Detectability of double spend without gossiping]
+    \label{thm:fork_no_gossiping}
+    Without gossiping the adversary of a fork and double spend attack cannot be detected.
+\end{thm}
+\begin{proof}
+    Let $p$ be the attacking agent and let $i$ and $j$ be the conflicting interactions of the 
+    attacks. Further, let $q$ be the partner in interactions $i$ such that $a(i) = \{p, q\}$ and let 
+    $r$ be the partner of interaction $j$ such that $a(j) = \{p, r\}$. 
+    No gossiping implies no exchanges $E = \emptyset$ and therefore for any agent $p$ $N_p = H_p$
+    applies. 
+    According to definition \ref{def:subjective_network_state} $i \in N_{q}, j \notin N_{q}$ and 
+    $i \notin N_{r}, j \in N_{r}$. Without gossiping both $q$ and $r$ will not further disseminate 
+    their interactions with $p$ and therefore will not learn of the other version.
+    Moreover, all other agents $s \in P$ are aware of neither $i$ or $j$ because only direct 
+    interactions are observed.
+\end{proof}
+
+Theorem \ref{thm:fork_no_gossiping} proves that without gossiping the double spend attack cannot be
+detected without gossiping. We now show that gossiping can lead to detection of the attacker. 
+
+\begin{thm}[Detectability of double spend with gossiping]
+    \label{thm:fork_gossiping}
+    If agents periodically exchange their full history with a randomly sampled peer the double spend
+    will eventually be detected.
+\end{thm}
+\begin{proof}
+    Let $p$ be the attacking agent and let $i \in I$ and $j \in I$ be the conflicting interactions 
+    of the attack at time $t$. Further, let $q$ be the partner in interactions $i$ such that 
+    $a(i) = \{p, q\}$ and let $r$ be the partner of interaction $j$ such that $a(j) = \{p, r\}$. 
+    According to Definition \ref{def:subjective_network_state} $i \in N_{q}, j \notin N_{q}$ and 
+    $i \notin N_{r}, j \in N_{r}$.
+
+    We consider agent $q$ sampling agents for an exchange. For network size $l = |P|$ the probability of choosing partner $r$ in the first round is $1/l$. The probability for not having
+    chosen $r$ in any of $k$ rounds is $(\frac{l-1}{l})^k$ which tends to 0 as $k \rightarrow \infty$.
+    At some point $q$ therefore choses $r$ for an exchange $e$ with $j \in x(e, q)$ because
+    interaction $j$ was in the agent history of $r$.
+\end{proof}
+
+Theorem \ref{thm:fork_gossiping} shows that gossiping makes double spending detectable. Once a double
+spender is detected by an agent it is possible to ignore them for future interactions. The amount 
+of exchange rounds until detection depends on the exact policy of exchanging data and a deeper 
+analysis is beyond the scope of this work.
+
+\section{Free-riding on gossiping}
+Our aim is now to show that a reputation mechanism which takes into account the exchange behavior of 
+agents defends the system against gossiping free-riders. 
+
+If bandwidth and storage capacity are valuable resources for agents, data dissemination and their 
+long-term storage come at a cost for agents. Therefore agents can attempt to free-ride and only 
+interact without exchanging data. However if all agents would behave in that way the system looses 
+the ability to defend itself against forks and double spending as shown in Theorem 
+\ref{thm:fork_no_gossiping}. We will call those agents gossiping free-riders. 
+
+We first define an exchange policy as the strategy that honest agents apply for exchanging data.
+
+\begin{defn}[Exchange policy]
+    Given an ordered encounter model $M$, an exchange policy $D$ is a 3-tuple $D = \langle f^D, S^D, E^D\rangle$,
+    where
+    
+    \begin{itemize}
+        \item $f^D$ is the frequency of exchanges, defined by the ratio of exchanges over transactions
+        \item $S^D$ is the set of partners to exchange information with
+        \item $E^D$ is the set of encounters to exchange
+    \end{itemize}defines the
+\end{defn}
+
+An honest agent should also be able to verify that other agents adhere to an exchange policy or not.
+
+\begin{lem}[Exchange policy adherence]
+    \label{lem:policy_adherence}
+    Given an ordered encounter model $M$ with exchange policy $D$, any agent $p$ that has observed 
+    the complete history $H_s$ of an agent $s$ can determine whether that agent adhered to policy 
+    $D$.
+\end{lem}
+\begin{proof}
+    Agent $p$ has observed the complete history of agent $q$, therefore $H_q \subseteq N_p$. Agent 
+    $p$ is then able to calculate the frequency of $q$'s exchanges as $f^D_q = \frac{|\{ n \in H_q : n \in E \}|}{|\{ n \in H_q : n \in I \}|}$,
+    the partners of exchanges $S^D_q = \{ a(n) \setminus q : n \in H_q \text{and} n \in E \}$ and the 
+    exchanged encounter $E^D_q = \{ x(n,q) : n \in H_q \text{and} n \in E \}$. Then $p$ can compare
+    the calculated values to the expected values defined by $D$. 
+\end{proof}
+
+A gossiping free-rider can then be defined as follows.
+
+\begin{defn}[Gossiping free-rider]
+    \label{def:gos_free-rider}
+    Given an ordered encounter model $M$ with exchange policy $D$, a gossiping free-rider $p$ is an 
+    agent whose exchange behavior does not fulfill the minimum requirements of policy $D$. 
+\end{defn}
+
+We can define a specific exchange policy which ensures that agents at least obtain the full history 
+of the next partner before each interaction. 
+
+\begin{pol}[Exchange with interaction partner]
+    \label{pol:one}
+    The exchange with interaction partner policy $D$ defines that honest agent $p$ should obtain the full 
+    history of their interaction partners in exchanges prior to an interaction. Therefore 
+    $f^D_p=1$, $S^D_p = \{ a(n) \setminus p : n \in H_p \text{and} n \in I \}$
+    and for each partner $s \in S^D$ each exchange should contain $E^D_p = \{ H_s \}$.
+\end{pol}
+
+We now show that gossiping free-riders can be detected by honest agents that apply Policy \ref{pol:one}
+as their exchange policy.
+\begin{thm}[Detectability of gossiping free-riders]
+    \label{thm:gos_free-rider}
+    Given an ordered encounter model $M$ in which honest agents use exchange policy \ref{pol:one}
+    a gossiping free-rider can be detected on the first interaction.
+\end{thm}
+\begin{proof}
+    Assume agent $p$ is an honest agent and is about to interact with agent $q$. Because agent $p$
+    uses Policy \ref{pol:one}, $p$ will request an exchange with $q$. That exchange will contain 
+    $H_q$. If it does not $p$ will know that $q$ is a gossiping free-rider. After a succesful
+    exchange $H_q \subseteq N_p$. According to Lemma \ref{lem:policy_adherence} $p$ is then able to
+    determine whether $q$ is a gossiping free-rider or not. 
+\end{proof}
+
+The detectability of gossiping free-riders as shown in \ref{thm:gos_free-rider} means that any 
+honest agent is able to ignore the free-rider on the first interaction. This essentially takes away
+any possibility for future interactions with honest agents. 
+
+\section{Verification free-riding}
