@@ -240,7 +240,55 @@ as their exchange policy.
 \end{proof}
 
 The detectability of gossiping free-riders as shown in \ref{thm:gos_free-rider} means that any 
-honest agent is able to ignore the free-rider on the first interaction. This essentially takes away
-any possibility for future interactions with honest agents. 
+honest agent is able to ignore the free-rider on the first interaction. This takes away any 
+possibility for future interactions with honest agents. We conclude that through exchanging
+information on the transaction and gossiping behavior of agents we can effectively defend against 
+gossiping free-riders.
 
 \section{Verification free-riding}
+We have shown that double-spenders and gossiping free-riders can both be detected. Yet in order to 
+actually detect those attacks, agents need to perform verification of any encounters received 
+through exchanges. We can define Algorithm \ref{alg:verify_exchange} which needs to be run by all 
+honest agents for each exchange in order to defend against double-spenders and gossiping free-riders.
+
+\begin{algorithm}
+\caption{Exchange verification}\label{alg:verify_exchange}
+\begin{algorithmic}[1]
+\Procedure{verifyExchange}{}
+\State {$p$: Honest agent, receiver of exchange}
+\State {$q$: Agent, subject of verification}
+\State {$H_q$: $q$'s encounter history received by $p$}
+\ForAll{exchanges $e$ in $H_q$ }
+\If {$e$ is not valid according the the exchange policy} \Return false
+\EndIf
+\EndFor
+\ForAll{interaction $i$ in $H_q$}
+\If {$i$ is in conflict with any $j \in N_p$} \Return false
+\EndIf
+\EndFor
+\Return true
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+Similar to the process of gossiping the execution of Algorithm \ref{alg_verify_exchange} introduces
+some costs for agents. Therefore agents again could try to manipulate the system by not verifying 
+the encounters and instead blindly accepting the received information. We will define those agents
+as verification free-riders.
+
+\begin{defn}[Verification free-riders]
+    A verification free-rider is an agent that does not verify received exchanges using Algorithm 
+    \ref{alg:verify_exchange}.
+\end{defn}
+
+In contrast to the detection of gossiping free-riders, the detection of verification free-riders is
+less straight-forward because the execution of an algorithm is not directly observable. Instead 
+detection of this type of attack can only be done by observing suspicious behavior. An honest agent
+the always verifies the encounters received from peers will not interact with double spenders or 
+gossiping free-riders. A verification free-rider on the other hand cannot discern between honest,
+malicious and free-riding peers. 
+
+The recording of gossiping behavior allows for the complete reconstruction of an agent $q$'s subjective
+network state before any transaction. This makes it possible for an honest agent $p$ to re-evaluate the 
+decision of $q$ to engage in all of $q$'s interactions.
+
