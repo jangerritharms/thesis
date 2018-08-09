@@ -88,13 +88,21 @@ the network.
     \end{equation}
 \end{defn}
 
+The subjective network state contains the complete knowledge of the agent. In \cite{OTTE2017} a 
+similar concept exists in the form of the subjective work graph. It generally models a partial view
+of the network described by the model. This subjective view is the basis for the calculation of 
+reputation and trust as further described by Otte et.al.. At the core of this work is not the way 
+reputation and trust are calculated but rather how the knowledge of interactions is disseminated and
+protected against malicious agents. The relation to actual trust creation is further discussed in 
+Section \ref{sec:relevance}
+
 The model from Definition \ref{def:base} introduces the concept of exchanges. Yet it does not define
 how agents should exchange data. We therefore define an exchange policy which is the strategy that 
 honest agents apply for exchanging information.
 
 \begin{defn}[Exchange policy]
     Given an ordered encounter model $M = \langle P, I, E, a, w, x \rangle$ and an agent $p \in P$ with encounter history $N_p$,
-    the exchange policy is a function $f : I_p \rightarrow P \times N^+$, where $I_p = \{ n \in N_p : n \in I\}$.
+    the exchange policy is a function $f : I_p \rightarrow P \times N^+$, where $I_p = \{ n \in N_p  \cap I\}$.
     The exchange policy maps each interaction of an agent $p$ to a partner and set of encounters 
     which need to be obtained from that partner prior to the interaction.
 \end{defn}
@@ -113,7 +121,7 @@ exchange policy.
     therefore being considered an honest agent is as follows: 
 
     \begin{equation}
-        f(I_p) \subseteq \{ \{a(e) \setminus p, x(e, p)\} : e \in H_p \text{ and } e \in E\}
+        f(I_p) \subseteq \{ (q, x(e, p)) : e \in H_p \cap \in E,  \exists (p, q) \in a(e)\}
     \end{equation}
 \end{defn}
 
@@ -140,13 +148,13 @@ exchange policy.
 \section{Fork and double spend defense}
 In what follows we analyze the impact and defense of the previously defined model against a double spend attack. That is a potent 
 attack on a network that can be modelled by an ordered encounter model. Conceptually, an attacker 
-has two conflicting interactions at the same time with two different agents. As each partners is not
+has two conflicting interactions at the same time with two different agents. As each partner is not
 aware of the other both accept the interaction. 
 
 \begin{defn}[Fork and double spend]. Given an ordered encounter model $M = \langle P, I, E, a, w, x \rangle$, a malicious agent $p$ has two conflicting interactions 
     $i \in I$ and $j \in I$ at the exact same time. Both interactions have a different partner $a(i) = (p, q)$ 
     and $a(j) = (p, r)$ Accordingly, the personal history  of $p$ is not a totally ordered set anymore.
-    The attack can be detected if for any honest agent $s$ $i_p(t) \in N_{s}$ and $i_p(t)' \in N_{s}$ are
+    The attack can be detected if for any honest agent $s$, $i_p(t) \in N_{s}$ and $i_p(t)' \in N_{s}$ are
     true.
 \end{defn}
 
@@ -161,7 +169,7 @@ attack. We first study the case of no exchanges. For that we formally define the
 
 \begin{thm}[Detectability of double spend without gossiping]
     \label{thm:fork_no_gossiping}
-    If honest agents apply the No-Exchange policy, and therefore not perform gossiping,
+    If honest agents apply the No-Exchange policy, and therefore do not perform gossiping,
     the fork and double spend attack cannot be detected.
 \end{thm}
 \begin{proof}
@@ -186,7 +194,7 @@ define an exchange policy in which honest agents obtain the encounter history pr
     The History-Exchange policy requires agents to obtain the encounter history of their partner 
     prior to an interaction. 
 
-    \[ f(I_p) := \{ (q, H_q) : \exists i \in I_p, q \in a(i) \}\]
+    \[ f(I_p) := \{ (q, H_q) : \exists i, q (i \in I_p \text{ and } (p, q) \in a(i)) \}\]
 \end{pol}
 
 
@@ -215,13 +223,13 @@ spender is detected by an agent it is possible to ignore them for future interac
 of exchange rounds until detection depends on the exact policy of exchanging data and a deeper 
 analysis is beyond the scope of this work.
 
-\section{Free-riding on gossiping}
+\section{Gossip free-riding}
 Our aim is now to show that a reputation mechanism which takes into account the exchange behavior of 
 agents defends the system against gossiping free-riders. 
 
 If bandwidth and storage capacity are valuable resources for agents, data dissemination and their 
 long-term storage come at a cost for agents. Therefore agents can attempt to free-ride and only 
-interact without exchanging data. However if all agents would behave in that way the system looses 
+interact without exchanging data. However if all agents would behave in that way the system loses 
 the ability to defend itself against forks and double spending as shown in Theorem 
 \ref{thm:fork_no_gossiping}. We will call those agents gossiping free-riders. 
 
@@ -245,7 +253,7 @@ the ability to defend itself against forks and double spending as shown in Theor
     \label{def:gos_free-rider}
     Given an ordered encounter model $M = \langle P, I, E, a, w, x \rangle$ with exchange policy $f$, a gossiping free-rider $p \in P$ is an 
     agent whose exchange behavior does not fulfill the minimum requirements of policy $f$. That is, 
-    $f(I_p) \nsubset \{ \{a(e) \setminus p, x(e, p)\} : e \in H_p \text{ and } e \in E\}$.
+    $f(I_p) \nsubset \{ (q, x(e, p)) : e \in H_p \cap E, \exists (p, q) \in a(e)\}$.
 \end{defn}
 
 We now show that gossiping free-riders can be detected by honest agents that apply the History-exchange
@@ -261,8 +269,8 @@ policy.
     uses Policy \ref{pol:one}, $p$ will request an exchange with $q$. That exchange will contain 
     $H_q$. If it does not $p$ will know that $q$ is a gossiping free-rider. After a successful
     exchange $H_q \subseteq N_p$. In that case $p$ is able to check the condition for adherence to 
-    the History-Exchange policy $f$ by $f(I_q) \subseteq \{ \{a(e) \setminus p, x(e, p)\} : e \in 
-    H_q \text{ and } e \in E\}$. If the condition is not true agent $p$ has found $q$ to be a
+    the History-Exchange policy $f$ by $f(I_q) \subseteq \{ (q, x(e, p)) : e \in 
+    H_q \cap E, \exists (p, q) \in a(e)\}$. If the condition is not true agent $p$ has found $q$ to be a
     gossiping free-rider.
 \end{proof}
 
@@ -284,8 +292,8 @@ honest agents for each exchange in order to defend against double-spenders and g
 \Procedure{verifyExchange}{}
 \State {$p$: Honest agent, receiver of exchange}
 \State {$q$: Agent, subject of verification}
-\State {$H_q$: $q$'s encounter history received by $p$}
-\State {$N_p$: $p$'s subjective network state}
+\State {$H_q$ \leftarrow $q$'s encounter history received by $p$}
+\State {$N_p$ \leftarrow $p$'s subjective network state}
 \ForAll{exchanges $e$ in $H_q$ }
 \If {$e$ is not valid according the the exchange policy} \Return false
 \EndIf
@@ -310,9 +318,9 @@ as verification free-riders.
 \end{defn}
 
 In contrast to the detection of gossiping free-riders, the detection of verification free-riders is
-less straight-forward because the execution of an algorithm is not directly observable. Instead 
+less straight-forward because the execution of an algorithm is not directly observable. Instead, 
 detection of this type of attack can only be done by observing suspicious behavior. An honest agent
-the always verifies the encounters received from peers will not interact with double spenders or 
+that always verifies the encounters received from peers will not interact with double spenders or 
 gossiping free-riders. A verification free-rider on the other hand cannot discern between honest,
 malicious and free-riding peers. Hence, should there be a malicious agent $q$ and a verification 
 free-rider $r$ chances are that $q$ and $r$ will interact. Should $r$ have the information to know 
@@ -355,7 +363,7 @@ interactions.
 \begin{proof}
     Let $p$ be an honest agent who applies the Network-State-Exchange policy and let $q$ be an agent
     that exchanged with $p$. According to Policy \ref{pol:network_state} after a succesful exchange
-    $N_q \subset N_p$ and thus also $H_q \subset N_p$. As previously defined the agent encounter
+    it holds that $N_q \subset N_p$ and thus also $H_q \subset N_p$. As previously defined the agent encounter
     history is a totally ordered set. Let $n_q(t)$ denote the $t$th encounter of agent $q$. At each
     round $t$ the $q$'s subjective network state is given by $N_q(t) = \{ n \in N : n \in H_p(t-1) \} \cup \{ x(e, p) : e \in E \text{ and } e \in H_p(t-1) \}$.
     Also, $N_q(t) \subset N_p$ and therefore $p$ is able to perform Algorithm \ref{alg:verify_exchange}
@@ -380,6 +388,7 @@ interact with any agent in $S_p$, at least agent $p$ knows that $q$ is dishonest
 slowly be isolated.
 
 \section{Relevance for global trust system}
+\label{sec:relevance}
 The calculation of reputation and trust has not been part of the discussion up to now.
 This brings about the question of relevance to the global trust system. We refer again to the work
 of Otte et. al. \cite{OTTE2017} for an in depth study of interaction graph based trust mechanisms.
@@ -407,9 +416,16 @@ increased reciprocity. An analysis of the influence of gossiping on the trust ca
 trust mechanism such as the one introduced in \cite{OTTE2017} is an interesting topic for further 
 research.
 
-\subsection{Pairwise consensus on reputation and trust}
+\subsection{Pairwise agreement on reputation}
 The Network-State-Exchange policy leads to a synchronization of both agents subjective network state.
-
+After the exchange both agents share the same subjective network state which means they also agree
+on the reputation of all peers as the reputation is based on the subjective view of the network.
+If trust is calculated with a function that takes as input only the knowledge of reputations or the
+records of interactions, both agents can check their trust for each other. This way no dispute can 
+exists about the fairness of a trust-based contribution. For example if one agent $p$ is requested by 
+two other agents to provide a resource, $p$ cannot falsely donate the resource to the less 
+trusted agent in a collusion. The agent who ended up empty handed could prove that the trust 
+calculation from $p$'s perspective points in his favor.
 
 \subsection{Reduced scalability}
 Enforcing an exchange policy for honest agents also bears risks. An agent is only able to interact
