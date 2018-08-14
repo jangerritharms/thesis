@@ -1,10 +1,10 @@
-\chapter{Tribler, TrustChain and Implementation}
+\chapter{System architecture}
 \label{chap:implementation}
 
-Distributed trust systems rely heavily on the records of interactions. Our theoretical analysis from
-the previous chapter has further shown that dissemination of those records is required to ensure the
-validity of those records and therefore the trust that is built on them. In previous work our 
-research group has created the tamper-proof recording system for interactions, TrustChain. This system is 
+Trust and reputation systems rely heavily on the records of interactions. Our theoretical analysis from
+the previous chapter has further shown that dissemination of those records is required to ensure their
+validity and therefore the validity of the trust that is built on them. In previous work our 
+research group has created a tamper-proof recording system for interactions, TrustChain. This system is 
 implemented in a peer-to-peer video streaming service Tribler and the IPv8 project\footnote{https://github.com/tribler/py-ipv8}.
 % Although the exchange of information is part of those systems and as shown key to their manipulation
 % resistance, exchanges are not explicitly recorded. 
@@ -17,14 +17,14 @@ recording and reasoning about gossip behavior of agents.
 We open this chapter by relating the previously introduced model to an application context. Next we
 introduce the conceptual working of blockchains which is a core technology for TrustChain. A discussion of
 TrustChain itself follows. Then our extension, the recording of exchanges, is discussed in detail. 
-Finally, a more elaborate discussion of possible attacks on the system is performed.
+Finally, a more elaborate analysis of possible attacks on the system is performed.
 
 \section{Relating Tribler to the ordered encounter model}
-In the previous chapter the ordered encounter model was introduced which contains agents, interactions,
-exchanges. The model is useful for studying the mechanisms of a trust system in a theoretical 
+In the previous chapter the ordered encounter model was introduced. The model is useful for studying 
+the mechanisms of a trust system in a theoretical 
 setting. However it may not be immediately obvious to the reader how the model relates to a digital
-trust system in an application context. In this section we shed more light on how the concepts 
-relate to their counterparts in the Tribler application.
+trust system in an application context. In this section we shed more light on how the model's concepts 
+match their counterparts in the Tribler application.
 
 We introduced Tribler in Chapter \ref{chap:introduction}. It is a peer-to-peer video streaming 
 service which is based on the BitTorrent protocol. As the BitTorrent protocol does not guarantee the
@@ -34,7 +34,7 @@ Tribler network and entering the public internet. The origin of the original req
 
 \subsection{Agents}
 In the model, agents are the entities that take part in interactions and encounters. Intuitively one
-would assume that users are the agents in Tribler. It would be more accurate though to see that a 
+would assume that users are the agents in Tribler. It would be more accurate though to say that a 
 running instance of the Tribler software is the agent. A single human user can have multiple 
 instances of the software running on multiple machines and thus ``control'' multiple agents. Despite
 being able to run or stop the agents, the human user has only a very small decision space, though, 
@@ -66,18 +66,18 @@ them against manipulations and distribute them in the network is the centerpiece
 \subsection{Trust and reputation}
 The uploading and downloading of videos in the network is a social dilemma as each user wants to 
 stream videos while contributing as little as possible. It is therefore a good test bed for a trust 
-system which records the behavior of users. The reputation of an agent in Tribler represents the 
+system which should incentivize users to contribute. The reputation of an agent in Tribler represents the 
 contribution behavior of that agent. Contributing, that is uploading video streams to other users,
 increases an agent's reputation whereas downloading, that is streaming videos, decreases an agent's 
-reputation. Also, relaying is a neutral activity in terms of a upload-download ratio, yet the 
+reputation. Also, relaying is a neutral activity in terms of the upload-download ratio, yet the 
 reputation of an agent that relays a lot of data needs to be higher as well. In contrast to 
-reputation, trust is subjective and can be seen as the subjective notion of a peer being a 
+reputation, trust is subjective and can be seen as the subjective perception of a peer being a 
 ``good contributor''. 
 
 In order to better illustrate the difference between reputation and trust we provide an example.
-Assume an agent $a$ knows two agents, $b$ and $c$ and sees that both have uploaded and downloaded 
-the same amount of data. However, $b$ has $uploaded$ most to $a$ while $c$ has uploaded only to 
-agents that $a$ has not heard of. Human intuition tells us that $a$ should trust $b$ more than $c$, 
+Assume an agent $A$ knows two agents, $B$ and $C$ and sees that both have uploaded and downloaded 
+the same amount of data. However, $B$ has uploaded most to $A$ while $C$ has uploaded only to 
+agents that $A$ has not heard of. Human intuition tells us that $A$ should trust $B$ more than $C$, 
 because of the stronger direct connection. Trust therefore depends on the topography of the network.
 
 % % 
@@ -110,26 +110,33 @@ server and the proof-of-work algorithm. This architecture is commonly referred t
 shall introduce this concept in more detail as the core concepts are also applied in TrustChain.
 
 \subsection{Concept}
-A blockchain is essentially an append-only database in form of chained blocks. Each block on the 
-chain contains a set of transactions, the root hash of that set, a unique identifier called the 
-Nonce and the hash of the previous block. Through the hash of the previous block the blocks are 
-chained together as can be seen in Figure~\ref{fig:basic_blockchain}. Transactions and new blocks need to be published publicly on 
-the network. Blocks may be created and published by any agent, but only after that agent guessed 
-a string that when hashed equals a target hash. As this problem is probabilistic and requires a lot
-of guesses, the speed of solving this problem depends on the CPU power of calculating agents. This 
-process is called mining.
+A blockchain is essentially an append-only database in form of chained blocks. It is designed to be
+used as a secure information storage in distributed systems without any central governance. Tribler
+is therefore a possible application context for a blockchain-based database.
 
-Once selected, the agent adds transactions in the sequence as they 
-were received. The block size is fixed such that after adding a certain number of 
+Each block on the chain contains a set of transactions, the root hash of that set, a Nonce (used in 
+the consensus algorithm) and the hash of the previous block. Through the hash of the previous block the blocks are 
+chained together as can be seen in Figure~\ref{fig:basic_blockchain}. The first block in the chain 
+is called the genesis block. The Bitcoin blockchain and similar single-chain blockchains only has 
+one genesis block. Each block can also be identified by a sequence number, which is an increasing 
+integer that starts from 1 at the genesis block.
+
+Transactions and new blocks need to be published publicly on the network. The block creation process
+is managed by the consensus mechanism Proof-of-work. This process is also called mining and the nodes
+that take part in it are thus miners. It works as follows: Each new block contains a computational 
+intensive puzzle which needs to be solved in order to be able to publish a block. A string needs to 
+be found that matches a target hash. All miners use their CPU to guess the correct string. Once they
+find a possible solution, the agent combines all the transactions that were published since the last
+block and combines them to a new block. The block size is fixed such that after adding a certain number of 
 transactions the block is considered complete. Once complete, the agent publishes the
-block as well as the hash of the block's content. Any agent that receives the block will verify that
+block on the network. Any agent that receives the block will verify that
 the solution to the puzzle is correct and all transactions are valid. If so, they add the new block
-to their copy of the chain and start with solving the next puzzle in order to become the next selected
-creator of a block.
+to their copy of the chain and start with solving the next puzzle in order to become the next 
+creator of a block. The creator of the block is rewarded with newly created Bitcoins.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.7\textwidth]{images/blockchain}
+    \includegraphics[width=0.7\textwidth]{images/blockchain.pdf}
     \caption{Conceptual depiction of a slice of a Bitcoin-like blockchain. Blocks contain multiple transactions and are chained together through the hash of the previous block. Source: \textit{Creation of TU Delft BLockchain Lab}}
     \label{fig:basic_blockchain}
 \end{figure}
@@ -142,36 +149,63 @@ can be increased. This ensures a approximately fixed time between new blocks. Th
 system is capped. For Bitcoin this is approximately 7 transactions per second. The Bitcoin solution
 does not scale and is in its current state no possible solution for a global trust system.
 
-\subsection{Tamper-proof}
-% why?: show that the hash chain creates a tamper-proof record
-By including the hash of the previous block in each new block, the blockchain creates an append-only
-chain. Any slight change to any block will change the hash of that block and thus break the chain. 
-Also, because every node on the network maintains the same chain, just changing one block locally 
-is not enough, only new blocks on the longest chain are accepted by nodes. Thus the only way to 
-actually attack the system is by mining blocks faster than the rest of the network. This is only 
-possible when a majority of the network's CPU power works together which is very unlikely for very
-large networks. The blockchain therefore offers a very tamper-proof solution for storing transactions
-in a distributed system.
-
-\subsection{Incentive}
+\subsection{Consensus}
 % why?: 
 Bitcoin-like distributed ledgers create an incentive for agents to publish new blocks by rewarding 
 them with currency. New blocks are accepted if they are on top of the longest chain. This creates 
 an incentive for all participating miners to stay up to date on the state of the global ledger. Only
 if an agent is in possession of the latest block is there a chance to receive the block reward. 
-Conflicts can arise when two blocks are found at approximately the same time. Each block will be 
-considered the latest by part of the network. The conflict will be resolved once the next block is 
-found in any of the two parts, creating the new longest and valid chain. Agents from the other part 
-will immediately switch to the longer chain. This ultimately leads to global consensus on the 
-current chain.
 
-% Explain Sharding
-% 
+Conflicts can arise when two blocks are found at approximately the same time. Each block will be 
+considered the latest by part of the network. The network is thus split into two groups and a natural
+fork is created in the chain. However this conflict will usually resolve itself. Both parts of the 
+network will continue to mine the next block. Depending on the CPU power of the two groups and some
+luck, one group will be faster at mining the next blocks. Because blocks are only rewarded when they
+have the highest sequence number, the slower part of the network will quickly switch to the longer
+chain and thus the network is combined again. 
+
+Bitcoin thus guarantees that all agents have the exact same chain of blocks(except for the latest 
+blocks) and thus have a single view of the state of each agent. This state of agreement is called
+global consensus.
+
+\subsection{Tamper-proof}
+% why?: show that the hash chain creates a tamper-proof record
+The chain of hashes that connects blocks on the blockchain creates a tamper-proof history. Any 
+change to a block on the chain will change the hash of that block. This voids the following block's
+hash pointer because it points to the old block. Therefore any change to the block requires the 
+recalculation of all following blocks. Because all blocks need to be agreed upon on the network 
+other agents will be able to see such tampering with the blocks and will not agree on it. 
+
+The tamper-proof nature of the blockchain makes it a very useful tool for recording chronologically 
+ordered transactions. The sequence of blocks also orders the transactions stored in the blocks. Any
+transactions in an earlier block happen before the transactions in the later block. Also, as was just 
+explained, any change to the ordering of transactions will result in a break in the hash chain. Even though this order
+does not necessarily correspond to the local time of the agent who published the transaction, the 
+blockchain will create a globally accepted order for transactions.  This is a major 
+achievement because this order is robust against network delays, tampering and other attacks.
+
+Still the system cannot be perfectly secure. One way to actually attack the system is by mining 
+blocks faster than the rest of the network. This is only possible when a majority of the network's 
+CPU power works together which is unlikely for very large networks. Yet, there are examples of this 
+happening~\cite{51percentbitcoingold, 51percentverge}.
+
+\subsection{Scalability}
+A blockchain solution like Bitcoin seems like a valid implementation for the ordered encounter model that we defined in the 
+previous chapter. All transactions are exchanged with all agents on the network. The blockchain 
+creates a totally ordered set of all global transactions which intrinsically means that each agent's 
+transactions are also fully ordered. Double spend and forks are detectable through global consensus. 
+
+However, the Proof-of-work mechanism leads to issues in scalability. The global throughput of 7 
+transactions per second is not enough to power a global scale distributed trust system as we envision it. 
+The Proof-of-work consensus algorithm also leads a to a large expenditure of energy which creates 
+large transaction costs. This is not acceptable if the trust system should be for general purpose 
+applications. For example, users will not accept to pay for each video they stream on the Tribler 
+platform. A different solution is therefore needed.
 
 \section{TrustChain}
 \label{sec:trustchain}
 TrustChain is designed with scalability in mind. It's design focus is in stark contrast with that of
-Bitcoin. Instead of employing global consensus to guarantee a single global transaction ledger, 
+Bitcoin. Instead of employing global consensus to guarantee a single global transaction set, 
 all agents in the TrustChain fabric are owner of a chain for themselves. This creates a scalable 
 solution in which the total network throughput grows with the size of the network. However, the
 scalability comes at the cost of security guarantees. This section will first discuss the general 
@@ -179,22 +213,35 @@ architecture of trust chain before discussing the scalability and some details o
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.35\textwidth]{images/block}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{images/block-2.pdf}
+        \caption{Conceptual representation}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=0.6\textwidth]{images/transaction_block_data.pdf}
+        \caption{Transaction block, data representation}
+    \end{subfigure}
     \caption{A single block in the TrustChain fabric. Incoming arrows represent block hashes from the previous blocks of the agents' chains. Source: \textit{Creation of TU Delft BLockchain Lab}}
     \label{fig:trustchain_block}
 \end{figure}
 
 \subsection{Data structure}
 \label{sec:transaction_blocks}
+Similar to the Blockchain architecture TrustChain records transactions in blocks and links blocks 
+with the use of hash pointers. Though, in contrast to having a single chain of blocks for the whole
+network, in TrustChain each agent starts with an own genesis block. Hence, all agents record their
+own transactions on their own chain. 
+
 Blocks in TrustChain record exactly one transaction between two parties. Because both parties have 
 their own chain and the transaction concerns both parties, any new block is added to both agents'
 chains. Each block contains the following main elements:
 
 \begin{itemize}
-    \item \textbf{Transaction.} The actual content of the block is the data of the transaction. 
+    \item \textbf{Transaction.} The transaction field records the value that was exchanged between agents.
     TrustChain is designed to be application agnostic. Thus the content of a transaction can be any 
-    serializable data. In the case of Tribler the transaction contains the amount of data that was
-    uploaded and downloaded from the perspective of the initiator.
+    serializable data. 
     \item \textbf{Previous block hashes.} The hashes of the previous blocks of both agents' chains 
     firmly attaches the new block to their history. This is similar to the basic blockchain concept.
     \item \textbf{Public Keys.} In order to uniquely identify the two agents that conduct a transaction
@@ -207,10 +254,10 @@ chains. Each block contains the following main elements:
     which shows the position in the chain. 
 \end{itemize}
 
-A simplified depiction of a TrustChain block is shown in Figure~\ref{fig:trustchain_block}. When 
-looking at a single agent the given data structure creates a chain of blocks which describea all the
+A simplified depiction and data representation of a TrustChain block is shown in Figure~\ref{fig:trustchain_block}. When 
+looking at a single agent the given data structure creates a chain of blocks which describes all the
 transactions of that agent. However the second incoming and outgoing edge of each block entangles an
-agent's chain with those of all partners. When looking at a complete network of the transactions the
+agent's chain with those of all partners. When looking at a complete network, of the transactions the
 represents a directed acyclic graph(DAG). Such a structure is shown in Figure~\ref{fig:trustchain_graph}.
 
 \begin{figure}
@@ -221,38 +268,173 @@ represents a directed acyclic graph(DAG). Such a structure is shown in Figure~\r
     \label{fig:trustchain_graph}
 \end{figure}
 
+The validity of a block depends on the following conditions. 
+
+\begin{itemize}
+    \item the transaction field contains the necessary information to properly define a transaction in the application context. For Tribler this
+means that it needs to contain at least the amount of data which was uploaded and downloaded between
+the two agents. 
+    \item both block hashes need to point to the valid, previous block on the chain of the same public key. This makes the validity a recursive definition 
+which depends on the previous content of the chain of both agents.
+    \item both public keys need to be valid public keys
+    \item the signatures need to be correct for the given public keys and block content
+    \item the block needs to carry the next integer as sequence number compared to the blocks that the previous hashes point to
+\end{itemize}
+
+Any agent is able to confirm the validity of a block given the full chains of both agents up to the 
+block that is to be verified. We consider next the impact of this architecture on scalability and
+security.
+
 \subsection{Scalability}
 \label{sec:trustchain_scalability}
-A transaction in TrustChain only requires the agreement of the two participating nodes on the content
-of the block. Each node shows acceptance by digitally signing the block and returning it to the 
-other party. Therefore transactions do not need to be publicly announced or sent to all nodes on
+For a transaction to be successful in TrustChain, only two agents need to agree on the content. This
+means that only two agents need to communicate to confirm a transaction. Transactions do not need to 
+be publicly announced or sent to all nodes on
 the network. Also, multiple transactions can be performed at the same time globally without breaking
 the rules of the system. In contrast to the Bitcoin system, only the transactions of each agent are
 strictly ordered, the global set of transactions is not.
 
 This result is a system that scales with the size of the network. A simple example makes this very 
 clear. Consider two networks, one with 10 nodes and one with 100 nodes. For simplicity we consider
-time to be discrete and agents interact in rounds. Each transaction takes 1 round and all agents 
+time to be discrete and agents to interact in rounds. Each transaction takes 1 round and all agents 
 interact. Throughput calculation is then straightforward. Nodes arrange in pairs and perform a
 transaction. The small network will have 5 pairs and thus 5 transactions per round, while the large
 network has 50 pairs and transactions. Although this example is extremely simplified, no real-world
 effect like network delays, network churn or bandwidth restrictions greatly conflict with this property.
 
-\subsection{Security}
-Similar to a single Blockchain the graph structure of TrustChain creates a tamper-proof record of
-transactions. Although each user controls an own chain and can manipulate it without other agents 
-noticing, any manipulation will render the signature of the transaction partner invalid. Also, all 
-blocks are at least owned by two nodes. Should one agent try to hide the transaction, it will not 
-completely disappear from the network because the partner still owns a copy. Therefore transactions
-are still recorded in a tamper-proof data structure.
+TrustChain does not include a global consensus and thus does not expend bandwidth, storage and 
+computational power to create a global order for transactions. That removes the most costly component
+from the general blockchain architecture. Without the expense of CPU power for solving an inverse 
+hash problem, transactions only cost the bandwidth and computational expense of communicating with 
+the direct interaction partners. TrustChain enables free transactions in a global distributed 
+system with scaling throughput based on the network size. Hence, TrustChain is valid solution for a
+global trust system.
 
-However problems arise with attacks that don't directly manipulate the data structure but make use 
-of the incomplete knowledge which is intrinsic to distributed networks. A prominent example, 
-double spend attack, has been defined and extensively discussed in Chapter~\ref{chap:model}. We have
-shown that gossiping, that is sharing of knowledge, is a way to detect such attacks. The current
-TrustChain system does not record gossiping in any way. Therefore agents do not have a strong 
-incentive to perform gossiping. In the next section an extension will be discussed which adds the 
-possibility of recording exchanges.
+\subsection{Security}
+The scalability of the TrustChain architecture comes at the expense of some security guarantees.
+
+Similar to a single Blockchain the graph structure of TrustChain creates a tamper-proof record of
+transactions. A large difference is that each agent reigns over a chain. Each agent seemingly is 
+able to reorder transactions but blocks are signed by a second agent and the signature will become
+invalid if the blocks are tampered with. Also blocks contain the previous hash of the counter party's
+previous block. That ensures that the hashes cannot change without the other agent being able to 
+detect the tampering.Therefore transactions are still recorded in a tamper-proof data structure.
+
+Still, detectabillity does not ensure detection. The can only be secured if agents
+continuously verify their partners data. Also, as the validity of a block is recursively defined, 
+agents can only ensure the validity of a partners previous transaction if they possess their complete
+chain and verified that chain. It is even harder to defend against attacks in which agent do not 
+directly manipulate the data structure but make use of the incomplete knowledge which is intrinsic 
+to distributed networks. In Section \ref{sec:attacks} we will discuss some of these attacks in detail.
+
+\subsection{Relation to model}
+The TrustChain can be mapped onto the model from Chapter \ref{chap:model} in a straight-forward 
+fashion. The blocks store a single transaction and therefore correspond to the interactions of the
+model. The functions that relate the interaction to the participating agents and the value of the 
+transaction is directly stored on the block itself. The blocks create a fully ordered history of 
+each agent. An agents chain then corresponds to the concept of the agent encounter history.
+
+The TrustChain architecture does not define a tool to record the exchange of information. To other 
+agents it is not clear which information each agent is acting on. That does not mean that exchange 
+is not possible - agents are free to send transaction blocks back and forth. Yet, without recording
+this activity, no reward or punishment can be assigned to such behavior or the lack of it. 
+
+% A prominent example, the double spend attack, has been defined and extensively 
+% discussed in Chapter~\ref{chap:model}. We have shown that gossiping, that is sharing of knowledge, 
+% is a way to detect such attacks. The current
+% TrustChain system does not record gossiping in any way. Therefore agents do not have a strong 
+% incentive to perform gossiping. In the next section an extension will be discussed which adds the 
+% possibility of recording exchanges.
+
+\section{Attacks}
+\label{sec:attacks}
+If the trust system works as expected, a good reputation should have value to agents. All agents on 
+the network attempt to obtain a good reputation and be seen as a trusted partner. As such their 
+behavior should be meticulously agree with the rules. Yet, if the value is large enough and behaving
+well comes at a large enough cost, agents will aim to bend the rules or even break them in a smart 
+way in order to get the good reputation for free. As a designer of the trust system it is essential
+to predict the possible ways of manipulation and prevent them. In this section we will define several
+known types of attacks on trust systems and if applicable define how TrustChain can prevent them.
+
+\subsection{Block manipulation}
+Block manipulation has been introduced previously. An agent changes a property of a block in his 
+chain, distorting the true history in order to gain an advantage. For example, a block records a 
+transaction in Tribler in which agent $A$ downloaded from agent $B$. The transaction reduces the 
+reputation of agent $A$ which is why $A$ could decide to change the amount of data downloaded to 0.
+If agent $A$ does this before the signatures are provided, $B$ will not agree to sign the transaction
+and will ignore $A$ in the future because $A$ obviously is not an honest partner. On the other hand,
+if both agents sign the transaction first, $A$ can change the value on his own chain without $B$ 
+immediately noticing. The signature of $B$ however becomes invalid because $B$ signed the original, 
+correct version of the block. In any following transaction, any agent $C$ that is about to interact
+with $A$ has the chance to detect this fraud by checking the signatures on all previous transactions
+of $A$. 
+
+TrustChain makes any manipulation detectable. Still if agent $C$ collaborates with agent $A$ or 
+agent $C$ is ``lazy'' and does not obtain $A$'s chain to verify it prior to an interaction, $C$ can 
+perform a transaction. The collaboration or laziness cannot be detected and $C$ will remain honest 
+in the eyes of future partners.
+
+\subsection{Forking and double-spending}
+Forking is one of the most well-known attacks of blockchain based systems. In the cryptocurrency 
+context it is also known as double spending. As defined in Chapter \ref{chap:model} an attacking agent 
+performs two conflicting transactions with two different partners. This translates to two transaction
+blocks which have the same sequence number for an attacking agent $A$. Partner $B$ and $C$ are each
+not aware of the other version of the block and will sign the block. This allows to ``overwrite''
+a negative transaction (with $B$) with a positive transaction (with $C$). $A$ will only keep the positive transaction on 
+the chain. 
+
+TrustChain makes this attack detectable through the sequence number of the blocks. If any agent 
+obtains both versions of the block, that agent will see that $A$ has signed and thus authorized the
+creation of two blocks with the same sequence number. Also if $B$ obtains any later blocks from $A$ the hashes will not point to the 
+transaction with $B$.  This creates a proof-of-fraud. The actual
+detection of this attack requires agents to obtain transactions from their peers and compare those 
+to existing blocks. Because no agent is aware of the transaction $B$, agents cannot not specifically 
+request $B$'s history to check for the attack. Therefore, the detection requires the collaboration
+of the network in the form of random block requests. As we have proven in Chapter \ref{chap:model}, 
+without gossiping about their transactions, agents are not able to find a double-spender
+
+\subsection{Block withholding}
+Once agents have a longer history they will have records of positive and negative encounters. A 
+malicious agent then might try to hide any records of negative encounters, thus boosting the trust 
+others have in the attacker. The architecture of TrustChain is made to make such an attack easily detectable.
+The blockchain of any agent creates a tamper-proof, irreversible order for all transactions. Only if
+the sequence numbers increase exactly by one to each following block can another agent be sure that 
+the whole history was shared by an agent. 
+
+Again, an agent can only be sure of another agent's trustworthiness if she know his full history. 
+Although it might seem that an ``almost'' complete history is also enough to determine the trustworthiness
+of an agent within certain bounds this is only true if the value of a single transaction is bounded.
+In the example of Trilber, if each block can only record a maximum of 100MB of data transacted, then 
+even with one missing block the true reputation of an agent can be estimated within a 100MB margin.
+Without such bounds also the reputation cannot be estimated within bounds. 
+
+Note that if an agent witholds the latest blocks, this cannot be detected by another agent (except
+if that information was obtained already through gossiping). Yet such an attack is similar to a
+double-spend because any newly created block will conflict with those blocks that were withheld.
+
+\subsection{Whitewashing}
+Agents that have a significantly bad reputation such that finding interaction partners becomes difficult may decide to create a new 
+identity for themselves. Thus, they can rid themselves from the bad reputation and start fresh. This 
+type of attack is called whitewashing. In the currently deployed version of TrustChain in Tribler 
+this attack cannot be prevented as the software is free and new agents do not need registering with
+any central institutions.
+
+Still the impact of such attacks can be limited by having some mistrust of new agents joining the 
+network. In that case new agents need to ``pay their dues'' before being accepted by the network 
+as equals. 
+
+\subsection{Sybil attack}
+One of the most serious attacks on trust systems is the Sybil attack. In a Sybil attack the attacker
+creates a set of new accounts, called the Sybils. Together with the attacking agent the set of 
+agents is called a Sybil region. Those Sybils create transaction records 
+between each other without actually performing the transactions with the goal of boosting the 
+reputation of one of the agents in the Sybil region. The attack is successful as honest agents 
+cannot distinguish between fake and real transaction records. That also makes the attack hard to 
+prevent.
+
+Multiple ways have been explored to prevent this attack. One way is to analyze the network topology
+and use it to detect Sybil regions. Another way is to increase the cost of registering new identities
+in the system. 
 
 \section{Extension}
 \label{sec:extension}
@@ -272,7 +454,18 @@ the root hash of a Merkle tree of the blocks.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.35\textwidth]{images/exchange_block.pdf}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{images/exchange_block.pdf}
+        \caption{Conceptual representation}
+        \label{fig:exchange_block}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=0.6\textwidth]{images/exchange_block_data.pdf}
+        \caption{Exchange block, data}
+        \label{fig:exchange_block}
+    \end{subfigure}
     \caption{A single exchange block for the TrustChain fabric. Source: \textit{Adpated from TU Delft BLockchain Lab}}
     \label{fig:exchange_block}
 \end{figure}
@@ -280,7 +473,14 @@ the root hash of a Merkle tree of the blocks.
 Each agent keeps track of the actual set of blocks that were received in an exchange block such that 
 the hash can be recalculated to check the consistency of the exchange block. Specifically, each 
 node stores an index of the blocks contained in an exchange in a separate database. This index can be 
-used to retrieve the actual blocks from the database of blocks. 
+used to retrieve the actual blocks from the database of blocks. This is illustrated in Figure \ref{fig:exchange_process}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{images/exchange_block_retrieval.pdf}
+    \caption{Storage of exchange information: the exchange block contains a hash, which can be mapped to an index. That index can be used to retrieve the blocks from the block database.}
+    \label{fig:exchange_process}
+\end{figure}
 
 \subsection{Exchange process}
 We shall now describe the process of an exchange between two agents in detail. We consider two honest 
@@ -401,82 +601,29 @@ all the blocks from Bob that he had after the first round.
     \end{tabular}
 \end{table}
 
-\section{Attacks}
-\label{sec:attacks}
-The model of Mui can be mapped onto the TrustChain implementation context in a straight-forward 
-fashion. We showed that in TrustChain, an agent's embedded social network 
-and the agent's true reputation can be inferred simply from the complete set of block that 
-the agent had. Blocks are the receipt of an encounter between two agents. 
-
-If the trust system works as expected, a good reputation should have value to agents. All agents on 
-the network attempt to obtain a good reputation and be seen as a trusted partner. As such their 
-behavior should be meticulously agree with the rules. Yet, if the value is large enough and behaving
-well comes at a large enough cost, agents will aim to bend the rules or even break them in a smart 
-way in order to get the good reputation for free. As a designer of the trust system it is essential
-to predict the possible ways of manipulation and prevent them. In this section we will define several
-known types of attacks on trust systems and if applicable define how TrustChain can prevent them.
-
-\subsection{Forking}
-Forking is one of the most well-known attacks of blockchain based systems. In the cryptocurrency 
-context it is also known as double spending. As defined in Definition \ref{def:fork} an attacking agent 
-sends two conflicting transactions to two different partners. As long as the two partners are each not 
-aware of the other version of the transaction, both transactions are accepted. This practically 
-allows the attacker to reuse some reputation that normally would already have been lost or overwrite
-a transaction that would otherwise lower the attacker's reputation.
-
-The fact that agents in the TrustChain fabric are solely responsible for their own chain forking is
-easy and cannot be prevented. However in certain circumstances the attack can be detected, putting a
-negative mark on the attacker. Namely, if one of the agents who were subject to the attack learn 
-about the other version of the block, they can see that the attacker signed two conflicting blocks.
-This creates a proof-of-fraud and the agent can ignore the attacker in the future. 
-
-\subsection{Transaction hiding}
-Once agents have a longer history they will have records of positive and negative encounters. A 
-malicious agent then might try to hide any records of negative encounters, thus boosting the trust 
-other have in the attacker. The architecture of TrustChain is made to make such an attack detectable.
-The blockchain of the agent creates a tamper-proof, irreversible order for all transactions. Another
-agent can therefore require the complete sequence of blocks of a partner before interacting. Any 
-missing block will be seen as a malicious request. 
-
-The attack can also be mitigated if the partners of the attacker, who also own the blocks that proof
-the negative encounters of the attacker, disseminate that information to their peers. As such agents
-may already know about the true reputation of the attacker and decide to ignore that agent in the 
-first place.
-
-\subsection{Whitewashing}
-Agents that have lost reputation in a significant amount of transaction may decide to create a new 
-identity for themselves. Thus they can rid themselves from the bad reputation and start fresh. This 
-type of attack is called whitewashing. In the currently deployed version of TrustChain in Tribler 
-this attack cannot be prevented as the software is free and new agents do not need registering with
-any central institutions.
-
-Still the impact of such attacks can be limited by having some mistrust of new agents joining the 
-network. In that case a new agents need to ``pay their dues'' before being accepted by the network 
-as equals.
-
-\subsection{Sybil attack}
-One of the most serious attacks on trust systems is the Sybil attack. In a Sybil attack the attacker
-creates a set of new accounts, called the Sybils. Together with the attacking agent the set of 
-agents is called a Sybil region. Those Sybils create transaction records 
-between each other without actually performing the transactions with the goal of boosting the 
-reputation of one of the agents in the Sybil region. The attack is successful as honest agents 
-cannot distinguish between fake and real transaction records. That also makes the attack hard to 
-prevent.
-
-Multiple ways have been explored to prevent this attack. One way is to analyze the network topology
-and use it to detect Sybil regions. Another way is to increase the cost of registering new identities
-in the system. 
-
-\subsection{Other attacks}
-Other obvious attacks are for example a direct tampering with a block. Such attacks can be 
-detected in a straightforward way by simply recalculating the hash and checking with the following 
-block and the signature of the agents.
-
-
 \section{System level trust}
-* Verification and exchanges make an agent trustworthy on a system level, as in, we trust them to 
-stick to the rules of recording, exchanging and verifying
-* Use this to not verify each and every agent, but assume agent which were verified by trustworthy
-agents to be trustworthy enough for interaction
-* At every point we still have the chance to do the complete verification of a history. But maybe 
-its not required every turn
+We have extensively introduced the concept of trust in Chapter~\ref{chap:introduction} and discussed
+how it plays a role in different contextual settings. Afterwards we have mostly considered trust in 
+an application context like Tribler. TrustChain records transactions between users in the application
+context which act as evidence of a user history. That history is used to calculate a reputation and
+ultimately a trust value for each known user. Yet, the architecture of TrustChain and even more so 
+the architecture of the extended TrustChain make room for another concept of trust on a system level.
+
+Each agent in the system engages in recording, exchanging and verifying behavior. Agents do this 
+with a certain reliability. Until now we assumed that agents are either perfectly honest, malicious
+or free-riders, so there was no forgiveness and no shades of honesty. That is fine when considering
+automated agents in a theoretical setting, however in practice this may not be realistic or 
+desired. Instead we could assign a reputation to agents based on their exchange and verification 
+behavior which is increased with ``positive'' action like exchanges and decreased with any 
+``negative'' evidence, like multiple interactions without exchanges. Also, if we consider the way 
+we defend against verification free-rider as described in Section \ref{sec:verification_free-riding}, 
+agent completely redo all verfication of an agent in order to verify that the agent behaved correctly.
+Trust at system level could create a relationship between agents such that they can rely on each 
+other's verification of peers. 
+
+% * Verification and exchanges make an agent trustworthy on a system level, as in, we trust them to 
+% stick to the rules of recording, exchanging and verifying
+% * Use this to not verify each and every agent, but assume agent which were verified by trustworthy
+% agents to be trustworthy enough for interaction
+% * At every point we still have the chance to do the complete verification of a history. But maybe 
+% its not required every turn
