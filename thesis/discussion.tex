@@ -1,26 +1,144 @@
-\chapter{Discussion}
-In this work we presented a strategy-proof mechanism for information dissemination. Applied to our 
-distributed blockchain based trust system we are able to effectively defend against dissemination 
-and verification free-riders. It creates an incentive for each agent on the network to help defend 
-the network against any lazy or malicious behavior. It thereby is a major step towards a secure, 
-distributed and scalable trust system.
+\chapter{Conclusion}
+Creating trust between strangers on the internet is one of the most significant and challenging topics
+of this century. Many of the current centralized reputation systems will in the long run not be able
+to satisfy the demands for privacy, security and platform freedom. A distributed trust system can 
+be a valid solution, yet it bears its own challenges. In this work we solved the problem of recording,
+disseminating and verifying records of interactions which are the basis of any reputation or trust 
+system. We will discuss in this last chapter our contribution to the design of a trust system and 
+the future research towards a fully distributed, scalable and secure global trust system.
 
-* we defined a new blockchain system based on TrustChain which provides internal agent state 
-transparency/gossip transparency
-* we formally proof that the architecture provides a complete view of the internal state of the 
-agent
-* we defined a specific mechanism that makes use of the archiecture
-* we experimentally proof that honest agents are able to eventually identify free-riders and malicious
-agents
+\section{Contributions}
+Evidence of encounters are the core of any trust and reputation system. A reputation is little more
+than a summary of a persons history of interactions in a certain context. Many positive interactions
+lead to a good reputation whereas negative interactions lead to a bad reputation. The better someone's
+reputation, the more we trust them and are willing to reciprocate their positive interactions. In a 
+digital trust system the records of interactions therefore play a critical role in ensuring the 
+correct value and validity of trust. Yet, in a distributed system without central government, no 
+single point in the network has all information. This creates a problem for the verification and 
+validation of interactions. 
 
-\section{Future research}
+\subsection{Model}
+We first designed a model to study the problem theoretically. We model a network of agents. Agents 
+can perform interactions and exchanges of information. An exchange can contain information about 
+other interactions as well as other exchanges. This is called gossiping. We show that without 
+gossiping, the network of agents is not able to defend against double spending attacks. In order to 
+ensure that agents gossip, each exchange of information needs to be become part of an agents history
+similar to interactions. This will allow agents to gossip about gossip. Agents thus need to prove 
+with their history that they did gossip. Finally we show that if agents exchange all their 
+information with every encounter, additional desired security properties can be ensured. This includes
+that agents can repeat verification of their partner and thus be sure they did not perform any 
+invalid interactions. 
 
-\subsection{Further developing this mechanism}
-* incremental 
-* research scalability properties for this mechanism
-* locality by interacting with those that have similar information
-* sybil attack resistance by checking that new agents paid their dues
+\subsection{Architecture}
+After proving theoretically the importance of gossiping, we design an architecture that allows to 
+record and verify transactions and exchanges of information. For that purpose we extend our
+TrustChain fabric, which is a blockchain-based, scalability-focussed solution for recording 
+interactions in distributed systems. The entangled hashchain approach of TrustChain creates advanced
+tools for the detection of manipulation attacks. However TrustChain's security greatly relies on the
+willingness of agents to obtain their peers blocks and verify them. 
 
-\subsection{Next steps for the trust system}
-* locality with ping
-* 
+Our extension adds exchange blocks to TrustChain which record any gossiping between agents. We call
+this gossip transparency.
+Exchange blocks contain a hash of the blocks that were exchanged and they are recorded on the chains
+in the same way as normal transactions. This creates for each agent a tamper-proof history of exchanges and
+transactions. By recording a signed hash of each exchange, agents can be asked to provide the exchanged
+blocks such that the hash can be recalculated by the verifier. Failure to provide the correct block that
+match the exchange hashes will lead to mistrust. This allows honest agents to distinguish
+between honest agents that also exchange data, free-riders that do not record exchanges or only empty
+exchanges and manipulators that have invalid data on their chain. In applications that require the 
+highest level of security, agents can be required to exchange all knowledge. This allows any agent 
+to redo any verification in the subject's history. If all verifications pass, the agent acted exactly
+like the verifier would do and thus can be considered very trustworthy.
+
+\subsection{Implementation}
+Our final contribution is an implementation of the architecture and verification mechanism as well as
+an experimental analysis of its manipulation resistance. In our experiments small groups of agents 
+are emulated. The groups consist of honest agents that implement the exchange and verification 
+mechanism according to design, as well as free-riders and manipulators. We show with two examples
+that honest agents are able to detect manipulating agents. This is made possible by the TrustChain 
+architecture and is to be expected. But it was not possible yet to also defend against lazy agents
+that do not help in detecting those agents. Our extended architecture allows honest agents to 
+detect gossip free-riders, even if they are colluding and also agents that knowingly interact with
+malicious nodes. As a consequence, any agent that wants to interact with an honest agent in the future
+needs to exchange data with their partners and make sure that they are not in any way malicious.
+
+We conclude that gossip transparency ensures that agents acquire and distribute knowledge. Our 
+extension of TrustChain is flexible to allow different levels of information dissemination. It allows
+agents to replay the history of another agent to validate their complete historic behavior. As such
+our work is a major step in securing our future distributed trust system.
+
+\section{Future work}
+Looking ahead, there are still major challenges to achieve our ambitious goal of building the 
+internet of trust. On the one hand, we have created a prototype for gossip transparency but some 
+challenges remain and need to be researched. On the other hand multiple other large challenges need
+to be solved like a strong identity system and the Sybil attack.
+
+\subsection{Further development of exchange mechanism}
+The recording of exchanges has great influence on many components of the trust system. Not all of 
+these could be analyzed in this work. 
+
+First of all a larger study on the scalability of our mechanism
+needs to be done. Redoing the verification of an agents complete history is very work intensive once the 
+history grows. It is possible to do this in multiple steps, each time two agents interact they only
+need to verify the history that is changed. Also, the Network-State-Exchange policy will lead to 
+storing all data of the network, this can in many cases not be acceptable. Therefore a mechanism 
+needs to be designed to delete data without impacting the security of the system to badly. 
+
+Another interesting direction for further research is building a system-level trust system which we
+mentioned in Section~\ref{sec:system_trust}. Instead of performing complete verification and exchanges
+with every interaction, agents build system level trust. After a few exchanges, verifications and 
+succesful interactions, two agents can trust each other's verifications. Thus if one of the two 
+agents verifies a third, the other agent believes this verification is correct and does not perform
+it again. Instead of stopping to verify trusted agents, verifications can become less frequent. Any 
+misbehavior destroys the trust. It should be noted that the system-level trust is different from the
+trust in the application context: an agent can only be downloading but still always share and verify
+transaction data. Such a node will have a bad application context reputation but a great system-level
+reputation.
+
+\subsection{Future development of trust system}
+In Chapter \ref{chap:problem} we have introduced the architecture of a trust system. We have tackled
+in this work the mechanism for recording transactions and the distribution of those records. But
+other challenges remain. 
+
+A strong identity system which relates the public keys to true identities through government issued
+documents can greatly improve security. As we have discussed in Section~\ref{sec:attacks} some 
+attacks like whitewashing and Sybil attacks are possible because identities are cheap. If on the 
+other hand identities are coupled with real-world, single instance values or documents such as 
+passports, it becomes much harder to renew an identity. A downside of such an approach is that 
+it creates a dependency on external documents. In countries where governments are corrupt or 
+unable to act such documents might not be obtainable. In that case biometric data could help to 
+create strong identities. 
+
+Another way we envision to create a stronger protection for our trust system is to use latency. The 
+connection latency between nodes in a network is a physical value that defines a neighborhood for  
+each node. If we make trust dependent on a low latency we believe that attacks will be much harder.
+An attack usually requires an interaction, so some initial trust. However trust can only be obtained
+from inside a physical distance. Thus attackers need to be able to access machines that are close
+to their targets. Attacks from distant governments or hacker groups require infiltration of local
+machines, putting another obstacle in their way.
+
+% In this work we presented a strategy-proof mechanism for information dissemination. Applied to our 
+% distributed blockchain based trust system we are able to effectively defend against dissemination 
+% and verification free-riders. It creates an incentive for each agent on the network to help defend 
+% the network against any lazy or malicious behavior. It thereby is a major step towards a secure, 
+% distributed and scalable trust system.
+
+% * we defined a new blockchain system based on TrustChain which provides internal agent state 
+% transparency/gossip transparency
+% * we formally proof that the architecture provides a complete view of the internal state of the 
+% agent
+% * we defined a specific mechanism that makes use of the archiecture
+% * we experimentally proof that honest agents are able to eventually identify free-riders and malicious
+% agents
+
+% \section{Future research}
+
+% \subsection{Further developing this mechanism}
+% * incremental 
+% * research scalability properties for this mechanism
+% * locality by interacting with those that have similar information
+% * sybil attack resistance by checking that new agents paid their dues
+
+% \subsection{Next steps for the trust system}
+% * locality with ping
+% * strong identity system
