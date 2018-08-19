@@ -172,6 +172,15 @@ attack. We first study the case of no exchanges. For that we formally define the
     The No-Exchange policy defines no required exchanges for an honest agent, so $f(I_p) := \emptyset$.
 \end{pol}
 
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/no_exchange_policy.pdf}
+    \caption{History and exchange graph of No-Exchange policy in our model. We consider 5 agents. Each agent has a time
+    line with each block being an exchange. Each exchange is between two agents, therefore one exchange $e \in E$ is
+    shown with two (connected) blocks on both agents timelines. The blue blocks show the subjective network state of 
+    agent F.}
+    \label{fig:no_exchange_policy}
+\end{figure}
 
 \begin{thm}[Detectability of double spend without gossiping]
     \label{thm:fork_no_gossiping}
@@ -453,3 +462,15 @@ On the one hand this can increase the risk of network separation on the other ha
 the difficulty of creating a sybil attacks because only agents with similar information sets can 
 act as Sybils which increases their cost.
 
+\subsection{Relation to TrustChain}
+The TrustChain can be mapped onto the model defined in this chapter in a straight-forward 
+fashion. The blocks store a single transaction and therefore correspond to the interactions of the
+model. The functions that relate the interaction to the participating agents and the value of the 
+transaction is directly stored on the block itself. The blocks create a fully ordered history of 
+each agent. An agents chain then corresponds to the concept of the agent encounter history. Finally, 
+the database of blocks that each agent maintains is the subjective network state.
+
+The TrustChain architecture does not define a tool to record the exchange of information. To other 
+agents it is not clear which information each agent is acting on. That does not mean that exchange 
+is not possible - agents are free to send transaction blocks back and forth. Yet, without recording
+this activity, no reward or punishment can be assigned to such behavior or the lack of it. 
