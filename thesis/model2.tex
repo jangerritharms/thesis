@@ -4,10 +4,10 @@ We aim to show the importance of dissemination and verification of interactions
 records. This is done by defining a model within which we can prove that record
 dissemination and verification are essential for securing the trust system. Also we define a
 mechanism which allows to protect the network against free-riders which 
-jeopardize the overall security. Our proposal is to introduce gossip transparency which can 
+jeopardize the overall security. Our proposal is to introduce exchange transparency which can 
 effectively punish free-riders that do not acquire and disseminate interaction records. We further 
 show that it is possible to detect agents that consciously interact with malicious agents, exposing
-them as verification free-riders or accomplice.
+them as verification free-riders or accomplices.
 
 \section{Model definition}
 \label{sec:definitions}
@@ -164,7 +164,7 @@ aware of the other both accept the interaction.
     true.
 \end{defn}
 
-In the following we show that gossiping is essential for the network to defend against such an 
+In the following we show that exchanging blocks is essential for the network to defend against such an 
 attack. We first study the case of no exchanges. For that we formally define the No-Exchange policy.
 
 \begin{pol}[No-Exchange]
@@ -172,20 +172,24 @@ attack. We first study the case of no exchanges. For that we formally define the
     The No-Exchange policy defines no required exchanges for an honest agent, so $f(I_p) := \emptyset$.
 \end{pol}
 
+Without any exchanges, agent are only aware of the interactions that they perform themselves. In
+Figure \ref{fig:no_exchange_policy} we consider a situation in which five honest agents perform interactions. 
+The timeline of each agent is represented by the horizontally dashed line. Each interaction is 
+connected to two agents' timelines. The No-Exchange policy requires no exchanges so agents only have
+interactions. Each connected interaction is part of an agent's history. The figure indicates with 
+blue, the blocks that agent F is aware of which are only those he participated in.
+
 \begin{figure}
     \centering
     \includegraphics[width=0.5\textwidth]{images/no_exchange_policy.pdf}
-    \caption{History and exchange graph of No-Exchange policy in our model. We consider 5 agents. Each agent has a time
-    line with each block being an exchange. Each exchange is between two agents, therefore one exchange $e \in E$ is
-    shown with two (connected) blocks on both agents timelines. The blue blocks show the subjective network state of 
-    agent F.}
+    \caption{History graph of No-Exchange policy in our model. We consider 5 agents. Each agent has a time
+    line which is connected to interactions(denoted by Ix). Each interaction is between two agents. The blue blocks show the subjective network state of agent F.}
     \label{fig:no_exchange_policy}
 \end{figure}
 
-\begin{thm}[Detectability of double spend without gossiping]
+\begin{thm}[Detectability of double spend without exchanges]
     \label{thm:fork_no_gossiping}
-    If honest agents apply the No-Exchange policy, and therefore do not perform gossiping,
-    the fork and double spend attack cannot be detected.
+    If honest agents apply the No-Exchange policy, the fork and double spend attack cannot be detected.
 \end{thm}
 \begin{proof}
     Let $p$ be the attacking agent and let $i$ and $j$ be the conflicting interactions of the 
@@ -204,7 +208,9 @@ attack. We first study the case of no exchanges. For that we formally define the
 \end{proof}
 
 Theorem \ref{thm:fork_no_gossiping} proves that the double spend attack cannot be
-detected without gossiping. We now show that gossiping can lead to the detection of the attacker. We
+detected without exchanging encounters. 
+
+We now show that if agents do exchange information, this can lead to the detection of the attacker. We
 define an exchange policy in which honest agents obtain the encounter history prior to an interaction.
 
 \begin{pol}[History-Exchange policy]
@@ -215,8 +221,22 @@ define an exchange policy in which honest agents obtain the encounter history pr
     \[ f(I_p) := \{ (q, H_q) : \exists i, q (i \in I_p \text{ and } (p, q) \in a(i)) \}\]
 \end{pol}
 
+Figure \ref{fig:chain_exchange} shows the same 5 agents, with the same interactions. This time agents
+apply the History-Exchange policy, which requires the exchange of both agents' histories prior to 
+an interaction. The colored interactions and exchanges are received by F, green being those received
+from D and purple those received from C. At the end of the shown timeline, the colored blocks are 
+the subjective network state of F.
 
-\begin{thm}[Detectability of double spend with gossiping]
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/chain_exchange.pdf}
+    \caption{History graph of History-Exchange policy in our model. We again consider 5 agents. The 
+    colored blocks show the subjective network state of agent F. The blue blocks are F's own encounters,
+    the green block is an encounter received from D while the purple blocks are received from C.}
+    \label{fig:chain_exchange}
+\end{figure}
+
+\begin{thm}[Detectability of double spend with the History-Exchange policy]
     \label{thm:fork_gossiping}
     If all honest agents apply the History-Exchange policy and periodically use uniform sampling over
     the set of agents to find an interaction partner, the double spending will eventually be detected.
@@ -237,23 +257,23 @@ define an exchange policy in which honest agents obtain the encounter history pr
     $e$ $i \in N_q \text{ and } j \in N_q$. Therefore $q$ is able to detect the double spending.
 \end{proof}
 
-Theorem \ref{thm:fork_gossiping} shows that gossiping makes double spending detectable. Once a double
+Theorem \ref{thm:fork_gossiping} shows that exchaning encounter information makes double spending detectable. Once a double
 spender is detected by an agent it is possible to ignore them for future interactions. The amount 
 of exchange rounds until detection depends on the exact policy of exchanging data and a deeper 
 analysis is beyond the scope of this work.
 
-\section{Gossip free-riding}
+\section{Exchange free-riding}
 We now look at ways to incentivize information exchanges. At this point we have shown that a system in which 
 interactions are only directly observable by the direct participants, an exchange mechanism like 
-gossiping is essential to defend against the double-spending attack. 
+History-Exchange policy is essential to defend against the double-spending attack. 
 Our aim is now to show that a reputation mechanism which takes into account the exchange behavior of 
-agents defends the system against gossiping free-riders. 
+agents defends the system against free-riders. 
 
 If bandwidth and storage capacity are valuable resources for agents, data dissemination and their 
 long-term storage come at a cost for agents. Therefore agents can attempt to free-ride and only 
 interact without exchanging data. However if all agents would behave in that way the system loses 
 the ability to defend itself against forks and double spending as shown in Theorem 
-\ref{thm:fork_no_gossiping}. We will call those agents gossiping free-riders. 
+\ref{thm:fork_no_gossiping}. We will call those agents Exchange free-riders. 
 
 % An honest agent should also be able to verify that other agents adhere to an exchange policy or not.
 
@@ -271,43 +291,43 @@ the ability to defend itself against forks and double spending as shown in Theor
 %     the calculated values to the expected values defined by $D$. 
 % \end{proof}
 
-\begin{defn}[Gossiping free-rider]
+\begin{defn}[Exchange free-rider]
     \label{def:gos_free-rider}
-    Given an ordered encounter model $M = \langle P, I, E, a, w, x \rangle$ with exchange policy $f$, a gossiping free-rider $p \in P$ is an 
+    Given an ordered encounter model $M = \langle P, I, E, a, w, x \rangle$ with exchange policy $f$, an exchange free-rider $p \in P$ is an 
     agent whose exchange behavior does not fulfill the minimum requirements of policy $f$. That is, 
     $f(I_p) \nsubset \{ (q, x(e, p)) : e \in H_p \cap E, \exists (p, q) \in a(e)\}$.
 \end{defn}
 
-We now show that gossiping free-riders can be detected by honest agents that apply the History-exchange
+We now show that exchange free-riders can be detected by honest agents that apply the History-exchange
 policy.
 
-\begin{thm}[Detectability of gossiping free-riders]
+\begin{thm}[Detectability of exchange free-riders]
     \label{thm:gos_free-rider}
     Given an ordered encounter model $M = \langle P, I, E, a, w, x \rangle$ in which honest agents use the History-Exchange policy
-    a gossiping free-rider will be detected on the first interaction.
+    an exchange free-rider will be detected on the first interaction.
 \end{thm}
 \begin{proof}
     Assume agent $p$ is an honest agent and is about to interact with agent $q$. Because agent $p$
     uses Policy \ref{pol:one}, $p$ will request an exchange with $q$. That exchange will contain 
-    $H_q$. If it does not $p$ will know that $q$ is a gossiping free-rider. After a successful
+    $H_q$. If it does not $p$ will know that $q$ is a exchange free-rider. After a successful
     exchange $H_q \subseteq N_p$. In that case $p$ is able to check the condition for adherence to 
     the History-Exchange policy $f$ by $f(I_q) \subseteq \{ (q, x(e, p)) : e \in 
     H_q \cap E, \exists (p, q) \in a(e)\}$. If the condition is not true agent $p$ has found $q$ to be a
-    gossiping free-rider.
+    exchange free-rider.
 \end{proof}
 
-The detectability of gossiping free-riders as shown in \ref{thm:gos_free-rider} means that any 
+The detectability of exchange free-riders as shown in \ref{thm:gos_free-rider} means that any 
 honest agent is able to ignore the free-rider on the first interaction. This takes away any 
 possibility for future interactions with honest agents. We conclude that through exchanging
-information on the transaction and gossiping behavior of agents we can effectively defend against 
-gossiping free-riders.
+information on the encounters of agents we can effectively defend against 
+exchange free-riders.
 
 \section{Verification free-riding}
 \label{sec:verification_free-riding}
-We have shown that double-spenders and gossiping free-riders can both be detected. Yet in order to 
+We have shown that double-spenders and exchange free-riders can both be detected. Yet in order to 
 actually detect those attacks, agents need to perform verification of any encounters received 
 through exchanges. We can define Algorithm \ref{alg:verify_exchange} which is run by all 
-honest agents for each exchange in order to defend against double-spenders and gossiping free-riders.
+honest agents for each exchange in order to defend against double-spenders and exchange free-riders.
 
 \begin{algorithm}
 \caption{Exchange verification}\label{alg:verify_exchange}
@@ -330,7 +350,7 @@ honest agents for each exchange in order to defend against double-spenders and g
 \end{algorithmic}
 \end{algorithm}
 
-Similar to the process of gossiping the execution of Algorithm \ref{alg:verify_exchange} introduces
+Similar to exchanging data the execution of Algorithm \ref{alg:verify_exchange} introduces
 some costs for agents. Therefore agents again could try to manipulate the system by not verifying 
 the encounters and instead blindly accepting the received information. We will define those agents
 as verification free-riders.
@@ -340,10 +360,10 @@ as verification free-riders.
     \ref{alg:verify_exchange}.
 \end{defn}
 
-In contrast to the detection of gossiping free-riders, the detection of verification free-riders is
+In contrast to the detection of exchange free-riders, the detection of verification free-riders is
 less straight-forward because the execution of an algorithm is not directly observable. An honest agent
 that always verifies the encounters received from peers will not interact with double spenders or 
-gossiping free-riders. A verification free-rider on the other hand cannot discern between honest,
+exchange free-riders. A verification free-rider on the other hand cannot discern between honest,
 malicious and free-riding peers. Hence, should there be a malicious agent $q$ and a verification 
 free-rider $r$ chances are that $q$ and $r$ will interact. Should $r$ have the information to know 
 that $q$ was malicious and still interacted, then this behavior is different from an honest agent.
@@ -359,6 +379,22 @@ view of another agent. Therefore we need to define another exchange policy.
 
     \[ f(I_p) := \{ (q, N_q) : \exists i \in I_p, q \in a(i) \}\]
 \end{pol}
+
+Similar to the previous figures, Figure \ref{fig:network_state_exchange} shows the same 5 agents, 
+with the same interactions. This time agents apply the Network-State-Exchange policy, which requires
+the exchange of both agents' subjective network state prior to an interaction. In contrast to the 
+History-Exchange policy, this time F also received knowledge about interactions from agents A and B.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/network_state_exchange.pdf}
+    \caption{History graph of Network-State-Exchange policy in our model. We again consider 5 agents. The 
+    colored blocks show the subjective network state of agent F. The blue blocks are F's own encounters,
+    the green block is an encounter received from D while the purple blocks are received from C. This
+    time F obtains the complete network state.}
+    \label{fig:network_state_exchange}
+\end{figure}
 
 The Network-State-Exchange behavior allows any agent $p$ that exchanged information with an agent $q$
 to reconstruct the subjective network state of agent $q$ before each interaction. 
@@ -424,8 +460,8 @@ Instead of exploring new ways of calculating trust, we analyzed in the above the
 the model in the presence of malicious and free riding agents. We have shown that in order to defend
 against forks and double spending, information exchange between agents is critical. Only through
 ensuring a proper defense against attacks can we warrant the validity of the interactions. Therefore
-we create an exchange mechanism that aligns the gossiping behavior with an incentive of agents. The
-recording of encounters leads to gossip transparency which exposes free-riders. This effectively 
+we create an exchange mechanism that aligns the exchange behavior with an incentive of agents. The
+recording of encounters leads to exchange transparency which exposes free-riders. This effectively 
 leads to better manipulation resistance and ultimately increases the validity of reputation and 
 trust.
 
@@ -474,3 +510,14 @@ The TrustChain architecture does not define a tool to record the exchange of inf
 agents it is not clear which information each agent is acting on. That does not mean that exchange 
 is not possible - agents are free to send transaction blocks back and forth. Yet, without recording
 this activity, no reward or punishment can be assigned to such behavior or the lack of it. 
+
+\section{Chapter conclusions}
+We have shown that exchanging information of interactions and encounters allows to detect a 
+fork and double-spend attack. Furthermore, if we can record the exchanges in a similar way as
+interactions and make them part of an ordered history, honest agents can ensure that their partners
+apply a certain exchange policy. Any agent that does not stick to the policy can be detected and 
+dealt with accordingly. 
+
+Finally, if agents apply a strong policy like the Network-State-Exchange policy, agents can
+re-evaluate verifications that their peers have done in the past. Any failed verification that still
+lead to an interaction will mark agents as lazy verification free-riders or accomplices.

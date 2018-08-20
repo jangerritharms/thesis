@@ -66,7 +66,7 @@ Four types of agent behavior will be analyzed in the experiments.
 \begin{itemize}
     \item \textbf{Honest agent}: An agent that exchanges and verifies according to the Network-State-Exchange
     policy.
-    \item \textbf{Gossip free-rider}: An agent that gains an advantage by not 
+    \item \textbf{Exchange free-rider}: An agent that gains an advantage by not 
     expending resources on disseminating transaction records.
     \item \textbf{Verification free-rider}: An agent that gains an advantage by not expending 
     resources on verifying the behavior of their peers
@@ -102,7 +102,7 @@ implemented two types of manipulating behavior, block withholding and double spe
     \textbf{Type} & \textbf{Sub-type} & \textbf{Behavior} \\ \midrule
     \multirow{2}{3cm}{Honest agents} & without history check (default) & Exchanges and verifies agents normally \\ \cline{2-3}
     & with history check & additionally replays the history of a peer to find any deviating behavior in the past \\ \midrule
-    \multirow{2}{3cm}{Gossip free-rider} & No exchanges & Does not create any exchanges \\ \cline{2-3}
+    \multirow{2}{3cm}{Exchange free-rider} & No exchanges & Does not create any exchanges \\ \cline{2-3}
     & Empty exchanges & Creates exchanges blocks with empty exchanges \\ 
     % & Self-requests & Exchanges only own chain \\ \hline
     \midrule
@@ -152,8 +152,7 @@ In the following we will present the results of our experimental analysis.
 \begin{figure}
   \centering
   \includegraphics[width=.6\linewidth]{images/gossip_free-rider}
-  \caption{Transactions over time of honest agents with gossip free-rider that does not 
-  perform any exchanges}
+  \caption{Transactions over time of honest agents with exchange free-rider (both types give same result)}
   \label{fig:DFR_no_exchanges}
 \end{figure}
 
@@ -163,16 +162,16 @@ to secure the system, honest agents should be able to detect free-riders and ign
 remove any possible future profit from free-riders which should incentivize them to become honest.
 
 In this first set of experiments we observe the behavior of three honest agents in the presence of 
-a gossip free-rider that performs no exchanges. Figure \ref{fig:DFR_no_exchanges} shows the number of transactions of each 
+a exchange free-rider that performs no exchanges. Figure \ref{fig:DFR_no_exchanges} shows the number of transactions of each 
 agent against the time of the experiment. All honest agents steadily increase their successful 
 interactions throughout the experiment and end up between 40 to 60 transactions. The free-riding agent
 is not able to perform a single interaction. That means all honest agents detected the free-rider 
 as a dishonest agent and consequently ignored him. 
 
 As expected, without gossiping an agent has no chance to interact with the honest agents. The 
-experiment was repeated with the another type of gossip free-riders who is signing empty exchanges. 
+experiment was repeated with the another type of exchange free-riders who is signing empty exchanges. 
 The second experiment show the same outcome as in Figure \ref{fig:DFR_no_exchanges}:
-the honest agents do not interact with the gossip free-riders.
+the honest agents do not interact with the exchange free-riders.
 
 The first type of free-riding agent does not exchange any data and therefore does not create any 
 proof of exchanges. Also he is not willing to sign an exchange block that would document the acquisition

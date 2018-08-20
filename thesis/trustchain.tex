@@ -474,3 +474,18 @@ did not know about an attacker or just claim so. We will next look at an extende
 records the knowledge of agents. Although this creates protection against some collusion attacks, 
 still not every collusion can be protected against.
 
+\section{Chapter conclusion}
+TrustChain is a scalable solution for tamper-evident recording of transactions in a distributed 
+network. It therefore fulfills many of the requirements that we set for our system in the previous
+chapter. However, TrustChain cannot in itself provide consistency of interactions as we have shown
+with the discussion of the double-spend attack. We show in the next chapter that gossiping is a
+valid solution to solve this problem. Still TrustChain provides no strong incentive for agents to 
+gather blocks from their peers. This opens the system to free-riders who do not gossip and verify 
+blocks but remain honest in the eyes of their peers. 
+
+Additionally, the lack of incentive for gossiping decreases the probability of indirect reciprocity.
+As we have discussed in the previous chapter, global-scale trust system will mostly rely of indirect
+reciprocity. Therefore the dissemination of data is essential to our system.
+
+On the other hand, such a strong exchange policy leads to a challenging storage and bandwidth 
+requirement. Each agent's subjective network state will approximate the complete networks data.

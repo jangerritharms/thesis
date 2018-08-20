@@ -178,15 +178,25 @@ ensure the integrity of these reports.
 
 Consequently, the question that we are trying to answer is therefore:
 \begin{center}
-    \textit{How to ensure that reports of encounters are honest, tamper-proof, widely observed and verified in a distributed trust system?}
+    \textit{How to ensure that reports of encounters are honest, consistent and disseminated in a distributed trust system?}
 \end{center}
 
+We define three properties that we need to ensure for reports of encounters. Firstly, the report 
+needs to be honest. A record of an encounter
+includes an action performed by both agents. In the simplest case, as in the model we introduced to
+the reader in this chapter, this is simply cooperation or defection. The actions need to be honest 
+in order to rely on them for trust calculations. Similarly the order of encounters and the participating
+parties need to be honestly reported. Secondly, the reports need to be consistent. We need to make 
+sure that only one version of each encounter can exist. Multiple versions of the same encounter
+leads to ambiguity of agents histories and thus invalid trust calculations. Finally, in order to 
+ensure that indirect reciprocity is possible, it is key to disseminate the records of interactions 
+in the network.
 % How to record, disseminate and protect the records of interactions in a global trust system?
 % How to ensure honest reporting, distribution and verification of encounters in a global trust system?
 % How to ensure that reports of encounters are honest, distributed and verified in a distributed trust system? 
 
-\section{Requirements of reporting system}
-Our goal is therefore to create an architecture and implementation of a reporting systems for agent 
+\section{Requirements of the reporting system}
+Our goal is to create an architecture and implementation of a reporting systems for agent 
 interactions. We aim to use this system as the basis for a global scale, distributed trust system. 
 From this description we can extract specific requirements for the reporting system.
 
@@ -201,6 +211,8 @@ From this description we can extract specific requirements for the reporting sys
     system will try to exploit it through attacks, alone or by colluding
 \end{itemize}
 
+Next to the properties defined in the research question, these practical requirements set boundaries
+for the solution that we can propose.
 
 \section{Related work}
 Before defining our own solution to the chosen problem we look at existing approaches that we can 

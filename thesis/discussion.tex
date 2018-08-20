@@ -20,25 +20,25 @@ validation of interactions.
 \subsection{Model}
 We first designed a model to study the problem theoretically. We model a network of agents. Agents 
 can perform interactions and exchanges of information. An exchange can contain information about 
-other interactions as well as other exchanges. This is called gossiping. We show that without 
-gossiping, the network of agents is not able to defend against double spending attacks. In order to 
-ensure that agents gossip, each exchange of information needs to be become part of an agents history
-similar to interactions. This will allow agents to gossip about gossip. Agents thus need to prove 
-with their history that they did gossip. Finally we show that if agents exchange all their 
+other interactions as well as other exchanges. We showed that without 
+exchanging information, the network of agents is not able to defend against double spending attacks. In order to 
+ensure that agents do gather and disseminate information, each exchange of information needs to be become part of an agents history
+similar to interactions. Agents thus need to prove 
+with their history that they did exchange information. Finally we show that if agents exchange all their 
 information with every encounter, additional desired security properties can be ensured. This includes
 that agents can repeat verification of their partner and thus be sure they did not perform any 
 invalid interactions. 
 
 \subsection{Architecture}
-After proving theoretically the importance of gossiping, we design an architecture that allows to 
+After proving theoretically the importance of exchanging information, we design an architecture that allows to 
 record and verify transactions and exchanges of information. For that purpose we extend our
 TrustChain fabric, which is a blockchain-based, scalability-focussed solution for recording 
 interactions in distributed systems. The entangled hashchain approach of TrustChain creates advanced
 tools for the detection of manipulation attacks. However TrustChain's security greatly relies on the
 willingness of agents to obtain their peers blocks and verify them. 
 
-Our extension adds exchange blocks to TrustChain which record any gossiping between agents. We call
-this gossip transparency.
+Our extension adds exchange blocks to TrustChain which record any block exchanges between agents. We call
+this exchange transparency.
 Exchange blocks contain a hash of the blocks that were exchanged and they are recorded on the chains
 in the same way as normal transactions. This creates for each agent a tamper-proof history of exchanges and
 transactions. By recording a signed hash of each exchange, agents can be asked to provide the exchanged
@@ -58,18 +58,30 @@ mechanism according to design, as well as free-riders and manipulators. We show 
 that honest agents are able to detect manipulating agents. This is made possible by the TrustChain 
 architecture and is to be expected. But it was not possible yet to also defend against lazy agents
 that do not help in detecting those agents. Our extended architecture allows honest agents to 
-detect gossip free-riders, even if they are colluding and also agents that knowingly interact with
+detect exchange free-riders, even if they are colluding and also agents that knowingly interact with
 malicious nodes. As a consequence, any agent that wants to interact with an honest agent in the future
 needs to exchange data with their partners and make sure that they are not in any way malicious.
 
-We conclude that gossip transparency ensures that agents acquire and distribute knowledge. Our 
+We conclude that exchange transparency ensures that agents acquire and distribute knowledge. Our 
 extension of TrustChain is flexible to allow different levels of information dissemination. It allows
 agents to replay the history of another agent to validate their complete historic behavior. As such
 our work is a major step in securing our future distributed trust system.
 
+\subsection{Research question}
+With respect to our research question we can make the following conclusions. Recording exchanges 
+leads to a strong incentive to disseminate and verify encounters between agents. This way honesty
+of encounter reports can be ensured as well as consistency. Therefore our architecture could be 
+seen as a possible solution to problem of recording encounters in a trust system. 
+
+However, our system creates restrictions for the scalability of the system. We require much more 
+storage than only the own transactions. Also, extensive verifications can become very costly once 
+agents' chain become significant in size. Therefore, this system is only partly applicable in the 
+context of a global-scale trust system. Other innovations, like a system-level trust system could 
+help lessen the scalability issues.
+
 \section{Future work}
 Looking ahead, there are still major challenges to achieve our ambitious goal of building the 
-internet of trust. On the one hand, we have created a prototype for gossip transparency but some 
+internet of trust. On the one hand, we have created a prototype for exchange transparency but some 
 challenges remain and need to be researched. On the other hand multiple other large challenges need
 to be solved like a strong identity system and the Sybil attack.
 

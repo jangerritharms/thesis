@@ -316,8 +316,7 @@ the architecture of the extended TrustChain make room for another concept of tru
 
 Each agent in the system engages in recording, exchanging and verifying behavior. Agents do this 
 with a certain reliability. Until now we assumed that agents are either perfectly honest, malicious
-or free-riders, so there was no forgiveness and no shades of honesty. That is fine when considering
-automated agents in a theoretical setting, however in practice this may not be realistic or 
+or free-riders, so there was no forgiveness and no shades of honesty. However in practice this may not be realistic or 
 desired. Instead we could assign a reputation to agents based on their exchange and verification 
 behavior which is increased with ``positive'' action like exchanges and decreased with any 
 ``negative'' evidence, like multiple interactions without exchanges. Also, if we consider the way 
@@ -358,3 +357,19 @@ others' verification of peers.
 % agents to be trustworthy enough for interaction
 % * At every point we still have the chance to do the complete verification of a history. But maybe 
 % its not required every turn
+
+\section{Chapter conclusion}
+We have defined an extension to the original TrustChain architecture which allows for the recording
+block exchanges. We have shown how this architecture can be used to exchange data and enforce an 
+exchange policy. Also, we have defined an audit protocol which allows for the complete verification
+of agents data. 
+
+The exchange policy ensure that data is disseminated while a strong policy like the Network-State-Exchange
+policy allow for strong consistency guarantees. We have theoretically established this in the 
+previous chapter as well. Therefore this architecture is very much useful for a trust system as we
+envision it. On the other hand, scalability will become an issue as verification will become more
+elaborate with increasing chain lengths and storage requirements grow. 
+
+An alternative to enforcing an exchange policy can be to define a system-level trust system such that
+verifications can happen less frequently and verified partner become trusted peers. This way agents
+can interact with any other verified partners of their trusted peers without redoing the verification.
