@@ -9,7 +9,7 @@ adding records of information exchange we are able to improve the security signi
 Tamper-proof records of exchange will incentivize agents to 
 obtain and verify data. Our claims are supported by the model defined in Chapter \ref{chap:model}.
 
-The realization of gossip transparency requires two things: an architecture which enables the 
+The realization of information exchange transparency requires two things: an architecture which enables the 
 recording of information exchanges and a policy to exchange data (defined as exchange policy in 
 our model). We first propose an architecture based on TrustChain which allows the implementation 
 of the complete ordered encounter model from the previous chapter. In the next section we discuss
@@ -29,7 +29,7 @@ is shown in Figure \ref{fig:exchange_block}. Note that except for the \verb|exch
 fields the block is similar to a transaction block as shown in Figure \ref{fig:trustchain_block}. 
 
 Just like transaction blocks, the exchange blocks become part of an agent's chain with two incoming
-and two outgoing pointers. Any gossiping is recorded on-chain, creating a tamper-proof history 
+and two outgoing pointers. Any exchange is recorded on-chain, creating a tamper-proof history 
 of the exchange behavior in a similar way as the application behavior recorded in transaction blocks.
 Thus the same validity conditions apply. 
 

@@ -47,8 +47,8 @@ therefore extend the model with this concept of exchange.
         involved in it.
         \item $w : I \times P \rightarrow \mathbb{R}_{\geq0}$, a function which describes the 
         contribution of an agent in an interaction
-        \item $x : E \times P \rightarrow N^+$, a function which describes the interactions that an 
-        agent received in an exchange. $+$ refers to the Kleene plus.
+        \item $x : E \times P \rightarrow \mathcal{P}(N)$, a function which describes the interactions that an 
+        agent received in an exchange. $\mathcal{P}(N)$ denotes the power set of $N$.
     \end{itemize}
 \end{defn}
 
@@ -102,19 +102,27 @@ Section \ref{sec:relevance}
 
 The model from Definition \ref{def:base} introduces the concept of exchanges. Yet it does not define
 how agents should exchange data. We therefore define an exchange policy which is the strategy that 
-honest agents apply for exchanging information.
+honest agents apply for exchanging information. We say that an agent is \textit{honest} if an agent
+exchanges encounter information according to a given exchange policy.
 
 \begin{defn}[Exchange policy]
-    Given an ordered encounter model $M = \langle P, I, E, a, w, x \rangle$ and an agent $p \in P$ with encounter history $N_p$,
-    the exchange policy is a function $f : I_p \rightarrow P \times N^+$, where $I_p = \{ n \in N_p  \cap I\}$.
+    Given an ordered encounter model $M = \langle P, I, E, a, w, x \rangle$ and an agent $p \in P$ with encounter history $H_p$,
+    the exchange policy is a function $f : I_p \rightarrow P \times \mathcal{P}(N)$, where $I_p = \{ n \in H_p  \cap I\}$.
     The exchange policy maps each interaction of an agent $p$ to a partner and set of encounters 
-    which need to be obtained from that partner prior to the interaction.
+    which need to be obtained in an exchange from that partner prior to the interaction. 
 \end{defn}
 
 The exchange policy defines which information an agent needs to have in order for an interaction to 
 be valid. This is to ensure that an agent has all the information to ensure that the partner is also
 an honest agent. It should be noted that an honest agent has no reason not to reply to an exchange 
 request. 
+
+In order to check if an agent adheres to a certain exchange policy we need to know which 
+encounters an agent actually received in exchanges. So we can build a set $\epsilon_p$ in a similar
+way as the policy is defined. $\epsilon_p$ is a set of tuples where each tuple describes and 
+exchange $e$ with an agent $q$ in which encounters $x(e, p)$ were received from which agent: 
+
+\[ \epsilon_p := \{ (q, x(e, p)) : e \in H_p \cap E,  \exists (p, q) \in a(e)\}\]
 
 As the exchanges are recorded it is possible to determine whether an agent adheres to a certain 
 exchange policy. 
@@ -125,7 +133,7 @@ exchange policy.
     therefore being considered an honest agent is as follows: 
 
     \begin{equation}
-        f(I_p) \subseteq \{ (q, x(e, p)) : e \in H_p \cap E,  \exists (p, q) \in a(e)\}
+        f(I_p) \subseteq \epsilon_p \Rightarrow p \text{ is } \textit{honest}
     \end{equation}
 \end{defn}
 
@@ -310,9 +318,9 @@ policy.
     Assume agent $p$ is an honest agent and is about to interact with agent $q$. Because agent $p$
     uses Policy \ref{pol:one}, $p$ will request an exchange with $q$. That exchange will contain 
     $H_q$. If it does not $p$ will know that $q$ is a exchange free-rider. After a successful
-    exchange $H_q \subseteq N_p$. In that case $p$ is able to check the condition for adherence to 
-    the History-Exchange policy $f$ by $f(I_q) \subseteq \{ (q, x(e, p)) : e \in 
-    H_q \cap E, \exists (p, q) \in a(e)\}$. If the condition is not true agent $p$ has found $q$ to be a
+    exchange $H_q \subseteq N_p$. In that case $p$ is able to build the set of received blocks for 
+    each exchange defined by $\epsilon_q := \{ (r, x(e, q)) : e \in H_q \cap E,  \exists (q, r) \in a(e)\}$. Then $p$ check the condition for adherence to 
+    the History-Exchange policy $f$ by $f(I_q) \subseteq \epsilon_q$. If the condition is not true agent $p$ has found $q$ to be a
     exchange free-rider.
 \end{proof}
 
@@ -384,7 +392,7 @@ Similar to the previous figures, Figure \ref{fig:network_state_exchange} shows t
 with the same interactions. This time agents apply the Network-State-Exchange policy, which requires
 the exchange of both agents' subjective network state prior to an interaction. In contrast to the 
 History-Exchange policy, this time F also received knowledge about interactions from agents A and B.
-
+The policy greatly increases the storage requirements. We will consider this in Section \ref{sec:storage}.
 
 \begin{figure}
     \centering
@@ -486,14 +494,26 @@ trusted agent in a collusion. The agent who ended up empty handed could prove th
 calculation from $p$'s perspective points in his favor.
 
 \subsection{Reduced scalability}
+\label{sec:storage}
 Enforcing an exchange policy for honest agents also bears risks. An agent is only able to interact
 after exchanging some information, in the most stringent case all their knowledge, with another agent. 
 This binds a requirement for storage space and bandwidth to the ability of interacting which might 
-be too stringent for some application contexts. The costs for an interaction to be possible could 
-also lead to local regions of trusted users that share a certain information set. Agents that have
-a very similar subjective network state only need to exchange small amounts of data to equalize their
-states, thus costs a low. In contrast two agents with completely different sets will need to
-exchange large amounts of data. Thus agents with similar information sets are more likely to interact.
+be too stringent for some application contexts. 
+
+The Network-State-Exchange policy requires agents to share all their knowledge. After an exchange 
+both agents therefore have the combined knowledge of both agents. If an agent periodically performs such an 
+exchange with random other agents, their knowledge will approach the complete network state, that 
+is, all interactions and exchanges will be known to them. This concept is also studied in the context
+of replicated databases in work by Demers et al.\ \cite{demers1987epidemic}. They define the anti-entropy
+mechanism in which a database instance randomly picks other instances to resolve any differences. Being
+any update will eventually arrive at every instance. Similarly, each agent in our network will eventually 
+have knowledge of all encounters, if we assume that agents randomly choose their interaction partners.
+
+In order to increase the efficiency of exchanges, agents could only send knowledge of encounters 
+that their partner does not have. In that case bandwidth costs are small if agents already of similar subjective network states.
+This can lead to locality if agents are preferring interactions with other agents who have a similar
+knowledge such that they only need to exchange small amounts of data. In contrast, two agents with completely different sets will need to
+exchange large amounts of data.
 On the one hand this can increase the risk of network separation on the other hand this increases 
 the difficulty of creating a sybil attacks because only agents with similar information sets can 
 act as Sybils which increases their cost.
