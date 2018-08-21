@@ -1,11 +1,13 @@
-\chapter{Blockchain and TrustChain}
+\chapter{Scalable blockchain ledgers}
 \label{chap:implementation}
 
 Trust and reputation systems rely heavily on the records of interactions. In previous work our 
-research group has created a tamper-proof recording system for interactions, TrustChain. This system is 
+research group has created a blockchain-based recording system for interactions, TrustChain. This system is 
 implemented in a peer-to-peer video streaming service Tribler and the IPv8 project
-\footnote{https://github.com/tribler/py-ipv8}. This chapter introduces the Tribler context and TrustChain 
-architecture to the reader. Also we analyze how the TrustChain architecture can be attacked. We point
+\footnote{https://github.com/tribler/py-ipv8}. 
+
+This chapter introduces the concept of blockchains and the TrustChain architecture itself to the reader. 
+Also we analyze how the TrustChain architecture can be attacked. We point
 out that although detection of attacks is possible the system does not incentivize agents to share 
 and verify data which is essential for the detection. In the following chapter we analyze this in the
 context of a model and propose an extension afterwards. 
@@ -13,69 +15,7 @@ context of a model and propose an extension afterwards.
 % Although the exchange of information is part of those systems and as shown key to their manipulation
 % resistance, exchanges are not explicitly recorded. 
 
-We open this chapter by relating the previously introduced model to an application context. Next we
-introduce the conceptual working of blockchains which is a core technology for TrustChain. A discussion of
-TrustChain itself follows. Finally, a more elaborate analysis of possible attacks on the system is performed.
 
-\section{Tribler and its relation to trust systems}
-In the previous chapter a model of trust systems was introduced. However it may not be immediately obvious 
-to the reader how the model relates to a digital
-trust system in an application context. In this section we shed more light on how the model's concepts 
-match their counterparts in the Tribler application.
-
-We introduced Tribler in Chapter \ref{chap:introduction}. It is a peer-to-peer video streaming 
-service which is based on the BitTorrent protocol. As the BitTorrent protocol does not guarantee the
-privacy of users, Tribler adds an onion routing layer on top of the protocol. This routing protocol 
-is similar to the Tor network and ensures that traffic is encrypted and relayed multiple times before exiting the
-Tribler network and entering the public internet. The origin of the original request is made anonymous.
-
-\subsection{Agents}
-In the model, agents are the entities that take part in interactions and encounters. Intuitively one
-would assume that users are the agents in Tribler. It would be more accurate though to say that a 
-running instance of the Tribler software is the agent. A single human user can have multiple 
-instances of the software running on multiple machines and thus ``control'' multiple agents. Despite
-being able to run or stop the agents, the human user has only a very small decision space, though, 
-because the software runs on its own and executes according to design. 
-
-The distinction of honest and dishonest agents is then made as follows: honest agents are the 
-instances that run the software as intended while dishonest agents are instances of manipulated 
-software. 
-
-Each running instance of the Tribler software can be uniquely identified. It makes use of asymmetric
-cryptography for authentication and encryption. Specifically, Curve25519 is used in an 
-elliptic curve Diffie-Hellman key agreement scheme. 
-
-In the following description of the system we will use both, ``node'' and ``agent'' when referring to the 
-behavior of a Tribler instance executing some action. 
-
-\subsection{Interactions}
-The encounters of agents in the model map very well to the transactions
-of data in Tribler. Peer-to-peer video streaming in Tribler works through uploading and downloading 
-portions of data from any agent in the Tribler network based on the BitTorrent protocol. Also, as
-mentioned above, agents relay traffic in the Tribler network for peers. Relaying again can be seen 
-as a similar transaction where the incoming data is downloaded and immediately uploaded to the next
-agent in the routing scheme. These transactions of data map to the transactions in our model and 
-need to be recorded in a tamper-proof manner. For this recording of transaction Tribler implements 
-TrustChain, which is discussed in 
-more detail in Section~\ref{sec:trustchain}. The discussion of how to create those records, secure 
-them against manipulations and distribute them in the network is the centerpiece of this work.
-
-\subsection{Trust and reputation}
-The uploading and downloading of videos in the network is a social dilemma as each user wants to 
-stream videos while contributing as little as possible. It is therefore a good test bed for a trust 
-system which should incentivize users to contribute. The reputation of an agent in Tribler represents the 
-contribution behavior of that agent. Contributing, that is uploading video streams to other users,
-increases an agent's reputation whereas downloading, that is streaming videos, decreases an agent's 
-reputation. Also, relaying is a neutral activity in terms of the upload-download ratio, yet the 
-reputation of an agent that relays a lot of data needs to be higher as well. In contrast to 
-reputation, trust is subjective and can be seen as the subjective perception of a peer being a 
-``good contributor''. 
-
-In order to better illustrate the difference between reputation and trust we provide an example.
-Assume an agent $A$ knows two agents, $B$ and $C$ and sees that both have uploaded and downloaded 
-the same amount of data. However, $B$ has uploaded most to $A$ while $C$ has uploaded only to 
-agents that $A$ has not heard of. Human intuition tells us that $A$ should trust $B$ more than $C$, 
-because of the stronger direct connection. Trust therefore depends on the topography of the network.
 
 % % 
 % % Is this necessary??? 

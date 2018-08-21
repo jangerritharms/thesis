@@ -6,7 +6,7 @@
 % trustful relationships between relative strangers. This requires a distributed, scalable reputation
 % system. 
 
-Our audacious ambition is to create a global, distributed trust system. Such a trust system as a public, free and 
+Our audacious long-term ambition is to create a global, distributed trust system. Such a trust system as a public, free and 
 non-profit utility is a key element to enable next-generation online applications. In the 
 previous chapter we have introduced trust research and the influential role trust plays in human 
 society. The design complexities of such a system reach far beyond the scope of a single 
@@ -24,22 +24,24 @@ that are needed to create a fully capable trust system.
 "A Computational Model of Trust and Reputation" by Mui et al.~\cite{mui2002computational} is an
 important early work which provides a complete computational basis for those vague concepts. Mui
 defines the concepts of trust and reputation in the context of an embedded social network. The 
-network consists of a set of uniquely identifiable agents that are able to interact with each other. 
-The model further defines encounters, interactions between two agents, in which each agent performs either a 
-positive action "cooperate" or a negative action "defect". This matches the actions from the 
-Prisoner's dilemma game that we introduced to the reader in Section \ref{sec:prisoner}. The incentive
+network consists of a set of uniquely identifiable \textit{agents} that are able to interact with each other. 
+Similar to the Prisoner's Dilemma agents either cooperate or defect in the \textit{encounter}. The incentive
 for an agent to cooperate in an encounters is the hope that the same agent or another agent will
 return the favor and also cooperate in future encounters. This is the concept of direct and indirect
-reciprocity, respectively, which was
-mentioned in Section \ref{sec:evolution}. Throughout their lifetime agents build a
-history of encounters. The reputation of an agent is determined by that history. A high amount of 
-positive reciprocative behavior in the past results in a positive reputation. Trust 
-and reputation can be calculated. For example, an estimator for the reputation
+reciprocity. Throughout their lifetime agents build a \textit{history} of encounters. The reputation 
+of an agent is determined by that history. 
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{images/mui_figure.pdf}
+    \caption{Circular relation between trust, reputation and reciprocity. Source: Mui, 2002~\cite{mui2002computational}}
+    \label{fig:mui}
+\end{figure}
+
+Trust and reputation can be calculated. For example, an estimator for the reputation
 of an agent can be the number of encounters in which the agent reciprocated over the total number of 
 encounters. Trust, is the probability that an agent will reciprocate in the next encounter given 
-the agent's history.
-
-Mui defines reputation as ``
+the agent's history. Mui defines reputation as ``
 perception that an agent creates through past actions about its intentions and norms''. A good 
 reputation leads to trust from other agents. Mui's definition of trust as ``a subjective expectation
 an agent has about another's future behavior based on the history of their encounters'' reflects
@@ -48,17 +50,9 @@ encounter. This leads to another encounter of reciprocation, effectively increas
 reputations. This circular relationship is represented in Figure \ref{fig:mui}. 
 
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\textwidth]{images/mui_figure}
-    \caption{Circular relation between trust, reputation and reciprocity. Source: Mui, 2002~\cite{mui2002computational}}
-    \label{fig:mui}
-\end{figure}
-
-This self-reinforcing system of trust and reciprocity benefits all agents in the system. Similar to 
-the prisoner's dilemma, cooperation and reciprocity leads to more cooperation which is the optimum 
-for the system as a whole. Previously, such benefits were only possible in small communities with 
-human actors. But a computational model allows to automate this process of selecting trusted partners
+This self-reinforcing system of trust and reciprocity benefits all agents in the system. If agents
+follow strong reciprocity norms, cooperation, is the optimum for the system as a whole, can be ensured.
+Defining a computational model allows to automate this process of selecting trusted partners
 and enables global communities of both human and automated agents to have trusted connections.
 
 \section{Trust system architecture}
@@ -66,47 +60,64 @@ The concepts defined in the above model allow people as well as automated proces
 trustful decisions. It also defines, explicitly and implicitly, the main components which are 
 required to create trust between agents. We can use this conceptual description to create an 
 architecture for our proposed trust system. Making a trust system distributed poses another major 
-challenge. We shall briefly describe each of the components and their challenges. 
+challenge. We shall briefly describe each of the components and their challenges. Their relation is
+visualized in Figure \ref{fig:layers_of_trust_system}.
 
-\paragraph{Identity.} At the lowest level there is the identity layer that ensures an agent is 
-identifiable and distinguishable from other agents in the network. The most basic version of this is 
-a simple public-private key pair for signing and encrypting data. But creating a new key pair is cheap, therefore 
-this is not enough and in a later iteration of this identity system digital entities will need to be 
-bound to real-world, verified entites like government-issued passports or biometric identifiers. 
+\begin{enumerate}
+    \item \textbf{Identity Layer.} At the lowest level there is the identity layer that ensures an agent is 
+    identifiable and distinguishable from other agents in the network. The most basic version of this is 
+    a simple public-private key pair for signing and encrypting data. But creating a new key pair is cheap, therefore 
+    this is not enough and in a later iteration of this identity system digital entities will need to be 
+    bound to real-world, verified entites like government-issued passports or biometric identifiers. A long-term
+    goal is to create identities which are self-sovereign, so built, managed and used by the owner without 
+    central authority \cite{stokkink2018deployment}.
 
-\paragraph{Communication.} In order to interact, agents need to be able to connect and communicate.
-The internet creates a global communication network with high connectivity
-across the world but it is currently not in a state that direct communication between devices is 
-straight-forward. The large increase in connected devices expended the address space of IPv4 and IPv6
-transition has been slow, thus network address translation creates subnetworks with local address 
-spaces. Connection from such a subspace to a server with a public address is still simple like it is
-the case with most client-server applications on the internet, but direct communication when both 
-devices are behind NATs is still not standardized. Also new routing solutions are required to ensure
-communication based on the actual identity layer mentioned before instead of the IPv4 and DNS identity
-layer. Our research group has designed and implemented a communication layer which solves most of 
-these problems. The system, called IPv8, is open-source and published on GitHub\footnote{https://github.com/tribler/py-ipv8}.
+    \item \textbf{Communication Layer.} In order to interact, agents need to be able to connect and communicate.
+    The internet creates a global communication network with high connectivity
+    across the world but it is currently not in a state that point-to-point communication between devices is 
+    straight-forward. The large increase in connected devices expended the address space of IPv4 and IPv6
+    transition has been slow, thus network address translation(NAT) creates subnetworks with local address 
+    spaces. Connecting from such a subspace to a server with a public address is still simple like it is
+    the case with most client-server applications on the internet, but point-to-point communcation, when both 
+    devices are behind NATs, is still not standardized. Also new routing solutions are required to ensure
+    communication based on the actual identity layer mentioned before instead of the IPv4 and DNS identity
+    layer. Our research group has designed and implemented a communication layer which solves most of 
+    these problems. The system, called IPv8, is open-source and published on GitHub\footnote{https://github.com/tribler/py-ipv8}.
 
-\paragraph{Encounter records} Reputation is based on the history of encounters. This history needs 
-to be recorded and distributed such that agents can lookup and reason about each others history. Also
-the integrity and correctness of records needs to be ensured. Without a central entity
-which is aware of all transactions, each node will record some transactions. It is a challenge to 
-create a global record which is correct, tamper-proof and well distributed across the network.
+    \item \textbf{Encounter Record Layer.} Reputation is based on the history of encounters. This history needs 
+    to be recorded and distributed such that agents can lookup and reason about each others history. Also
+    the integrity and correctness of records needs to be ensured. Without a central entity
+    which is aware of all transactions, each node will record some transactions. It is a challenge to 
+    create a global record which is correct, tamper-proof and well distributed across the network.
 
-\paragraph{Interpretation of records} Based on the recorded feedback each agent can interpret them
-to form an opinion about other nodes. For a reputation system the records are seen as positive or
-negative behavior and each agent can output a ranking of reputations for all peers this agent knows
-of. Those rankings are calculated based on a reputation function. In the past our research group has
-explored different reputation functions like NetFlow~\cite{OTTE2017}, 
-MaxFlow~\cite{meulpolder2009bartercast} and PageRank which was first introduced in~\cite{page1999pagerank}.
+    \item \textbf{Interpretation Layer.} Based on the recorded feedback each agent can interpret them
+    to form an opinion about other nodes. For a reputation system the records are seen as positive or
+    negative behavior and each agent can output a ranking of reputations for all peers this agent knows
+    of. Those rankings are calculated based on a reputation function. In the past our research group has
+    explored different reputation functions like ones based on maximum flow calculations(NetFlow~\cite{OTTE2017}, 
+    MaxFlow~\cite{meulpolder2009bartercast}) and random walks(PageRank~\cite{page1999pagerank}).
 
-\paragraph{Application layer} We imagine that the trust system we are developing can be used 
-for any type of application that requires two entities to trust each other. The access to the trust
-system should be without any cost and open to anyone who is able to connect to the internet.
+    \item \textbf{Application Context.} We imagine that the trust system we are developing can be used 
+    for any type of application that requires two entities to trust each other. The access to the trust
+    system should be without any cost and open to anyone who is able to connect to the internet. 
+    The exact implementation of the Encounter Record Layer as well as how to interpret those records
+    in the Interpretation Layer is dependent on this application context.
+\end{enumerate}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/layers_of_trust_systems.pdf}
+    \caption{Layered structure of our trust system architecture. The Identity Layer ensures the authenticity.
+    The Communication Layer allows for point-to-point connections. The Encounter Record Layer ensures 
+    the correctness of records. The Interpretation Layers allows to calculate reputation and trust of 
+    peers. Both the encounters and their interpretation happen within a certain Application Context.}
+    \label{fig:layers_of_trust_system}
+\end{figure}
 
 %     \item identity layer: digital identities are related to real-world entities and can either be real-people or entities like institutions or companies. The most simple first solution is just to identify entities by their public-private key pair.
 %     * encounter record and distribution layer: encounters between digital identities needs to be recorded and distributed. Encounters are the basis for the reputation of entities, but reputation is only useful if it is gossiped such that other people can make decisions on the knowledge they have.
 %     * interpretation layer: based on the known history of encounters, a reputation can be given to the known entities and decisions can be based on this. This layer contains the reputation function: NetFlow, MaxFlow, PageRank etc.
-\vspace{0.5cm}
+
 Each layer adds another level of protection: if identities are expensive and hard to create, fake 
 identities will be less easy to create, protecting the system against spamming. Creating an immutable
 record and distributing that information to everyone makes knowledge tamper-proof, unchangeable and 
@@ -133,21 +144,21 @@ about the reputation of agents this value decreases.
 
 Agents base their perceived reputations of other agents on the knowledge about past interactions of 
 their peers. In a centralized system all user's actions are observable by the single central entity. 
-But this is generally not true for distributed systems. Interactions are not directly observable.
+But this is generally not true for distributed systems. Interactions are generally hard to to observe.
 On the other hand, using only one's own history of interactions as indicator for our peers reputation
 is also not an option. In a trust system with millions of users chances are high that users interact
 with many previously unknown people. Instead agents need to acquire knowledge about their peers
 transactions to make better decisions and reward those with a good reputation. This is possible with
-gossiping: agents report their history of interactions to other agents. This is a natural process 
-that also happens in the real-world trust building process. 
+epidemic gossiping: agents report new interactions to other agents who further spread those news. 
+This is a natural process that also happens in the real-world trust building process.~\cite{nowak2005evolution}
 
-Two main challenges of this process can be identified. Firstly, how to ensure that agents are honest
-about their own interactions. We have established that reputation has a value to agents. That could
+Two main challenges of this process can be identified. Firstly, how can we ensure that agents are honest
+about their own interactions? We have established that reputation has a value to agents. That could
 lead to agents reporting a manipulated history which is better than the true history in order to 
 obtain that value for free. Agents can protect against misreporting by exchanging information with 
 each other and verifying that they ``heard the same'' about another or others. This leads to the 
 second challenge: how can we ensure that agents take part in this process of exchanging and verifying
-information. Although each honest agent benefits from banning dishonest agents from the network, an
+information? Although each honest agent benefits from banning dishonest agents from the network, an
 agent can still argue to only report an agent that directly defrauded him. Checking any other 
 behavior of the partner does not directly benefit him. It is therefore a social dilemma: if all 
 agents help with verifying each other, everyone will benefit. Yet a single verifier has only little 
@@ -181,23 +192,31 @@ Consequently, the question that we are trying to answer is therefore:
     \textit{How to ensure that reports of encounters are honest, consistent and disseminated in a distributed trust system?}
 \end{center}
 
-We define three properties that we need to ensure for reports of encounters. Firstly, the report 
-needs to be honest. A record of an encounter
-includes an action performed by both agents. In the simplest case, as in the model we introduced to
-the reader in this chapter, this is simply cooperation or defection. The actions need to be honest 
-in order to rely on them for trust calculations. Similarly the order of encounters and the participating
-parties need to be honestly reported. Secondly, the reports need to be consistent. We need to make 
-sure that only one version of each encounter can exist. Multiple versions of the same encounter
-leads to ambiguity of agents histories and thus invalid trust calculations. Finally, in order to 
-ensure that indirect reciprocity is possible, it is key to disseminate the records of interactions 
-in the network.
+
 % How to record, disseminate and protect the records of interactions in a global trust system?
 % How to ensure honest reporting, distribution and verification of encounters in a global trust system?
 % How to ensure that reports of encounters are honest, distributed and verified in a distributed trust system? 
 
 \section{Requirements of the reporting system}
-Our goal is to create an architecture and implementation of a reporting systems for agent 
-interactions. We aim to use this system as the basis for a global scale, distributed trust system. 
+In our research question we state three desireable properties of encounter reports that our system 
+should enforce.
+
+\begin{itemize}
+    \item \textbf{Honesty.} The report needs to be honest. A record of an encounter
+    includes an action performed by both agents. In the simplest case, as in the model we introduced to
+    the reader in this chapter, this is simply cooperation or defection. The actions need to be honest 
+    in order to rely on them for trust calculations. Similarly the order of encounters and the participating
+    parties need to be honestly reported.
+    \item \textbf{Consistency.} The reports need to be consistent. We need to make 
+    sure that only one version of each encounter can exist. Multiple versions of the same encounter
+    leads to ambiguity of agents histories and thus invalid trust calculations.
+    \item \textbf{Dissemination.} The reports need to be disseminated. Reputation can only be valuable
+    if it is spread through the network. Instead of spreading reputation directly, we require to 
+    spread the knowledge of encounters such that each agent is able to determine their peers' reputation
+    and whether to trust them or not.
+\end{itemize}
+
+Our reporting systems is supposed to be used as the basis for a global scale, distributed trust system. 
 From this description we can extract specific requirements for the reporting system.
 
 % 2. The reputation system we define needs to have some properties:
@@ -215,11 +234,137 @@ Next to the properties defined in the research question, these practical require
 for the solution that we can propose.
 
 \section{Related work}
-Before defining our own solution to the chosen problem we look at existing approaches that we can 
-relate to. 
+Before defining our own solution to the chosen problem we explore existing approaches.
+
+\subsection{Replicated state machines}
+The problem that we described in this section can be described by the general problem of replicated 
+state machines. The state of a reputation system depends on the interactions between agents. Each 
+new encounter changes this state. The true state can be described by evaluating all records of 
+encounters. Each agent in the trust system stores a subset of these records . Based on the records
+agents are able to approximate the global system state. If all agents have the exact same records, 
+they are able to agree on the state of the system. 
+
+Replicated databases are a practical application in which this problem also arises. Early work from
+Demers et al.\cite{demers1987epidemic} introduces the three anti-entropy mechanism
+for the purpose of maintaining mutual consistency between multiple replicas of a database. Updates
+to the database can arrive at any single site and need to be forwarded to all other replicas. 
+Anti-entropy is a process in which each database periodically 
+chooses a random other instance and both exchange all database contents in order to resolve any 
+differences between the two. In this work we will study a similar mechanism for exchanging records
+of interactions between agents. 
+
+Later similar processes of epidemic information spreading were summarized under the label of 
+\textit{gossiping}. In distributed systems randomly chosen pairs of agents communicate to share 
+knowledge. Both agents' knowledge base is combined and both agents will further spread the combined
+information set in their following encounters. Note that this is a scientifically well-defined 
+concept. different from the previously mentioned gossip in communities to facilitate indirect reciprocity.
+We will subsequently refer to this well-defined concept when mentioning gossip \cite{hedetniemi1988survey}.
+
+Very recent work combines the anti-entropy approach with a hashchain solution. In \cite{baird2016swirlds}
+the authors propose a byzantine fault tolerant consensus scheme for replicated state machines. Similar
+to the anti-entropy mechanism nodes in the network randomly connect and exchange all their knowledge. In each
+such encounter new transactions can be announced. By signing each encounter and connecting it to the
+previous encounters using their hashes, a hash graph is created which records the communication 
+between all agents. Peers gossip about gossip and thus know what each of their peers have heard of and
+know. A byzantine fault tolerant consensus mechanism is defined based on the hashgraph.
+
+In this work we make use of two core concepts described in this section. Firstly, the anti-entropy
+mechanism will be studied as an example for synchronizing the states of agents. This allows for 
+agreement on reputations and trust, as well as fast dissemination of encounters with few necessary
+connections. Also, we will define an architecture for recording those exchanges, similar to Hashgraph.
+On the other hand, our architecture allows also for different exchange mechanisms that require less
+bandwidth than anti-entropy. Also agents do not need to actively gossip when not interacting: instead
+we propose to exchange information prior to any interaction.
+
+\subsection{Blockchain systems with global consensus}
+Replicated state machines were the predecessors of Bitcoin\cite{nakamoto2008bitcoin} which created 
+a whole new interest in distributed systems by releasing a concept and implementation for digital payments 
+without banks. While the research on gossip algorithms for replicated state machines were initially
+targeted at synchronizing databases, Bitcoin aimed to provide a system for millions of users. Bitcoin's
+innovation is mostly a combination of
+multiple existing concepts into the newly coined technology, called blockchain. We describe the 
+blockchain in more detail in Chapter \ref{chap:implementation}.
+
+Although the application context is a different one, the problem of recording transactions between
+automated agents is very similar to our problem. Bitcoin was adopted quickly for anonymous digital 
+payments. But its adoption layed bare scalability problems in the architecture. The proof-of-work
+algorithm increases its complexity with more active nodes and keeps the transaction throughput 
+constant. This leads to a theoretical bound of 60 transactions per second \cite{gervais2016security}. 
+Other similar concepts were proposed with Litecoin~\footnote{https://litecoin.org}, Monero~\footnote{https://getmonero.org}
+and Dashcoin~\footnote{http://dashcoin.info/} which add minor improvements over Bitcoin.
+Ethereum~\cite{wood2014ethereum} was the first blockchain based fabric that allowed the decentralized
+execution of scripts in addition to simple transactions. However it struggles with similar scalability
+issues as Bitcoin.
+
+In current development are proposals for increasing transaction throughput in blockchain-based 
+systems, through so-called layer-2 solutions. One proposal are off-chain transactions in a protocol like the Lightning network~\cite{poon2016bitcoin}.
+Two nodes deposit some Bitcoins into a channel. Afterwards they can use the channel for any number
+of transactions. Once they agree to stop transacting, a net settlement is published. Only the 
+opening and closing of channels leads to transactions on the blockchain, all transactions on the 
+channel itself is only recorded locally. Multiple hops through channels are also possible such that 
+if $A$ has a channel with $B$ and $B$ has a channel with $C$, a can perform a transaction with $C$. 
+Although the lightning network improves scalability by allowing for an unlimited number of off-chain 
+transactions, locking funds in each open channel can be problematic. Also, if channel creation and 
+maintenance is expensive, a natural result is that certain nodes keep channels with many other 
+nodes to act as an off-chain hub. This leads to centralization.
+
+Another development is sharding. By splitting the network into several sub-networks, called shards.
+Each shard records and secures its own state. As the network grows, new shards can be added, thus 
+increasing the overall throughput of the system with increasing size. Although this seems like a 
+good solution, problems arise when transaction need to be performed between shards. Elastico~\cite{luu2016secure}
+uses a sharding solution with a Byzantine consensus scheme and allows for almost linear scalabilty.
+However, inter-shard transactions are not possible.
+
+Other innovations focus more on the consensus algorithm itself. Proof-of-work is not only slow but
+also very energy-intensive \cite{bitcoin_energy}. Therefore other consensus protocols have been 
+proposed and implemented such as Proof-of-State (POS) and Delegated-POS \cite{bentov2016cryptocurrencies, kiayias2017ouroboros}.
+In the POS consensus mechanism, nodes do not need to expend computational resources to create a 
+total sequence of blocks but rather bet some of their resources (stake) on a new block being the
+next on the chain. Betting on the wrong block or a faulty block will lead to loss of those resources.
+The stake to participate as a validator can be high, leading to centralization of power at the largest
+stakeholders. Delegated-POS allows each node to vote on a set of validator. The decentralization is
+re-established but by decreasing the parties involved in the validation of new blocks, the mechanism
+is not as secure as Proof-of-Work.
+
+\subsection{Pairwise accounting and pairwise ledgers}
+In parallel to the blockchain development a different variation of replicated state machines was 
+developed in the form of pairwise accounting systems. Instead of announcing transactions to all 
+nodes in the network and ensuring global consensus, in pairwise accounting systems interactions are
+initially only observed by the participating agents. Through employing some dissemination mechanims they 
+distributed to other agents. With respect to the previously introduced system who enforce global 
+consensus, this solution makes for a scalable, though less secure, transaction record. However, there is no 
+guarantee on which information agents are acting.
+
+Meulpolder et al.\ propose BarterCast, a system that records transactions in the BitTorrent network
+and selects future peers by their perceived reputation. The reputation is based on maxflow 
+calculation of the interaction graph with agents being nodes and past transactions being edges. The
+goal was to detect and ignore lazy free-riders who do not upload in the BitTorrent network \cite{meulpolder2009bartercast}.
+In later work other mechanisms were proposed to be more resistant to dishonest reporting and sybil
+attacks \cite{seuken2010accounting, seuken2014sybil}.
+
+However the BarterCast system did not have any tamper-proof recording so the accounting mechanisms were
+vulnerable to manipulations. Therefore, recent work by Otte et al.\ proposes a blockchain-based, pairwise
+ledger which provides a tamper-evident scalable ledger. Transactions are 
+entangled with two hash pointers to previous transactions. A transaction is confirmed by two parties
+without requiring consensus with the rest of the network. We will describe this solution in detail 
+in Chapter \ref{chap:implementation} because it will be the basis for the extension this work
+introduces. 
+
+IOTA\cite{popov2016tangle} is a distributed ledgers like Bitcoin and Ethereum but without global 
+consensus. Transactions are initially only recorded by the participating agents. A proof-of-work 
+algorithm is used to work against spamming of transactions but not to obtain global consensus. Each
+transactions is related to two other transactions that are confirmed. This creates a directed 
+acyclic graph (DAG). A graph structure can grow much faster than a single global chain. DAG based 
+ledgers therefore solve the largest problem of blockchain solutions: scalability.
+
+Although DAG ledgers are superior to blockchain solution in terms of scalability, their weakness is
+consistency. Nodes are not guaranteed to act on the same information about transactions. This can 
+lead to conflicts about the validity of transactions. It is key to incentivize agents to acquire 
+information from other agents and verify any new transaction against their knowledge. In this work
+we propose a mechanism that guarantees this behavior.
 
 \subsection{Reputation systems}
-In our introduction we have mentioned the reputation systems of AirBnB and Uber as examples of 
+In our introduction we have mentioned the reputation systems of Airbnb and Uber as examples of 
 state-of-the-art commercial systems for creating trust on the internet. Other such systems like 
 eBay's reputation system for auctions have been more in the focus of research. It was found in 
 multiple studies that a good reputation positively influences future interactions~\cite{resnick2002trust, houser2006reputation, dewan2004adverse}.
@@ -258,93 +403,6 @@ Although current reputation system are much related to our use case, most work h
 the calculation of reputation rather than the secure storage of records. Also, they mostly have a
 conceptual description of the reputation system rather than a software implementation that is proven
 to work.
-
-\subsection{Blockchain systems with global consensus}
-Bitcoin\cite{nakamoto2008bitcoin} created a whole new interest in distributed systems after they 
-released their software for digital payments without banks. Bitcoin innovation is mostly a combination of
-multiple existing concepts into the newly coined technology, called blockchain. We describe the 
-concept in more detail in Chapter \ref{chap:implementation}. At the core it records money transactions
-in data blocks. Blocks are chained together using the hash of the previous block. This creates a 
-fixed sequence of transactions. All blocks are synchronized with all active nodes such that all nodes
-agree on a single sequence of transactions. This is ensured using the Proof-of-work algorithm.
-
-Although the application context is a different one, the problem of recording transactions between
-automated agents is very similar to our problem. Bitcoin was adopted quickly for anonymous digital 
-payments. But its adoption layed bare scalability problems in the architecture. The proof-of-work
-algorithm increases its complexity with more active nodes and keeps the transaction throughput 
-constant. This leads to a upper bound of 7 transactions per second \cite{bitcoin_throughput}. 
-Other similar concepts were proposed with Litecoin~\footnote{https://litecoin.org}, Monero~\footnote{https://getmonero.org}
-and Dashcoin~\footnote{http://dashcoin.info/} which add minor improvements over Bitcoin.
-Ethereum~\cite{wood2014ethereum} was the first blockchain based fabric that allowed the decentralized
-execution of scripts in addition to simple transactions. However it struggles with similar scalability
-issues as Bitcoin.
-
-In current development are proposals for increasing transaction throughput in blockchain-based 
-systems. One proposal are off-chain transactions in a protocol like the Lightning network~\cite{poon2016bitcoin}.
-Two nodes deposit some Bitcoins into a channel. Afterwards they can use the channel for any number
-of transactions. Once they agree to stop transacting, a net settlement is published. Only the 
-opening and closing of channels leads to transactions on the blockchain, all transactions on the 
-channel itself is only recorded locally. Multiple hops through channels are also possible such that 
-if $A$ has a channel with $B$ and $B$ has a channel with $C$, a can perform a transaction with $C$. 
-Although the lightning network improves scalability by allowing for an unlimited number of off-chain 
-transactions, locking funds in each open channel can be problematic. Also, if channel creation and 
-maintenance is expensive, a natural result is that certain nodes keep channels with many other 
-nodes to act as an off-chain hub. This leads to centralization.
-
-Another development is sharding. By splitting the network into several sub-networks, called shards.
-Each shard records and secures its own state. As the network grows, new shards can be added, thus 
-increasing the overall throughput of the system with increasing size. Although this seems like a 
-good solution, problems arise when transaction need to be performed between shards. Elastico~\cite{luu2016secure}
-uses a sharding solution with a Byzantine consensus scheme and allows for almost linear scalabilty.
-However, inter-shard transactions are not possible.
-
-\subsection{Blockchain without global consensus}
-IOTA\cite{popov2016tangle} is a distributed ledgers like Bitcoin and Ethereum but without global 
-consensus. Transactions are initially only recorded by the participating agents. A proof-of-work 
-algorithm is used to work against spamming of transactions but not to obtain global consensus. Each
-transactions is related to two other transactions that are confirmed. This creates a directed 
-acyclic graph (DAG). A graph structure can grow much faster than a single global chain. DAG based 
-ledgers therefore solve the largest problem of blockchain solutions: scalability.
-
-Our own solution which was proposed in \cite{OTTE2017} uses a similar approach. Transactions are 
-entangled with two hash pointers to previous transactions. A transaction is confirmed by two parties
-without requiring consensus with the rest of the network. We will describe this solution in detail 
-in Chapter \ref{chap:implementation} because it will be the basis for the extension this work
-introduces. 
-
-Although DAG ledgers are superior to blockchain solution in terms of scalability, their weakness is
-consistency. Nodes are not guaranteed to act on the same information about transactions. This can 
-lead to conflicts about the validity of transactions. It is key to incentivize agents to acquire 
-information from other agents and verify any new transaction against their knowledge. In this work
-we propose a mechanism that guarantees this behavior.
-
-
-\subsection{Replicated state machines}
-The problem that we described in this section can be described by the general problem of replicated 
-state machines. Each agent in the trust system stores records of interactions. Based on the records
-agents are able to approximate the global system state. If all agents have the exact same records, 
-they are able to agree on the state of the system. 
-
-Replicated databases are a practical application in which this problem also arises. Early work from
-Demers et al.\cite{demers1987epidemic} introduces the anti-entropy mechanism
-for the purpose of maintaining mutual consistency between multiple replicas of a database. Updates
-to the database can arrive at any single site and need to be forwarded to all other replicas. Demers
-et al\. study three different mechanisms to disseminate the updates to other sites: direct mail, 
-anti-entropy and rumor mongering. Anti-entropy is a process in which each database periodically 
-chooses a partner database and both exchange all database contents in order to resolve any 
-differences between the two. In this work we will study a similar technique for exchanging records
-of interactions between agents. 
-
-Very recent work combines the anti-entropy approach with a hashchain solution. In \cite{baird2016swirlds}
-the authors propose a byzantine fault tolerant consensus scheme for replicated state machines. Similar
-to the anti-entropy mechanism nodes in the network randomly connect and exchange all their knowledge. In each
-such encounter new transactions can be announced. By signing each encounter and connecting it to the
-previous encounters using their hashes. A hash graph is created which records the communication 
-between all agents. The structure allows agents to know what their peers know. In this way consensus
-can be created. In this work a similar approach is used. However instead of proposing a single 
-exchange policy which requires agents to obtain all features our architecture allows to use different
-policies. This gives flexibility to choose between scalability and security.
-
 
 \subsection{Other work}
 In \cite{haeberlen2007peerreview} the system PeerReview is proposed which records in a tamper-proof
