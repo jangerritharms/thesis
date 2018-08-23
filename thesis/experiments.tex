@@ -100,8 +100,8 @@ implemented two types of manipulating behavior, block withholding and double spe
     \label{tab:agent_types}
     \begin{tabular}{p{3cm}|p{3cm}|p{8cm}} \toprule
     \textbf{Type} & \textbf{Sub-type} & \textbf{Behavior} \\ \midrule
-    \multirow{2}{3cm}{Honest agents} & without history check (default) & Exchanges and verifies agents normally \\ \cline{2-3}
-    & with history check & additionally replays the history of a peer to find any deviating behavior in the past \\ \midrule
+    \multirow{2}{3cm}{Honest agents} & without auditing (default) & Exchanges and verifies agents normally \\ \cline{2-3}
+    & with auditing & additionally replays the history of a peer to find any deviating behavior in the past \\ \midrule
     \multirow{2}{3cm}{Exchange free-rider} & No exchanges & Does not create any exchanges \\ \cline{2-3}
     & Empty exchanges & Creates exchanges blocks with empty exchanges \\ 
     % & Self-requests & Exchanges only own chain \\ \hline
@@ -149,13 +149,6 @@ In the following we will present the results of our experimental analysis.
 %     \label{fig:DFR}
 % \end{figure}
 
-\begin{figure}
-  \centering
-  \includegraphics[width=.6\linewidth]{images/gossip_free-rider}
-  \caption{Transactions over time of honest agents with exchange free-rider (both types give same result)}
-  \label{fig:DFR_no_exchanges}
-\end{figure}
-
 Our first experiment analysis the performance of our exchange mechanism against free-riders. Gossip
 free-riders that do not exchange information create a threat to the security of the network. In order
 to secure the system, honest agents should be able to detect free-riders and ignore them. This will 
@@ -186,6 +179,14 @@ from the honest agent. However, by calculating
 that the free-rider should have requested blocks and by finding a wrong exchange hash in the other case
 the honest agent can in both cases detect the fraud. That way, also in this case the honest agents 
 are able to detect the wrong behavior.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=.6\linewidth]{images/gossip_free-rider}
+  \caption{Transactions over time of honest agents with exchange free-rider (both types give same result)}
+  \label{fig:DFR_no_exchanges}
+\end{figure}
+
 
 % Finally, the third type of dissemination free-riders, results shown in Figure\ref{fig:DFR_self_request}
 % , requests and sends data about itself but not any other knowledge. When in the responder position, 

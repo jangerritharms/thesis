@@ -1,12 +1,12 @@
 \chapter{Scalable blockchain ledgers}
 \label{chap:implementation}
 
-Trust and reputation systems rely heavily on the records of interactions. In previous work our 
-research group has created a blockchain-based recording system for interactions, TrustChain. This system is 
+Trust and reputation systems rely heavily on interaction records. In previous work our 
+research group has deployed a blockchain-based recording system for interactions, TrustChain. This system is 
 implemented in a peer-to-peer video streaming service Tribler and the IPv8 project
 \footnote{https://github.com/tribler/py-ipv8}. 
 
-This chapter introduces the concept of blockchains and the TrustChain architecture itself to the reader. 
+This chapter introduces the blockchain concept and the TrustChain architecture itself to the reader. 
 Also we analyze how the TrustChain architecture can be attacked. We point
 out that although detection of attacks is possible the system does not incentivize agents to share 
 and verify data which is essential for the detection. In the following chapter we analyze this in the
@@ -43,33 +43,23 @@ and platform lock-in. We described those issues in more detail in Chapter \ref{c
 The increasing significance of those issues led to the design and implementation of the Bitcoin 
 protocol~\cite{nakamoto2008bitcoin} for digital money transfers. The Bitcoin protocol allows a distributed network of agents 
 to agree on the exact order of events, through a hash chain which acts as a distributed timestamp 
-server and the proof-of-work algorithm. This architecture is commonly referred to as Blockchain. We
-shall introduce this concept in more detail as the core concepts are also applied in TrustChain.
+server and the proof-of-work algorithm. This architecture is commonly referred to as blockchain or
+distributed ledgers.
 
 \subsection{Concept}
-A blockchain is essentially an append-only database in form of chained blocks. It is designed to be
-used as a secure information storage in distributed systems without any central governance. Tribler
-is therefore a possible application context for a blockchain-based database.
+A blockchain is essentially an append-only database in the form of chained blocks. It is designed to be
+used as a secure information storage in distributed systems without any central governance. 
 
-Each block on the chain contains a set of transactions, the root hash of that set, a Nonce (used in 
-the consensus algorithm) and the hash of the previous block. Through the hash of the previous block the blocks are 
-chained together as can be seen in Figure~\ref{fig:basic_blockchain}. The first block in the chain 
-is called the genesis block. The Bitcoin blockchain and similar single-chain blockchains only has 
-one genesis block. Each block can also be identified by a sequence number, which is an increasing 
-integer that starts from 1 at the genesis block.
+Each block on the chain contains a set of transactions, the root hash of that set, a nonce (used in 
+the consensus algorithm) and the hash of the previous block. By including a hash from the previous block,
+blocks are chained together as can be seen in Figure~\ref{fig:basic_blockchain}. Any 
+change to a block on the chain will change the hash of that block. This voids the following block's
+hash pointer because it points to the old block. 
 
-Transactions and new blocks need to be published publicly on the network. The block creation process
-is managed by the consensus mechanism Proof-of-work. This process is also called mining and the nodes
-that take part in it are thus miners. It works as follows: Each new block contains a computational 
-intensive puzzle which needs to be solved in order to be able to publish a block. A string needs to 
-be found that matches a target hash. All miners use their CPU to guess the correct string. Once they
-find a possible solution, the agent combines all the transactions that were published since the last
-block and combines them to a new block. The block size is fixed such that after adding a certain number of 
-transactions the block is considered complete. Once complete, the agent publishes the
-block on the network. Any agent that receives the block will verify that
-the solution to the puzzle is correct and all transactions are valid. If so, they add the new block
-to their copy of the chain and start with solving the next puzzle in order to become the next 
-creator of a block. The creator of the block is rewarded with newly created Bitcoins.
+The first block in the chain 
+is called the genesis block. The Bitcoin blockchain and similar single-chain ledgers only have 
+one genesis block. Each block can also be identified by a sequence number $s \in \mathbb{Z^\geq}$, which is an increasing 
+integer that starts from 0 at the genesis block.
 
 \begin{figure}
     \centering
@@ -79,74 +69,120 @@ creator of a block. The creator of the block is rewarded with newly created Bitc
 \end{figure}
 
 All agents are acting on the same copy of the blockchain. The one global chain therefore contains 
-all transactions that happen on the network. This implies that all agents need to be informed about any new block.
-In order to allow for enough time to synchronize transactions and blocks, the difficulty of the puzzle 
-can be increased. This ensures a approximately fixed time between new blocks. This block time is 
-10 minutes for Bitcoin. Together with the fixed block size the global transaction throughput of the
-system is capped. For Bitcoin this is approximately 7 transactions per second. The Bitcoin solution
-does not scale and is in its current state no possible solution for a global trust system.
+all transactions that happen on the network. Single global ledgers create an incentive for agents to publish new blocks by rewarding 
+them with currency. New blocks are accepted if they are on top of the longest chain. This creates 
+an incentive for all participating miners to stay up to date on the state of the global ledger. Only
+if an agent is in possession of the latest block is there a chance to create the next block and
+receive the block reward. 
+
+% In order to allow for enough time to synchronize transactions and blocks, the difficulty of the puzzle 
+% can be increased. This ensures a approximately fixed time between new blocks. This block time is 
+% 10 minutes for Bitcoin. Together with the fixed block size the global transaction throughput of the
+% system is capped. Research has shown that any proof-of-work system will not increase beyond a throughput
+% of 60 transactions per second \cite{gervais2016security}. The scalability of the proof-of-work 
+% algorithm is very limited which makes the Bitcoin solution only applicable in a context where high
+% throughput 
+
 
 \subsection{Consensus}
 % why?: 
-Bitcoin-like distributed ledgers create an incentive for agents to publish new blocks by rewarding 
-them with currency. New blocks are accepted if they are on top of the longest chain. This creates 
-an incentive for all participating miners to stay up to date on the state of the global ledger. Only
-if an agent is in possession of the latest block is there a chance to receive the block reward. 
+Transactions and new blocks need to be published  on the network. The block creation process
+is managed by the consensus mechanism \textit{proof-of-work}. This process is also called mining and the nodes
+that take part in it are thus miners. It works as follows: Each new block contains a computational 
+intensive puzzle which needs to be solved in order to be able to publish a block. Specifically, 
+miners are increasing the nonce $x$ until $\mathcal{H}(x) < d$ where $\mathcal{H}$ is any secure hash
+function and $d$ is a target hash. The smaller $d$, the more hashes need to be calculated before finding a hash.
+All miners are computing hashes until they find a correct $x$. 
+
+Once they find a possible solution, the agent combines all the transactions that were published since the last
+block and combines them to a new block. The block size is fixed such that after adding a certain number of 
+transactions, the block is considered complete. If complete, the agent broadcasts the
+block in the network. Any agent that receives the block will verify that
+the solution to the puzzle is correct and all transactions are valid. If so, they add the new block
+to their copy of the chain and start with solving the next puzzle in order to become the next 
+creator of a block. 
+
+The creator of the block is rewarded with transaction fees paid by the authors
+of the included transactions and a coinbase transaction. The latter is the generation of new 
+coins from a finite supply of new coins. Over time, the size of the coinbase transaction reduces 
+until it reaches 0. At that point, miners are only rewarded with the transaction fees.
 
 Conflicts can arise when two blocks are found at approximately the same time. Each block will be 
-considered the latest by part of the network. The network is thus split into two groups and a natural
-fork is created in the chain. However this conflict will usually resolve itself. Both parts of the 
-network will continue to mine the next block. Depending on the CPU power of the two groups and some
-luck, one group will be faster at mining the next blocks. Because blocks are only rewarded when they
-have the highest sequence number, the slower part of the network will quickly switch to the longer
-chain and thus the network is combined again. 
+considered the latest by part of the network. The network is thus partitioned and a natural
+fork is created in the chain. The conflict is resolved when the following blocks are mined. 
+The partition with the larger CPU power will mine consecutive blocks faster. The longer
+chain will persist as the other partition switches towards it. The mechanism ensures that (except for
+the latest blocks) agents are acting on the same view of the network.
 
-Bitcoin thus guarantees that all agents have the exact same chain of blocks(except for the latest 
-blocks) and thus have a single view of the state of each agent. This state of agreement is called
-global consensus.
-
-\subsection{Tamper-proof}
+\subsection{Tamper-resistance}
 % why?: show that the hash chain creates a tamper-proof record
-The chain of hashes that connects blocks on the blockchain creates a tamper-proof history. Any 
-change to a block on the chain will change the hash of that block. This voids the following block's
-hash pointer because it points to the old block. Therefore any change to the block requires the 
-recalculation of all following blocks. Because all blocks need to be agreed upon on the network 
+The chain of hashes that connects blocks on the blockchain creates a theoretically tamper-proof history.  
+Changes to any block will alter its hash and break the chain of hashes. Therefore any change to the 
+block requires the recalculation of all following blocks. Because all blocks need to be agreed upon on the network 
 other agents will be able to see such tampering with the blocks and will not agree on it. 
 
-The tamper-proof nature of the blockchain makes it a very useful tool for recording chronologically 
-ordered transactions. The sequence of blocks also orders the transactions stored in the blocks. Any
-transactions in an earlier block happen before the transactions in the later block. Also, as was just 
-explained, any change to the ordering of transactions will result in a break in the hash chain. Even though this order
+Similarly the order of blocks is ensured through the hash pointers. Any change to the order of blocks
+will will result in a break in the hash chain.
+The sequence of blocks also orders the transactions stored in the blocks. 
+Any transactions in an earlier block happen before the transactions in the later block. Also, as was just 
+explained, any change to the ordering of transactions. Even though this order
 does not necessarily correspond to the local time of the agent who published the transaction, the 
 blockchain will create a globally accepted order for transactions.  This is a major 
 achievement because this order is robust against network delays, tampering and other attacks.
 
-Still the system cannot be perfectly secure. One way to actually attack the system is by mining 
-blocks faster than the rest of the network. This is only possible when a majority of the network's 
-CPU power works together which is unlikely for very large networks. Yet, there are examples of this 
-happening~\cite{51percentbitcoingold, 51percentverge}.
+However, proof-of-work blockchain are not truly tamper-proof. The tamper-resistance is ensured through
+mining power. As long as more than 50\% of the network's CPU power is controlled by honest agents, 
+the correctness of the system is ensured. However, if any attacker is able to obtain a majority of
+computing power, any tampering can be possible because the attacker can mine invalid blocks faster
+then the honest minority. For very large networks such as the Bitcoin network, the probability of 
+a single attacker having a majority of CPU power is very small. However, smaller networks or collusion
+attacks in which multiple miners work together can be successful as shown by some examples~\cite{51percentbitcoingold, 51percentverge}.
+
+The majority of the mining power can also be used to create a intentional fork in the chain in order 
+to fix software bugs. If a majority of miners update their software to version that creates and verifies blocks
+differently while a minority continues with the old software, a hard fork is created such that two
+version of the blockchain are continued. Examples of this are Bitcoin Gold \footnote{https://bitcoingold.org} and Ethereum Classic \footnote{https://ethereumclassic.org}.
 
 \subsection{Scalability}
-A blockchain solution like Bitcoin seems like a valid implementation for recording transactions for a
+A single global ledger like Bitcoin seems like a valid implementation for recording transactions for a
 trust system. All transactions are exchanged with all agents on the network. The blockchain 
 creates a totally ordered set of all global transactions which intrinsically means that each agent's 
 transactions are also fully ordered. Double spend and forks are detectable through global consensus. 
 
-However, the Proof-of-work mechanism leads to issues in scalability. The global throughput of 7 
-transactions per second is not enough to power a global scale distributed trust system as we envision it. 
-The Proof-of-work consensus algorithm also leads a to a large expenditure of energy which creates 
+However, the proof-of-work mechanism leads to issues in scalability. It restricts the global throughput
+to at best 60 transactions per second. This is not enough to power a global-scale distributed trust 
+system as we envision it. The proof-of-work consensus algorithm also leads a to a large expenditure of energy which creates 
 large transaction costs. This is not acceptable if the trust system should be for general purpose 
 applications. For example, users will not accept to pay for each video they stream on the Tribler 
 platform. A different solution is therefore needed.
 
+In Section \ref{sec:related_work} several improvements to the scalability are mentioned. Examples are
+alternative consensus protocol such as proof-of-stake and delegated proof-of-stake. Also, sharding
+and off-chain transaction channels have been proposed which are supposed to increase throughput.
+Each solution balances three design variables: decentralization, scalability and consistency. This
+is commonly called the scalability trilemma in blockchain communities \footnote{For example mentioned in the etherem wiki. https://github.com/ethereum/wiki/wiki/Sharding-FAQs}.
+Crytpocurrencies generally target decentralization and consistency as the driving design factors. 
+Financial transactions have high value and require consistency. Secure payments are enabled while 
+scalability is less important.
+
+
 \section{TrustChain}
 \label{sec:trustchain}
-TrustChain is designed with scalability in mind. It's design focus is in stark contrast with that of
-Bitcoin. Instead of employing global consensus to guarantee a single global transaction set, 
+
+
+TrustChain's design focus is in stark contrast with that of
+Bitcoin. Instead of employing global consensus to guarantee a single global ledger, 
 all agents in the TrustChain fabric are owner of a chain for themselves. This creates a scalable 
 solution in which the total network throughput grows with the size of the network. However, the
-scalability comes at the cost of security guarantees. This section will first discuss the general 
-architecture of trust chain before discussing the scalability and some details of the implementation.
+scalability comes at the cost of consistency guarantees. 
+
+We argue that when designing a global-scale
+trust system, interaction throughput has higher value than consistency. Although undesired, we 
+consider the manipulation of an agents reputation as less severe than stealing large amounts of 
+money. Therefore, an architecture such as TrustChain with unbounded scalability is a better basis
+for a trust system than single global ledgers.
+
+We continue this chapter with a description of the TrustChain architecture.
 
 \begin{figure}
     \centering
@@ -169,9 +205,9 @@ architecture of trust chain before discussing the scalability and some details o
 Similar to the Blockchain architecture TrustChain records transactions in blocks and links blocks 
 with the use of hash pointers. Though, in contrast to having a single chain of blocks for the whole
 network, in TrustChain each agent starts with an own genesis block. Hence, all agents record their
-own transactions on their own chain. 
+own transactions on their chain. 
 
-Blocks in TrustChain record exactly one transaction between two parties. Because both parties have 
+Blocks in TrustChain contain exactly one transaction between two parties. Because both parties have 
 their own chain and the transaction concerns both parties, any new block is added to both agents'
 chains. Each block contains the following main elements:
 
@@ -181,7 +217,7 @@ chains. Each block contains the following main elements:
     serializable data. 
     \item \textbf{Previous block hashes.} The hashes of the previous blocks of both agents' chains 
     firmly attaches the new block to their history. This is similar to the basic blockchain concept.
-    \item \textbf{Public Keys.} In order to uniquely identify the two agents that conduct a transaction
+    \item \textbf{Public keys.} In order to uniquely identify the two agents that conduct a transaction
     their public keys are recorded.
     \item \textbf{Signatures.} Both agents provide a digital signature of the transaction with their 
     private key which any agent can check with the agents' public keys. This authenticates the 
@@ -252,7 +288,7 @@ of the signatures and hash pointers of consecutive blocks.
 
 \subsection{Scalability}
 \label{sec:trustchain_scalability}
-For a transaction to be successful in TrustChain, only two agents need to agree on the content. This
+For a transaction to be successful in TrustChain, only the involved agents need to agree on the content. This
 means that only two agents need to communicate to confirm a transaction. Transactions do not need to 
 be publicly announced or sent to all nodes on
 the network. Also, multiple transactions can be performed at the same time globally without breaking
@@ -269,14 +305,15 @@ effect like network delays, network churn or bandwidth restrictions greatly conf
 
 TrustChain does not include a global consensus and thus does not expend bandwidth, storage and 
 computational power to create a global order for transactions. That removes the most costly component
-from the general blockchain architecture. Without the expense of CPU power for solving an inverse 
-hash problem, transactions only cost the bandwidth and computational expense of communicating with 
+from the general blockchain architecture. Without the expense of CPU power to calculate hashes as in the proof-of-work mechanism,
+transactions only cost the bandwidth and computational expense of communicating with 
 the direct interaction partners. TrustChain enables free transactions in a global distributed 
 system with scaling throughput based on the network size. Hence, TrustChain is valid solution for a
 global trust system.
 
 \subsection{Security}
-The scalability of the TrustChain architecture comes at the expense of some security guarantees.
+The superior scalability of the TrustChain architecture compared to single global ledgers comes at 
+the expense of some security guarantees.
 
 Similar to a single Blockchain the graph structure of TrustChain creates a tamper-proof record of
 transactions. A large difference is that each agent reigns over a chain. Each agent seemingly is 
@@ -290,7 +327,7 @@ continuously verify their partners data. Also, as the validity of a block is rec
 agents can only ensure the validity of a partners previous transaction if they possess their complete
 chain and verified that chain. It is even harder to defend against attacks in which agent do not 
 directly manipulate the data structure but make use of the incomplete knowledge which is intrinsic 
-to distributed networks. In Section \ref{sec:attacks} we will discuss some of these attacks in detail.
+to distributed networks. 
 
 % A prominent example, the double spend attack, has been defined and extensively 
 % discussed in Chapter~\ref{chap:model}. We have shown that gossiping, that is sharing of knowledge, 
@@ -299,7 +336,7 @@ to distributed networks. In Section \ref{sec:attacks} we will discuss some of th
 % incentive to perform gossiping. In the next section an extension will be discussed which adds the 
 % possibility of recording exchanges.
 
-\section{Attacks}
+\section{Security analysis}
 \label{sec:attacks}
 If the trust system works as expected, a good reputation should have value to agents. All agents on 
 the network attempt to obtain a good reputation and be seen as a trusted partner. As such their 
@@ -340,7 +377,7 @@ the chain.
 TrustChain makes this attack detectable through the sequence number of the blocks. If any agent 
 obtains both versions of the block, that agent will see that $A$ has signed and thus authorized the
 creation of two blocks with the same sequence number. Also if $B$ obtains any later blocks from $A$ 
-the hashes will not point to the transaction with $B$.  This creates a proof-of-fraud. 
+the hashes will not point to the transaction with $B$.  This creates a \textit{proof-of-fraud}. 
 
 The actual
 detection of this attack requires agents to obtain transactions from their peers and compare those 
