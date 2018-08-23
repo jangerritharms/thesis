@@ -277,9 +277,8 @@ the validity of the complete chain but allows for a simple non-recursive validit
 Blocks of the TrustChain architecture are tamper-evident. Blocks are chained through hashes of their
 content and signed by both transaction parties. Any change to the content of the block, that is the
 transaction field, the sequence numbers, the signatures, previous hashes or public keys will change
-the hash of the block. Also, any such change will invalidate the original signatures of both agents.
-Note that digital signatures sign the content of the block, signature fields are excluded. An agent
-can recalculate her own signature but not the signature of the partner without access to the 
+the hash of the block. Also, any such change will invalidate the original signatures of both agents. An agent
+can renew her own signature but not the signature of the partner without access to the 
 partner's private key. Apart from the invalid signatures also any consecutive block's previous hash
 will be invalid because the tampered block's hash has changed.
 
