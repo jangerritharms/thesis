@@ -1,39 +1,32 @@
-\chapter{Recording exchanges}
+\chapter{Manipulation-resistant block exchange}
 \label{sec:extension}
-Neither the conventional blockchain with global consensus nor TrustChain are able to provide a 
-distributed, scalable and secure solution for recording interactions. Although the scalability 
+Neither a conventional blockchain solution with global consensus nor TrustChain are able fullfil all
+requirements of a reporting system for encounters of a trust system. Although the scalability 
 problem has been tackled by many researchers and developers\cite{poon2016bitcoin, luu2016secure}
 no working solution has yet been proven in practice for blockchains with global consensus. On the 
-other hand TrustChain offers a scalable solution but security is hard to ensure. We claim that by 
-adding records of information exchange we are able to improve the security significantly. 
-Tamper-proof records of exchange will incentivize agents to 
-obtain and verify data. Our claims are supported by the model defined in Chapter \ref{chap:model}.
+other hand TrustChain offers a scalable solution but no strong incentive mechanism is put in place to 
+ensure consistency and dissemination. 
 
-The realization of information exchange transparency requires two things: an architecture which enables the 
-recording of information exchanges and a policy to exchange data (defined as exchange policy in 
+In the previous chapter we have shown that the exchange of encounters between agents is a defense 
+against inconsistent data such as forks. Also, by adding reports of exchanges to the history of 
+agents, any failure to exchange will be detectable. The recording of exchanges also makes an agent's
+view of the network at any given moment transparent. This can be utilized to audit any behavior in 
+history of an agent.
+% We claim that by 
+% adding records of information exchange we are able to improve the security significantly. 
+% Tamper-proof records of exchange will incentivize agents to 
+% obtain and verify data. Our claims are supported by the model defined in Chapter \ref{chap:model}.
+
+In the TrustChain architecture encounters are recorded in the form of blocks. Therefore we need to 
+enable the exchange of blocks. For the implementation of block exchanges two things are required: an \textit{architecture} which enables the 
+recording of exchanges and a \textit{policy} that defines which blocks to exchange and when (defined as exchange policy in 
 our model). We first propose an architecture based on TrustChain which allows the implementation 
-of the complete ordered encounter model from the previous chapter. In the next section we discuss
-how the architecture can be used by honest agents to improve the detection of malicious and free-riding 
-behavior.
+of the complete ordered encounter model from the previous chapter. The TrustChain architecture 
+records an agents history on a tamper-evident chain, similar to the history of the agent in our 
+model. We describe how the architecture can be extended in order to create manipulation-resistant 
+evidence of block exchanges. Then we describe how the Network-State-Exchange policy can be implemented.
 
-\section{Implementation}
-Exchanges can be recorded in a similar way as transaction data is recorded. We extend TrustChain with \textit{exchange blocks}. Instead of the transaction
-field an exchange block contains two exchange fields which store the blocks sent and received from the perspective of
-the agent that initiates the exchange. Similar to our model, an exchange consists of any type of block, so both transaction and exchange 
-blocks are exchanged. 
-
-Exchanges can become very large, in a theoretical 
-worst case the whole network's data. Therefore we do not store all exchanged blocks directly but only
-the root hash of a Merkle tree of the blocks. A conceptual representation and data representation 
-is shown in Figure \ref{fig:exchange_block}. Note that except for the \verb|exchange_down| and \verb|exchange_up|
-fields the block is similar to a transaction block as shown in Figure \ref{fig:trustchain_block}. 
-
-Just like transaction blocks, the exchange blocks become part of an agent's chain with two incoming
-and two outgoing pointers. Any exchange is recorded on-chain, creating a tamper-proof history 
-of the exchange behavior in a similar way as the application behavior recorded in transaction blocks.
-Thus the same validity conditions apply. 
-
-\begin{figure}
+\begin{figure}[h!]
     \centering
     \begin{subfigure}{0.49\textwidth}
         \centering
@@ -51,8 +44,27 @@ Thus the same validity conditions apply.
     \label{fig:exchange_block}
 \end{figure}
 
+
+\section{Implementation}
+Exchanges can be documented in a similar way as transaction data is recorded. We extend TrustChain with \textit{exchange blocks}. Instead of the transaction
+field, an exchange block contains two exchange fields which store the blocks sent and received from the perspective of
+the agent that initiates the exchange. Similar to our model, an exchange consists of any type of block, so both transaction and exchange 
+blocks are exchanged. 
+
+Exchanges can become very large, in a theoretical 
+worst case the whole network's data. Therefore we do not store all exchanged blocks directly but only
+the root hash of a Merkle tree of the blocks. A conceptual representation and data representation 
+is shown in Figure \ref{fig:exchange_block}. Note that except for the \verb|exchange_down| and \verb|exchange_up|
+fields the block is similar to a transaction block as shown in Figure \ref{fig:trustchain_block}. 
+
+Just like transaction blocks, the exchange blocks become part of an agent's chain with two incoming
+and two outgoing pointers. Any exchange is recorded on-chain, creating a tamper-evident history 
+of the exchange behavior provided by the TrustChain architecture.
+Thus the same validity conditions apply. 
+
+
 Each agent keeps track of the actual set of blocks that were received in an exchange block such that 
-the hash can be recalculated to check the validity of the exchange block. Specifically, each 
+the root hash of the exchanged blocks can be recomputed to check the validity of the exchange block. Specifically, each 
 node stores an \textit{index of the blocks} contained in an exchange in a separate database. The 
 index maps an exchange block to an index, consisting of the public key and sequence number for each
 block received. This index can be 
@@ -65,29 +77,38 @@ used to retrieve the actual blocks from the database of blocks. This is illustra
     \label{fig:exchange_process}
 \end{figure}
 
+With respect to our model, exchange blocks contain the agents that are involved in the exchange 
+(represented by $a(e)$ in our model), whereas the root hashes of the exchanged blocks correspond to
+the function $x$ in the model. Similar to $x$, the exchange hashes can only be evaluated if the 
+block itself, and all exchanged blocks are available to an agent.
+
 \subsection{Verification protocol}
-The architecture is designed in a way that another node can validate the correctness of an exchange
+The architecture is designed such that another node can validate the correctness of an exchange
 block. Similar to the verification of transaction blocks described in Section \ref{sec:validation} an 
 exchange block sequence numbers, public keys, previous hashes and signatures need to be correct. 
 
 Additionally, the hashes stored in the \verb|exchange_down| and \verb|exchange_up| need to be valid.
 An agent $A$ is able to validate an exchange between $B$ and $C$ by requesting from $B$ the blocks 
 that $B$ received and from $C$ the blocks that $C$ received. If $A$ calculates the hash of $B$'s blocks
-and it add up to the hash stored in the \verb|exchange_down| and the same is true for $C$'s blocks and
+and it adds up to the hash stored in the \verb|exchange_down| and the same is true for $C$'s blocks and
 the \verb|exchange_up| field, the block is valid. At this point $A$ has also established that $B$ 
 and $C$ actually stored the blocks. When $A$ is only interested in confirming the honesty of one 
 agent, for example $B$, $A$ can verify only the hash of the \verb|exchange_down|.
 
 In order to validate all exchanges of one agent, the validator needs to acquire all blocks ever 
-received by another agent. 
+received by another agent. We showed this in Lemma \ref{lem:detection_free-rider} in Chapter \ref{chap:model}.
 
 \subsection{Storage commitment}
 An agent is committed to store the data that he received. As we have shown in this section any agent
-$A$ can verify another agent $B$'s exchanges. The verification can only be successful if $B$ can 
+$A$ can verify another agent $B$'s exchanges by \textit{requesting blocks}. The verification can 
+only be successful if $B$ can 
 summon the correct blocks. Exchanges are stored on the append-only chain where they cannot be 
 removed. They can thus be verified also long after the exchange has taken place. In order to pass
 verification at any time, $B$ will need to have a long-term storage for all blocks received in 
 exchanges.
+
+In order to ensure that such block requests happen periodically, a mechanism needs to be designed 
+which ensures this.
 
 \subsection{Tamper-evidence and authenticity of blocks}
 The tamper-evident property is inherited from the TrustChain architecture discussed in 
@@ -101,29 +122,31 @@ peers exchanged in the past. But making the gossiping behavior visible can only 
 The next step is naturally to apply the exchange records to work towards a safer distributed system.
 
 In our model from Chapter \ref{chap:model} we defined exchange policies, which 
-ensure a certain exchange of information about transaction between agents. We now consider how the
+ensure a certain exchange of information between agents. We now consider how the
 Network-State-Exchange can be implemented using the architecture defined previously. 
 
 \subsection{Conceptual}
-According to our definition an exchange policy is a set of information exchanges that are required
-to be recorded, given a set of interactions. In practice this means, an agent can be required to 
-first exchange information with the partner or the partner's last five partners. Specifically, the
+According to our definition an exchange policy defines a set of blocks that are required
+to be exchanged prior to an interaction. Specifically, the
 Network-State-Exchange policy requires two agents to exchange all blocks prior to an interactions.
 
-This strategy combines many convenient guarantees. Firstly, according to our analysis in Chapter 
-\ref{chap:model} securing against a double-spend attack requires agents to obtain information. 
-Secondly, given the architecture of TrustChain it is important to obtain information about the 
-history of partners to assess their trustworthiness. Obtaining the complete chain of the partner 
-and recording the exchange ensures that agents cannot claim to not be aware of any manipulations of 
-their partners. Verifying the chain of partners becomes important because missing a manipulation
-will result in becoming a fraud oneself. Finally, by exchanging all data both agents can proof to 
-each other that all required data of past interaction partners was obtained and verified. Agents are
-able to verify their partners complete history such that any misbehavior can be detected. 
+This strategy combines many convenient guarantees. 
+\begin{enumerate}
+    \item \textit{Local consensus} is reached, such that both agents agree on a view of the network.
+    \item Dissemination of all transaction blocks leads to better reputation estimates.
+    \item Exchanges lead to detection of consistency issues.
+    \item No agent can free-ride in storing and disseminating data because exchange behavior is 
+    transparent on the chain.
+    \item Collusion becomes more difficult because also any invalid blocks will be recorded in 
+    exchanges creating \textit{proof-of-knowledge}.
+    \item Audits of all behavior is possible. This enables \textit{guilt by association}.
+\end{enumerate}
 
 Each agent becomes a witness of their interaction partners. Through signing the exchange of all 
 information they commit to storing and disseminating that information to future interaction partners.
 By signing a transaction after the exchange agents commit to having verified the information of their
-partner.
+partner. Any fraudulent information that is ignored is recorded in the exchange block and can be 
+verified in an audit as described in Chapter \ref{chap:model}.
 
 \subsection{Completeness of exchange}
 An obvious challenge of our architecture is how to ensure that agents actually act according to the
@@ -134,22 +157,28 @@ An honest agent $A$ exchanges blocks with $B$. $B$ sends his blocks to $A$ which
 and a block index for each exchange block on the chain. 
 $A$ adds the received blocks to her database. If $A$ is now able to recalculate all exchange hashes
 of the exchange blocks on $B$'s chain, using the block indexes and her own database, $A$ can be 
-sure to have all blocks that $B$ has.
+sure to have all blocks that $B$ has. This is similar to the evaluation of function $x$ in our model.
+
+Note that $B$ can possible withhold blocks from the end of the chain. $A$ can only detect this if 
+$A$ has received those newer blocks in some previous exchange from a third agent $C$. If $B$ withholds
+blocks, $B$ is attempting to create a fork the exchange block will share a sequence number with a
+block that $B$ withheld.
 
 \subsection{Auditing}
 We have shown in Chapter \ref{chap:model} that the Network-State-Exchange policy allows any honest
 agent to re-evaluate any past verification of their partner. We will now describe this process, which
-we call auditing.
+we call auditing. This process is the implementation of Algorithm \ref{alg:verify_exchange}.
 
 An honest agent $A$ has exchanged blocks with $B$ and verified the completeness of their exchange.
 $A$ therefore has all blocks that $B$ has. $A$ can then rebuild $B$ subjective network state, that
 is the block database of the agent, at each exchange and interaction. Going through the chain of $B$, 
 for each exchange block with some agent $C$, $A$ adds the blocks to the temporal subjective network
 state of $B$ and checks whether $B$ was able to recalculate the exchange hashes of $C$'s exchange
-blocks. Also $A$ checks whether all of $C$'s blocks are in that temporal subjective network state
-and whether they are valid.
-For every transaction block with some agent $D$, $A$ checks whether there was a valid exchange with 
-$D$ prior to that transaction. 
+blocks. Also $A$ checks whether all of $C$'s blocks are valid. For every transaction block with some
+agent $D$, $A$ checks whether there was a valid exchange with $D$ prior to that transaction. Also 
+$A$ checks whether $B$ was aware of any double spenders and still interacted with them afterwards. 
+If that is the case $B$ is guilty by association because he is either a colluder or did not perform
+verification.
 
 If all verifications pass, $A$ has established that $B$ has throughout his complete history acted 
 honestly. 
@@ -159,11 +188,17 @@ Each honest agent will require an exchange with their partner prior to an intera
 asks a partner to send the blocks for an exchange it is possible that the partner does not respond.
 This can either mean that the partner is not in the possession of the correct blocks to pass the  
 verification and does not respond to not be exposed. On the other hand an agent can also be 
-temporarily disconnected from the internet and therefore not able to respond.
-
-The ambiguity of not responding is not problematic for our solution. Any failure to respond will
+temporarily disconnected from the internet and therefore not able to respond. This ambiguity of not 
+responding is not problematic for our solution. Any failure to respond will
 lead to no further action and therefore no transaction. If however an honest agent will at some 
 point respond, the verification process is continued as normal.
+
+The situation is different if an agent stops responding in the middle of an exchange or interaction.
+For example, $A$ and $B$ have exchanged data and $A$ has sent an exchange block to $B$. While waiting
+for the signature of $B$, $A$ is not able to extend the chain because once $B$ eventually replies,
+any extension in the meantime on $A$'s chain will create a fork. A practical solution is to create 
+a timeout after which the block will be discarded. If $B$ evetually respondes, the exchange process 
+needs to be repeated. 
 
 \subsection{Efficient exchange}
 Up to now we have considered that agents send all their blocks to each other. A simple efficiency 
@@ -174,7 +209,10 @@ other agent can create a complete index for the database of the other agent. Tha
 by combining the indexes of all exchange blocks and adding the transactions on the chain. The same
 can be done for the agent himself. The difference between the two indexes are the blocks that one
 agent has, but the other does not. During an exchange an agent can then specifically request only
-those blocks.
+those blocks. Therefore exchanges become a synchronization in which differences between the states
+are resolved. Note that if both agents have different blocks of a double spend such, that block will
+not be synchronized with this method. However, the difference will be detected when controlling the
+hash.
 
 \subsection{Exchange process}
 We shall now describe the complete process of an exchange between two agents in detail. Thus, $A$ 
@@ -188,48 +226,59 @@ Given $A$'s database index, $B$ can calculate the difference between their datab
 then request from $A$ the blocks that $A$ has but $B$ does not. Once $A$ replies, $B$ has all 
 information that $A$ has. $A$'s subjective network state has become transparent to $B$. 
 
-$B$ is then able to perform the audit of $A$. If $A$'s chain completely checks out, $B$ sends his chain, exchange
+$B$ is then able to perform the audit of $A$. If $A$'s behavior as recorded by the chain is correct, 
+$B$ sends his chain, exchange
 indexes and blocks to $A$. Note that $B$ already knows which blocks $A$ is missing with respect to 
 $B$ and can therefore directly send them. 
 
 Now $A$ is able to perform the same checks as $B$. If $B$'s data also checks out, $A$ will create 
 a new exchange block. The exchange block contains the root hash of the blocks that $A$ uploaded to $B$ 
-and downloaded from $B$. As $B$ also knows which blocks he downloaded from $A$ and uploaded to $A$, $B$ should
+and downloaded from $B$. As $B$ also knows which blocks he received from $A$ and sent to $A$, $B$ should
 be able to calculate the same hashes. After both parties sign the block, they add them to their 
 database of blocks. Also they create an entry for the exchange block in the exchange index map, which 
 maps each exchange block to the index of exchanged blocks. At this point they have concluded the 
 exchange according to the Network-State-Exchange policy.
 
-\subsection{Scalability concerns}
-Each exchange between agents adds an additional block to their chain. Also, the blocks that the 
-exchange contains need to be transmitted and stored. This increases the bandwidth and storage 
-requirements. However, the main property of linear scalability 
-still applies, at least when assuming that storage capacity is not a problem. Each exchange and 
-transaction still only requires two agents to communicate, thus parallel transactions are still 
-possible and the example given in Section \ref{sec:trustchain_scalability} applies in the same way.
-Problems occur when we include the storage requirement. For example, the Network-State-Exchange policy
-requires agents to exchange all blocks with each transaction partner. Thus each agent that periodically
-interacts will approach the complete network state. Depending on the agents transaction frequency and
-the network's frequency there is a considerable delay between the subjective agent's state and the
-network state. Still, this will lead to storage problems if agents need to run on personal computers
-or even mobile devices.
+\subsection{Consistency and Scalability consideration}
+For each interaction the Network-State-Exchange policy requires a node $A$ to obtain all the blocks that
+their partner $B$ is aware of. If that $B$ is honest, this includes also all the knowledge of all of
+$B$'s peers. Consequently each agent will approximate the full network state. This requires the 
+storage of all blocks on the network. 
+
+The process is similar to the anti-entropy mechanism defined 
+in Demers et al. \cite{demers1987epidemic}. If we assume agents randomly chose their next interaction
+partner the two mechanisms are similar. Therefore a similar performance can be expected. Anti-entropy,
+being an epidemic algorithm, will eventually distribute updates to all nodes in an expected time 
+proportional to the log of the population size.
+
+The mechanism therefore disseminates updates to all nodes which leads to consistency and enables 
+indirect reciprocity because all agents can have a good estimate of each others reputation and trust.
+
+On the downside this mechanism will not scale. Although each exchange and 
+transaction still only requires two agents to communicate as in the example given in 
+Section \ref{sec:trustchain_scalability} storing all data is not an option if proper global throughput
+is required. In Section \ref{sec:system_trust} we explore different exchange policies that might 
+allow better scalability at lower storage cost.
 
 \section{Example}
-In order to make the implementation more clear, an example is provided in this section. We look at two
+We now consider an example to shed more light of the exchange and interaction process. We look at two
 agents, Alice and Bob. Alice wants to interact with Bob and starts the interaction. We assume that
 both agents are new to the network and only have their genesis blocks on the chain. In order to
 start the interaction, Alice sends her chain (only the genesis block) and an empty set of exchanges
 to Bob. Obviously the genesis block is accepted and Bob shows his approval by sending his own
-genesis block and an empty set of exchanges. Also Alice accepts the data. Alice creates an exchange
+genesis block and an empty set of exchanges. Also Alice accepts the data. 
+
+Alice creates an exchange
 block which includes in the field \verb|exchange_up| the hash of Alice's genesis block and in the field 
 \verb|exchange_down| the hash of Bob's genesis block. Alice signs that block and sends it to Bob. 
 Bob verifies that the hashes actually are correct. If Bob agrees, he also signs the block and returns 
-it to Alice. Alice also stores a block index for the created exchange block which includes as entry 
+it to Alice. Both Bob and Alice now store the block with both signatures in their database of blocks.
+Alice also stores a block index for the created exchange block which includes as entry 
 only Bob's block with sequence number 1. Similarly, Bob documents that he received Alice's first block
 in the new exchange block.
 
 At this point both agents are sure that they are honest and are able to interact in the 
-application context. For example, Alice could not stream a video from Bob. After the transaction in 
+application context. For example, Alice could now stream a video from Bob in Tribler. After the transaction in 
 the application context, Alice creates and signs a transaction block and sends it to Bob who replies 
 in a similar fashion if he agrees. Figure \ref{fig:exchange_example} shows the chains of Alice and 
 Bob after the complete interaction. 
@@ -242,20 +291,20 @@ Bob after the complete interaction.
 \end{figure}
 
 This example sheds light on the block creation process but is too simple to properly explain the 
-exchange and verification process. We extend the example with another agent, Charles, whom Bob would
-like to interact with after the previous interactions. Again, Charles is assumed to be new to the 
+exchange and verification process. We extend the example with another agent, Charlie, whom Bob would
+like to interact with after the previous interactions. Again, Charlie is assumed to be new to the 
 network so the genesis block is the only block on his chain. Bob starts the interactions by sending
 his chain and the index that documents the acquisition of Alice's first block. 
 
-Charles sees that Bob has an exchange block with Alice before have a transaction with her, which is 
-correct according to the exchange policy. Next Charles checks the signatures and hashes of Bob's chain. 
-After those checks pass, Charles tries to calculate the hashes for Bob's exchange block but realizes
+Charlie sees that Bob has an exchange block with Alice before have a transaction with her, which is 
+correct according to the exchange policy. Next Charlie checks the signatures and hashes of Bob's chain. 
+After those checks pass, Charlie tries to calculate the hashes for Bob's exchange block but realizes
 that he does not have Alice's first block. Therefore he requests it from Bob. After receiving it the
 check should pass. 
 
 Once Charlie accepts all the checks, he sends his own chain and exchanges which are checked by Bob
 and the interaction continues as previously described. Table \ref{tab:blocks_example} shows the
-blocks that each agent has after the first and second round. After the second round, Charles has 
+blocks that each agent has after the first and second round. After the second round, Charlie has 
 all the blocks from Bob that he had after the first round.
 
 \begin{table}[h!]
@@ -264,7 +313,7 @@ all the blocks from Bob that he had after the first round.
     \label{tab:blocks_example}
     \begin{tabular}{p{4cm}|p{3cm}|p{4cm}|p{3cm}}
         \toprule
-        Database & Alice & Bob & Charles \\
+        Database & Alice & Bob & Charlie \\
         \midrule
         Before first round & A: $[1]$ & B: $[1]$ & C: $[1]$ \\ \hline 
         After first round & A: $[1, 2, 3]$ \newline B: $[1, 2, 3]$ & A: $[1, 2, 3]$ \newline B: $[1, 2, 3]$ & C: $[1]$ \\ \hline
@@ -306,24 +355,17 @@ capacity. Depending on the application this might be necessary however TrustChai
 be as scalable as possible without global consensus. Therefore also less demanding exchange policies
 can be implemented.
 
-Instead of enforcing a certain policy, the exchange records can also be used to create a system level 
-notion of trust. We have extensively introduced the concept of trust in Chapter~\ref{chap:introduction} and discussed
-how it plays a role in different contextual settings. Afterwards we have mostly considered trust in 
-an application context like Tribler. TrustChain records transactions between users in the application
-context which act as evidence of a user history. That history is used to calculate a reputation and
-ultimately a trust value for each known user. Yet, the architecture of TrustChain and even more so 
-the architecture of the extended TrustChain make room for another concept of trust on a system level.
+In our model we describe the exchange-history policy. We show that it is enough to detect forks 
+and honest agents can still ensure that their exchanges are correct. However, no previous exchanges 
+can be verified as with the audit protocol. This policy therefore trades some consistency and 
+correctness guarantees for less storage and bandwidth requirements. Similarly other policies can 
+be explored.
 
-Each agent in the system engages in recording, exchanging and verifying behavior. Agents do this 
-with a certain reliability. Until now we assumed that agents are either perfectly honest, malicious
-or free-riders, so there was no forgiveness and no shades of honesty. However in practice this may not be realistic or 
-desired. Instead we could assign a reputation to agents based on their exchange and verification 
-behavior which is increased with ``positive'' action like exchanges and decreased with any 
-``negative'' evidence, like multiple interactions without exchanges. Also, if we consider the way 
-we defend against verification free-rider as described in Section \ref{sec:verification_free-riding}, 
-agent completely redo all verification of an agent in order to verify that the agent behaved correctly.
-Trust at system level could create a relationship between agents such that they can rely on each 
-others' verification of peers. 
+Instead of enforcing a certain policy, the exchange records can also be used to create a system level 
+notion of trust. Instead of verifying every agent before every interaction, each successful verification
+of an agent can lead to trust between the two. This would create a reputation system based on the
+adherence to the system-level requirements of good behavior. 
+
 
 % \section{Attacks}
 % We now consider possible ways to attack the 
@@ -359,8 +401,8 @@ others' verification of peers.
 % its not required every turn
 
 \section{Chapter conclusion}
-We have defined an extension to the original TrustChain architecture which allows for the recording
-block exchanges. We have shown how this architecture can be used to exchange data and enforce an 
+We have defined an extension to the original TrustChain architecture which allows for the exchange 
+of blocks. We have shown how this architecture can be used to exchange data and enforce an 
 exchange policy. Also, we have defined an audit protocol which allows for the complete verification
 of agents data. 
 
@@ -373,3 +415,4 @@ elaborate with increasing chain lengths and storage requirements grow.
 An alternative to enforcing an exchange policy can be to define a system-level trust system such that
 verifications can happen less frequently and verified partner become trusted peers. This way agents
 can interact with any other verified partners of their trusted peers without redoing the verification.
+We consider this a possibility for future research.

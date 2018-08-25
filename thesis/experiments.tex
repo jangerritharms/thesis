@@ -1,6 +1,6 @@
-\chapter{Experiments and results}
-We have shown that gossip transparency and the enforcement of exchange policies offer great potential
-to defend against manipulators and free-riders. We implemented both mechanisms and establish in this chapter
+\chapter{Experimental analysis}
+We have shown that exchange transparency and the enforcement of exchange policies offer great potential
+to defend against manipulators and free-riders. In this chapter we establish
 how a practical system responds to manipulation attempts. More specifically we emulate honest agents,
 manipulators and free-riders in small scale experiments. We can observe the behavior of the 
 honest agents and find that strategic manipulators are detected and isolated. We show that honest agents who
@@ -20,14 +20,15 @@ that will be emulated. Finally we present the results of the experiments.
 % to run an emulation of an agent network and study the behavior of agents in the presence of strategic
 % manipulators.
 
-\section{Implementation details}
+\section{Implementation}
 The experiments are run on a standalone implementation of TrustChain with the mentioned extension
 and exchange mechanism. The code is available through GitHub\footnote{https://github.com/jangerritharms/aupair}.
 The code is based on the TrustChain implementation of py-ipv8\footnote{https://github.com/tribler/py-ipv8}
-another project that is developed in the context of BlockchainLab. 
-
-The implementation is done in Python. The programming language was chosen as it allows for fast development,
+another project that is developed in the context of BlockchainLab. The implementation is done in 
+Python. The programming language was chosen as it allows for fast development,
 offers many useful extensions and the py-ipv8 dependency is also written in Python. 
+
+An overview of the architecture is given by the drawing in Figure \ref{fig:software_architecture}.
 
 \begin{figure}[h!]
   \centering
@@ -36,19 +37,22 @@ offers many useful extensions and the py-ipv8 dependency is also written in Pyth
   \label{fig:software_architecture}
 \end{figure}
 
-An overview of the architecture is given by the drawing in Figure \ref{fig:software_architecture}.
-At the core of the software is the agent module which defines the functionality of an agent.
-In the experiment, multiple agents will be emulated. Each agent runs in a single process. Each agent 
-has a communication interface. These interfaces connect and communicate with each other using tcp sockets, 
-implemented using the \texttt{zeromq} library. Messages for the communication are defined in the 
-Google \texttt{protobuf} format. Agents implement a set of message handlers which contain the main 
-logic of the agents. In the experiment multiple types of agents will be emulated, each type of agent
-reacts differently to the received messages. Each time an agent receives a message, the communication
-interface will forward the message to the correct handler of the message based on the header of the 
-message. Also each agent implements a MySQL database instance and a storage that map
-the exchange blocks to the received blocks. Because each agent runs in an own process and acts on 
-their own database, agents are completely independent, similar to a truly distributed network.
-The basic TrustChain data structures and block database implementation were taken from the \texttt{py-ipv8} project. 
+We run the experiments on a local machine. In order to emulate a distributed system, each agent 
+runs in a separate process without any shared memory with other agent processes. Each agent runs 
+their own database instance which stores the blocks. 
+
+Agents communicate with each other through a \verb|CommunicationInterface| object. The interface 
+provides an outgoing and incoming tcp port, implemented using the  \verb|zeromq| library. Messages
+sent through the network as defined in the Google \verb|protobuf| format. 
+
+The main logic of the agents is implemented in message handlers. Each message has a certain type,
+for example a message to initiate an exchange or a message to reply to a block request. While all 
+honest agents are handling messages in the same way, dishonest agents overwrite some correct 
+message handlers with manipulated message handlers. 
+
+Certain message handlers create blocks. The basic TrustChain block class and cryptography functions
+are used from the \verb|py-ipv8| project. The blocks are stored in a MySQL database instance. The 
+database interface also is used from the \verb|py-ipv8| project.
 
 Next to the agents there is the discovery server which handles the peer discovery process. The 
 experiment is started by spawning all agent processes and the discovery server. Once the agent 
@@ -59,41 +63,9 @@ registered agents containing their peers. Once that messages is received agents 
 experiment. 
 
 \section{Experiment design}
-The goal of the experiments is to confirm our theoretical analysis of exchanges policies from Chapter 
-\ref{chap:model} and our architecture in Chapter \ref{chap:implementation} in an experimental setup.
-Four types of agent behavior will be analyzed in the experiments.
-
-\begin{itemize}
-    \item \textbf{Honest agent}: An agent that exchanges and verifies according to the Network-State-Exchange
-    policy.
-    \item \textbf{Exchange free-rider}: An agent that gains an advantage by not 
-    expending resources on disseminating transaction records.
-    \item \textbf{Verification free-rider}: An agent that gains an advantage by not expending 
-    resources on verifying the behavior of their peers
-    \item \textbf{Malicious}: An agent that manipulates or withholds information in order to gain an
-    advantage. 
-\end{itemize}
-
-% The goal of the experimental analysis is to show that free-riding on dissemination and validation of
-% transaction information is no longer possible with the extension of TrustChain proposed in 
-% chapter~\ref{chap:state_transparency} and the mechanism in chapter~\ref{chap:mechanism}. This would
-% be a major step towards a secure and valid distributed trust system. 
-
-In the experiments we emulate small networks of up to 6 agents. All agents are trying to perform 
-interactions with each other. The actual application domain is not modelled so transaction blocks 
-are empty. Agents are acting completely autonomously but know about all the other agents in the network. 
-At a frequency of 20 per second agents go through rounds, in each round an agent has a 1\% probability 
-of starting an interaction. This adds up to approximately 1 transaction every 5 seconds. In addition 
-agents respond to interaction requests from their peers asynchronously. 
-At the start of the interaction a partner is selected with uniform probability from all connected peers. If an interaction with 
-the selected partner is already ongoing, the new interaction request is cancelled without selecting a new partner. 
-
-Once the interaction is started honest agents perform exchanges and verification according the 
-mechanism as described in chapter \ref{chap:implementation}. The dishonest types of agents each have 
-some deviation from the expected behavior in order to obtain an unfair advantage. 
-All types of agents which were used in the experiments are listed in Table \ref{tab:agent_types}.
-A more complete list of manipulators is discussed in Chapter \ref{chap:implementation}, however we 
-implemented two types of manipulating behavior, block withholding and double spending.
+The goal of the experiments is to confirm our theoretical analysis of exchange policies from Chapter 
+\ref{chap:model} and our architecture in Chapter \ref{chap:extension} in an experimental setup.
+The following behaviors of agents will be analyzed in the experiments.
 
 \begin{table}
     \caption{Agent types used in the experiments}
@@ -102,8 +74,7 @@ implemented two types of manipulating behavior, block withholding and double spe
     \textbf{Type} & \textbf{Sub-type} & \textbf{Behavior} \\ \midrule
     \multirow{2}{3cm}{Honest agents} & without auditing (default) & Exchanges and verifies agents normally \\ \cline{2-3}
     & with auditing & additionally replays the history of a peer to find any deviating behavior in the past \\ \midrule
-    \multirow{2}{3cm}{Exchange free-rider} & No exchanges & Does not create any exchanges \\ \cline{2-3}
-    & Empty exchanges & Creates exchanges blocks with empty exchanges \\ 
+    Exchange free-rider & - & Creates exchange blocks with empty exchanges \\ 
     % & Self-requests & Exchanges only own chain \\ \hline
     \midrule
     Verification free-rider & - & Acts honestly but blindly trusts all partners without verifying their data or behavior \\ \midrule
@@ -111,11 +82,66 @@ implemented two types of manipulating behavior, block withholding and double spe
     & Double-spender & Creates two conflicting transactions and shares them with two different peers \\ \bottomrule
     \end{tabular}
 \end{table}
-    
-With the experiments we study the behavior of honest agents in the presence of dishonest agents. If 
-any agent fails a verification of an honest agent, that honest agent will subsequently ignore the 
-dishonest agent. There is no forgiveness. However, honest agents do not communicate about any 
-dishonest agents they discover.
+
+The honest agent without auditing only performs verifications of their direct exchanges. They do not
+verify the complete history of their peers using the audit protocol. For some advanced attacks this
+is necessary. We aim to show what additional verifications through the audit protocol can provide. 
+
+Further we are interested in the ability to exclude free-riders that either do not exchange 
+information or do not verify them. One way to ensure the consistency of the data in the network is 
+to incentivize agents to share data and verify data. If all agents adhere to a certain exchange policy
+this can be ensured. We analyze how honest agents react to agents that attempt to free-ride.
+
+Finally we study two types of manipulating agents. A more complete list of manipulators is discussed
+in Chapter \ref{chap:implementation}. In order to show that the mechanisms ensure the detection of 
+manipulation we give two examples of manipulators: a block withholder, that is an agent who tries not 
+share the complete chain, and a double spender, who forks his chain such that two transactions can 
+be conducted while only recording one of them on the chain. If manipulation cannot be detected and
+dealt with this endangers the validity of trust and reputation calculations because the underlying 
+data could be invalid. We show that our system successfully detects and deals with manipulators.
+
+% The goal of the experimental analysis is to show that free-riding on dissemination and validation of
+% transaction information is no longer possible with the extension of TrustChain proposed in 
+% chapter~\ref{chap:state_transparency} and the mechanism in chapter~\ref{chap:mechanism}. This would
+% be a major step towards a secure and valid distributed trust system. 
+
+The experiments are designed as follows.
+
+\begin{itemize}
+  \item \textbf{Network.} We emulate small networks of up to 6 agents, consisting of mixed sets of honest, free-riding and 
+  malicious agents.
+  \item \textbf{Peer discovery.} We assume that all agents are connected. This is implemented with the discovery server as described 
+  above. 
+  \item \textbf{Exchanges and interactions.} All agents are willing to interact. The initiation of an
+  interaction is probabilistic with a expected frequency of 1 transaction every 5 seconds for each agent. 
+  \item \textbf{Partner selection.} The partner selections is random with a uniform distribution. If 
+  a exchange with the selected agent is already ongoing, no new interaction is initiated.
+  \item \textbf{Handling of malicious agents and free-riders.} Any wrong behavior that is detected
+  through a verification will be considered fraud. 
+  \item \textbf{No forgiveness.} Honest agents do not forgive any wrong behavior.
+  Once an honest agent detects a free-rider or malicious agent they will ignore any incoming requests
+  and will not request interactions with them. 
+  \item \textbf{No additional communication.} Agents only communicate to exchange blocks or create 
+  transaction blocks. No information is shared on known malicious agents.
+\end{itemize}
+
+
+% In the experiments we emulate small networks of up to 6 agents. All agents are trying to perform 
+% interactions with each other. The actual application domain is not modelled so transaction blocks 
+% are empty. Agents are acting completely autonomously but know about all the other agents in the network. 
+% At a frequency of 20 per second agents go through rounds, in each round an agent has a 1\% probability 
+% of starting an interaction. This adds up to approximately 1 transaction every 5 seconds. In addition 
+% agents respond to interaction requests from their peers asynchronously. 
+% At the start of the interaction a partner is selected with uniform probability from all connected peers. If an interaction with 
+% the selected partner is already ongoing, the new interaction request is cancelled without selecting a new partner. 
+
+% Once the interaction is started honest agents perform exchanges and verification according the 
+% mechanism as described in chapter \ref{chap:implementation}. The dishonest types of agents each have 
+% some deviation from the expected behavior in order to obtain an unfair advantage. 
+% All types of agents which were used in the experiments are listed in Table \ref{tab:agent_types}.
+% , however we 
+% implemented two types of manipulating behavior, block withholding and double spending.
+
 
 \section{Experiment results}
 In the following we will present the results of our experimental analysis.
@@ -149,36 +175,28 @@ In the following we will present the results of our experimental analysis.
 %     \label{fig:DFR}
 % \end{figure}
 
-Our first experiment analysis the performance of our exchange mechanism against free-riders. Gossip
-free-riders that do not exchange information create a threat to the security of the network. In order
-to secure the system, honest agents should be able to detect free-riders and ignore them. This will 
-remove any possible future profit from free-riders which should incentivize them to become honest.
+Our first experiment analysis the performance of our exchange mechanism against free-riders. The 
+exchange of information is vital against the double spend attack and other inconsistencies. An a
+agent that does not exchange data is not able to provide any verification service to the network. If
+this is a valid strategy more agents can free-ride, thus jeopardizing the network's security. It is 
+one of our goals to stop free-riding behavior by creating a strong incentive to exchange. 
+In order to secure the system, honest agents should be able to detect free-riders and ignore them.
+This will remove any possible future profit from free-riders which should incentivize them to become honest.
 
 In this first set of experiments we observe the behavior of three honest agents in the presence of 
-a exchange free-rider that performs no exchanges. Figure \ref{fig:DFR_no_exchanges} shows the number of transactions of each 
+a exchange free-rider that aims to create exchange blocks with empty exchanges. Therefore if an 
+honest agent sends data the agent acts as if no data was received and puts an empty hash into the 
+exchange blocks. At the same time the free-rider does not request any blocks from the partner.
+
+Figure \ref{fig:DFR_no_exchanges} shows the number of transactions of each 
 agent against the time of the experiment. All honest agents steadily increase their successful 
 interactions throughout the experiment and end up between 40 to 60 transactions. The free-riding agent
 is not able to perform a single interaction. That means all honest agents detected the free-rider 
 as a dishonest agent and consequently ignored him. 
 
-As expected, without gossiping an agent has no chance to interact with the honest agents. The 
-experiment was repeated with the another type of exchange free-riders who is signing empty exchanges. 
-The second experiment show the same outcome as in Figure \ref{fig:DFR_no_exchanges}:
-the honest agents do not interact with the exchange free-riders.
+As expected, an agent has no chance to interact with the honest agents without a complete exchange. 
+We have shown this property in Theorem \ref{thm:no_interaction}.
 
-The first type of free-riding agent does not exchange any data and therefore does not create any 
-proof of exchanges. Also he is not willing to sign an exchange block that would document the acquisition
-of foreign blocks. Yet in order to interact with honest agents the free-rider needs 
-to publish a complete chain. Honest nodes detect the lack of exchange blocks upon inspection and 
-subsequently distrust that agent. Because not even the first exchange block is signed, also the first
-transaction is not completed as the honest agents only interact after a successful exchange.
-
-The second type aims to create empty exchanges. In the role of the responder, the agent requests no 
-blocks from the honest agents and as initiator the agent tries to claim that no blocks were received 
-from the honest agent. However, by calculating 
-that the free-rider should have requested blocks and by finding a wrong exchange hash in the other case
-the honest agent can in both cases detect the fraud. That way, also in this case the honest agents 
-are able to detect the wrong behavior.
 
 \begin{figure}
   \centering
@@ -203,7 +221,7 @@ future rewards is voided. Agents have to disseminate their data in order to be a
 Our second experiment analyses the impact of multiple free-riders in a collusion attack. In order to
 be accepted as honest agents without gossiping, colluding agents can work together and sign empty exchanges for 
 each other. This will create a seemingly valid history for the free-riders. Their goal is to interact 
-with each other \textit{and} with the honest agents while exchanging less than data then necessary. Honest agents
+with each other \textit{and} with the honest agents while exchanging less than necessary. Honest agents
 should ignore them in order to keep their network safe and honest.
 
 In order to analyze this situation we ran an experiment with three honest agents and three colluding gossip 
@@ -240,7 +258,10 @@ honest agents. This leads to network separation.
 \subsection{Malicious behavior}
 In the next experiment two types of malicious behaviors are analyzed: forking and block withholding. 
 Similar to the free-riding, honest agents who use the TrustChain architecture and our exchange and 
-verification mechanism should isolate the malicious agents. The results of the experiments are 
+verification mechanism should isolate the malicious agents. We have discussed that manipulation of 
+the data the underlies reputation and trust calculation will invalidate the trust and reputation 
+built in the system. It is therefore key to defend against manipulations.
+The results of the experiments are 
 presented in a similar format as previously in Figure \ref{fig:malicious}.
 
 Both agents perform an attack with a 25\% chance in each round.
@@ -273,17 +294,21 @@ flattens, meaning no more successful interactions happen.
 In the previous experiment we showed that malicious agents can be detected and isolated. In Chapter
 \ref{chap:model} we have presented a theoretical study that shows that with the Network-State-Exchange
 policy also those agents that knowingly interact with those malicious agents can
-be isolated. This is possible be ``replaying'' the complete history of an agent and redoing the 
+be isolated. This is possible \textit{auditing} the complete history of an agent and redoing the 
 verifications. Any honest agent that obtains the full knowledge of the subject can perform this check 
 ad find any failing verification which signals dishonest behavior.
 
-We first show how three honest agents who do not perform the history verification act in the 
-presence of one malicious agent and one verification free-rider. This is to show that without the 
-history replay an agent that knowingly interacts with a malicious agent cannot be detected. In such 
-a situation the verification free-rider performs a successful attack.
+In this experiment we study an combined attack. On the one hand a double-spender is creating a fork
+in order to gain an advantage. On the other hand another agent does not perform any verifications
+and interacts even when possibly knowing about a double spender. This is similar to the verification
+free-rider and the double-spender colluding. The attack is difficult to detect because the agent
+that does not perform verification acts completely honestly in all other regards.
 
-The results are presented in Figure \ref{fig:verification_doublespend_honest_combined}. As expected,
-the verification free-rider, represented by the blue dotted line in the figure is able to perform 
+We study two situations how honest agents behave in this situation, once without auditing, once with
+auditing.
+
+The results of the first case are presented in Figure \ref{fig:verification_doublespend_honest_combined}. 
+The verification free-rider, represented by the blue dotted line in the figure is able to perform 
 just as well as the honest agents. The forking agent is mostly ignored. The interaction matrix in 
 Figure \ref{fig:verification_doublespend_honest_matrix} shows that most of the interactions of the 
 forking agent come from the verification free-rider who does not perform any checks and therefore 
@@ -307,11 +332,11 @@ does not care about the fork.
     \label{fig:verification_doublespend_honest_combined}
 \end{figure}
 
-Next we repeated the experiment, but this time the honest agents perform replay verification of their
+Next we repeated the experiment, but this time the honest agents perform auditing of their
 partners before every interaction. The results are shown in Figure \ref{fig:verification_doublespend_combined}. 
 
 The results show that after a long initial phase in which the blue and red curve seem to follow 
-the green curves, they do get shallower after around 100seconds. It is quite obvious, at least 
+the green curves, they do get shallower after around 100 seconds. It is quite obvious, at least 
 from the 100 second mark onwards, that the blue and red curve are running exactly in parallel. This is
 because after detecting the forking agent and the verification free-rider, the honest agents are 
 able to identify \textit{both} dishonest agents and ignore them for future interactions. Also the interaction
@@ -334,3 +359,14 @@ matrix shows that in the end, both dishonest agents get few interaction with the
     and one verification free-rider}
     \label{fig:verification_doublespend_combined}
 \end{figure}
+
+\section{Chapter conclusion}
+In this chapter we have studied the recording of exchanges and implementation of Network-State-Exchange
+policy in an experimental setting. We have shown that any honest agent is able to ignore agents that
+do not exchange correct data. Even if agents are working together they are not able to interact with
+honest agents without exchanging the correct data and creating signed proof of that exchange. 
+
+Even any previous collusion with a malicious agent can be found through proof-of-knowledge of a 
+double spend on the verification free-rider's chain. We can conclude that the mechanism of recording
+block exchanges enforces agents to obtain information and ignore any known malicious agents or 
+become a fraud themselves.
