@@ -73,7 +73,7 @@ used to retrieve the actual blocks from the database of blocks. This is illustra
 
 \begin{figure}
     \centering
-    \includegraphics[width=\textwidth]{images/exchange_block_retrieval.pdf}
+    \includegraphics[width=\textwidth]{images/block_exchange_retrieval.pdf}
     \caption{Storage of exchange information: the exchange block contains a hash, which can be mapped to an index. That index can be used to retrieve the blocks from the block database.}
     \label{fig:exchange_process}
 \end{figure}
@@ -85,7 +85,7 @@ block itself, and all exchanged blocks are available to an agent.
 
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.5\textwidth]{images/trustchain-3.pdf}
+    \includegraphics[width=0.4\textwidth]{images/trustchain-3.pdf}
     \caption{One half of a block exchange is shown. Agent $A$ sends blocks to $B$. $H$ creates the 
     root of a hash tree of the blocks sent. The root hash is stored in the
     exchange block. $B$ receives the blocks and can recompute the hash to verify the correctness.

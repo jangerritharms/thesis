@@ -87,7 +87,7 @@ encounter history.
 
 The history of any \textit{honest} agent $p$ is totally ordered by $<$. If we denote the 
 $i$-th encounter of $p$ as $n_p(i)$ then we can alternatively write the agents history of length $t$ 
-encounters as $H_p(t) = \{ n_p(1), n_p(2), ..., n_p(t)\}$. Similarly we can define $I_p(t)$ and 
+ as $H_p(t) = \{ n_p(1), n_p(2), ..., n_p(t)\}$. Similarly we can define $I_p(t)$ and 
 $E_p(t)$ as the interactions and exchanges of $p$ after $t$ encounters. Note that $N_p(t) = I_p(t) \cup E_p(t)$. 
 A \textit{dishonest} agent can break the order of their history. We will define this behavior in 
 Definition \ref{def:double_spend}.
@@ -115,7 +115,7 @@ of the network described by the model. This subjective view is the basis for the
 reputation and trust. The relation to the creation of trust is further discussed in Section \ref{sec:relevance}.
 
 Agents can only reason about their subjective network state. Therefore an agent $p$ can only \textit{evaluate}
-the function $x(e, q)$ if $e \subset N_p$ and $x(e,q) \subset N_p$.
+the function $x(e, q)$ if $e \in N_p$ and $x(e,q) \subset N_p$.
 
 The model from Definition \ref{def:base} introduces exchanges. Yet it does not define
 how agents should exchange data. We therefore define an exchange policy. Any honest agent 
@@ -128,7 +128,7 @@ exchanges encounter information according to a given exchange policy.
     % need to obtain from their partner in an exchange prior to the interaction. 
     An exchange policy is a function $f: P \times P \times \mathbb{Z} \times \mathbb{Z} \rightarrow \mathcal{P}(N) \times \mathcal{P}(N)$.
     For two agents $p$ and $q$ with histories $H_p(i)$ and $H_q(j)$ who would like to interact, 
-    an exchange policy $f$ defines the sets $N^p \subseteq N_p(i)$ and $N^q \subseteq N_q(i)$ that 
+    an exchange policy $f$ defines the sets $N^p \subseteq N_p(i)$ and $N^q \subseteq N_q(j)$ that 
     have to be sent by $p$ and $q$, respectively. We write $f(p,q,i,j) = (N^p, N^q)$.
 \end{defn}
 
@@ -151,7 +151,7 @@ exchanged in accordance with a certain exchange policy.
     Given an agent $p$, $p$ adheres to the policy $f$ if for every interaction $n(k) \in I_p$ with
     partner agent $q$ there exists a unique exchange $n(i) \in E_p(k-1)$ such that 
     $N^q \subseteq x(p, n(i))$ and $N^p \subseteq x(q, n(i))$, where $N^q$ and $N^p$ are defined 
-    through $f(p,q,i-1,j-1)=(N^q, N^p)$.
+    through $f(p,q,i-1,j-1)=(N^q, N^p)$, $j$ being the length of $q$'s history before the exchange.
 \end{defn}
 
 
@@ -300,10 +300,10 @@ the subjective network state of F.
     the set of agents to find an interaction partner, the double spending will eventually be detected.
 \end{thm}
 \begin{proof}
-    Let $p$ be a malicious agent, with $H_p(t-1)$ and let $n(t) \in I$ and $n(t)' \in I$ be the conflicting 
+    Let $p$ be a malicious agent and let $i \in I$ and $j \in I$ be the conflicting 
     interactions of the attack. 
-    Further, let $q$ be the partner in interaction $n(t)$ such that 
-    $a(n(t)) = (p, q)$ and let $r$ be the partner of interaction $n(t)'$ such that $a(n(t)') = (p, r)$. 
+    Further, let $q$ be the partner in interaction $i$ such that 
+    $a(i) = (p, q)$ and let $r$ be the partner of interaction $j$ such that $a(j) = (p, r)$. 
     According to Definition \ref{def:subjective_network_state} $i \in N_{q}, j \notin N_{q}$ and 
     $i \notin N_{r}, j \in N_{r}$.
 
@@ -316,7 +316,7 @@ the subjective network state of F.
     
     Before the exchange, $j \in H_r$ holds. Both $r$ and $q$ are honest and adhere to the exchange 
     policy $f^{\text{HE}}$, therefore $j \in x(e, q)$ holds. This means that after the exchange $e$, 
-    $i \in N_q \text{ and } j \in N_q$ holds. Therefore $q$ is able to detect the double spending.
+    $i \in N_q \text{ and } j \in N_q$ must hold. Therefore $q$ is able to detect the double spending.
 \end{proof}
 
 Theorem \ref{thm:fork_gossiping} shows that exchanging encounter information makes double spending detectable. Once a double
@@ -378,18 +378,18 @@ We now show that any honest agents will not commit to an interaction with an exc
 \begin{proof}
     Given the History-Exchange policy $f^{\text{HE}}$, an honest agent $p$ with encounter history $H_p(i)$ and a potential 
     partner $q$ with history $H_q(j)$, $p$ will request an exchange $e$, such 
-    that $e = n_p(i+1) = n_q(j+1)$ in order to be in accordance with $f^{\text{HE}}$. 
+    that $e = n_p(i+1) = n_q(j+1)$. 
     $f^{\text{HE}}$ further defines that $p$ needs to send $H_p(i)$ and $q$ needs to send $H_q(j)$.
-    Also, because $p$ is honest, $p$ will send the correct data such that $H_p(t_p) \subseteq x(q,e)$. 
+    Also, because $p$ is honest, $p$ will send the correct data such that $H_p(i) \subseteq x(q,e)$. 
     
     The correctness of the exchange depends on the behavior of $q$.
-    Only if $q$ also sends the correct information such that $H_q(t) \subseteq x(p,e)$, do $p$ and $q$ comply with 
-    the exchange policy $f^{\text{HE}}$. 
+    Only if $q$ also sends the correct information such that $H_q(j) \subseteq x(p,e)$, then $p$ and $q$ do comply with 
+    the exchange policy $f^{\text{HE}}$. If 
+    $p$ finds that $H_q(j) \subseteq x(p,e)$, $p$ can conclude that either $q$ has sent the correct
+    encounters, or $q$ is attempting a fork if there exists $n_q(j+1) \notin x(q,e)$. The latter cannot
+    be prevented.
     
-    $p$ can verify whether $H_q(t_q) \not\subset x(p,e)$ if there exists some $k$, $1 \leq k \leq j \in \mathbb{Z}, n_q(k) \notin x(p,e)$. If 
-    $p$ finds that $H_p(t_p) \subseteq x(q,e)$, $p$ can conclude that either $q$ has sent the correct
-    encounters, or $q$ is attempting a fork if there exists $n_q(t_q+1) \notin x(q,e)$.
-    
+    $p$ can verify whether $H_q(j) \not\subset x(p,e)$ if there exists some $k \in \mathbb{Z}$, $1 \leq k \leq j, n_q(k) \notin x(p,e)$. 
     In order to not create proof of being an exchange free-rider, $p$ cannot interact with $q$ if 
     $p$ finds the exchange to be incomplete.
 \end{proof}
@@ -537,11 +537,10 @@ another agent $q$, $p$ is able to determine whether $q$ adhered to the Network-S
     is correct $N_s(k-1) \subseteq x(e,q)$ and thus $N_s(k-1) \subset N_q(t)$. 
     
     If $p$ knows $N_q(t)$, $p$ can evaluate whether $N_s(k-1)$ is in $N_q(t)$ because $H_s(k-1)$ 
-    must also be in $N_q(t)$.
-    
-    According to Definition \ref{def:subjective_network_state}, $N_s(k-1)$ can be inferred from the 
+    must also be in $N_q(t)$. According to Definition \ref{def:subjective_network_state}, $N_s(k-1)$ 
+    can be inferred from the 
     history $H_s(k-1)$ by evaluating $x(n_s, s)$ for all exchanges $n_s \in E_s(k-1)$. 
-    If $p$ for any $s$, $p$ cannot evaluate any $x(n_s, s)$, that means that some $n \in x(n_s, s)$ 
+    If for any transaction partner $s$ of $q$, $p$ cannot evaluate any $x(n_s, s)$, that means that some $n \in x(n_s, s)$ 
     is not in $N_q(t)$. In that case $q$ cannot be honest because $q$ can also not evaluate 
     $x(n_s, s)$.
 \end{proof}
@@ -558,11 +557,11 @@ adhered to the policy.
 \begin{proof}
     Let $p$ be an honest agent who applies the Network-State-Exchange policy and let $q$ be an agent
     that exchanged encounters with $p$. Let $e$ be their latest exchange such that $e = n_p(i) = n_q(j)$
-    and $N_q(j-1) \subset N_p(i)$ should hold.
+    then $N_q(j-1) \subset N_p(i)$ should hold.
     
     $p$ can ensure that $x(e, p) = N_q(j-1)$ because $N_q(j-1)$ includes $H_q(j-1)$ and $N_q(j-1)$
-    can be inferred from $H_q$ by evaluating $x(n_q, q)$ for all exchanges $n_q \in E_q(j-1)$.
-    If any $x(n_q, q)$ cannot be evaluated, this means that $N_q(j-1)$ is not complete.
+    can be inferred from $H_q$ by evaluating $x(n_q(k), q)$ for all exchanges $n_q(k) \in E_q(j-1)$, $k<j-1$.
+    If any $x(n_q, q)$ cannot be evaluated by $p$, this means that $N_q(j-1)$ is not complete.
     Otherwise it holds that $N_q(j-1) \subset N_p(i)$. 
 
     According to Lemma \ref{lem:detection_free-rider} $p$ is then able to verify whether 
@@ -590,7 +589,7 @@ interactions.
     subjective network state of $q$, so for any $1 \leq k \leq j-1$, $N_q(k) \subset N_p(i)$. Then,
     for all $k$, $p$ can determine the set of double-spender (malicious) $P^m(k)$ agents that $q$
     was aware of after $k$ encounters. If there exists an interaction $n_q(l)$ with some malicious
-    agent $s$ and $l>k$, $p$ finds that $q$ knowingly interacted with a malicious agent or did not
+    agent $s \in P^m(k)$ and $l>k$, $p$ finds that $q$ knowingly interacted with a malicious agent or did not
     perform the verification to find $s$. Both cases are considered dishonest behavior.
 \end{proof}
 
@@ -644,8 +643,8 @@ lead to an infinite verification process. However, because agent exchange their 
 network state, they also share their knowledge of malicious agents and free-riders. Suppose an agent
 $p$ is aware of a set of malicious agents $S_p$. After exchanging all information with another agent
 $q$, $q$'s set of malicious agents should at least contain $S_p \subseteq S_q$. Should an agent $q$ 
-interact with any agent in $S_p$, at least agent $p$ knows that $q$ is dishonest. This way $q$ will 
-slowly be isolated.
+interact with any agent in $S_p$ afterwards, at least agent $p$ knows that $q$ is dishonest. This 
+way $q$ will slowly be isolated.
 
 \section{Relevance for global trust system}
 \label{sec:relevance}

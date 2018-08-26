@@ -32,8 +32,9 @@ An overview of the architecture is given by the drawing in Figure \ref{fig:softw
 
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=\textwidth]{images/architecture.pdf}
-  \caption{Architecture drawing of the experiment software.}
+  \includegraphics[width=0.8\textwidth]{images/architecture-2.pdf}
+  \caption{Experiment setup and software architecture. Each agent runs in a separate process. The 
+  main logic is inside the message handlers.}
   \label{fig:software_architecture}
 \end{figure}
 
@@ -41,7 +42,7 @@ We run the experiments on a local machine. In order to emulate a distributed sys
 runs in a separate process without any shared memory with other agent processes. Each agent runs 
 their own database instance which stores the blocks. 
 
-Agents communicate with each other through a \verb|CommunicationInterface| object. The interface 
+Agents communicate with each other through a communication interface. The interface 
 provides an outgoing and incoming tcp port, implemented using the  \verb|zeromq| library. Messages
 sent through the network as defined in the Google \verb|protobuf| format. 
 
