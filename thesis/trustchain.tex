@@ -1,12 +1,14 @@
-\chapter{Scalable blockchain ledgers}
+\chapter{Scalable blockchain accounting}
 \label{chap:implementation}
 
-Trust and reputation systems rely heavily on interaction records. In previous work our 
+Trust and reputation systems rely heavily on interaction records. We have shown that the problem 
+of recording transactions in distributed system has been in the focus of research for many years. 
+The commercial interest has lately spawned many blockchain solutions. In previous work our 
 research group has deployed a blockchain-based recording system for interactions, TrustChain. This system is 
-implemented in a peer-to-peer video streaming service Tribler and the IPv8 project
-\footnote{https://github.com/tribler/py-ipv8}. 
+implemented in a peer-to-peer video streaming service Tribler and the IPv8 project\footnote{https://github.com/tribler/py-ipv8}. 
 
-This chapter introduces the blockchain concept and the TrustChain architecture itself to the reader. 
+This chapter introduces the blockchain and the TrustChain architecture itself to the reader. We argue
+that the TrustChain is a more suitable system for a trust system than a single global ledger.
 Also we analyze how the TrustChain architecture can be attacked. We point
 out that although detection of attacks is possible the system does not incentivize agents to share 
 and verify data which is essential for the detection. In the following chapter we analyze this in the
@@ -71,9 +73,8 @@ integer that starts from 0 at the genesis block.
 All agents are acting on the same copy of the blockchain. The one global chain therefore contains 
 all transactions that happen on the network. Single global ledgers create an incentive for agents to publish new blocks by rewarding 
 them with currency. New blocks are accepted if they are on top of the longest chain. This creates 
-an incentive for all participating miners to stay up to date on the state of the global ledger. Only
-if an agent is in possession of the latest block is there a chance to create the next block and
-receive the block reward. 
+an incentive for all participating miners to stay up to date on the state of the global ledger. The
+only way to create the next block and receive the block reward is acquire the latest state of the ledger.
 
 % In order to allow for enough time to synchronize transactions and blocks, the difficulty of the puzzle 
 % can be increased. This ensures a approximately fixed time between new blocks. This block time is 
@@ -150,7 +151,7 @@ creates a totally ordered set of all global transactions which intrinsically mea
 transactions are also fully ordered. Double spend and forks are detectable through global consensus. 
 
 However, the proof-of-work mechanism leads to issues in scalability. It restricts the global throughput
-to at best 60 transactions per second. This is not enough to power a global-scale distributed trust 
+to at best 60 transactions per second~\cite{gervais2016security}. This is not enough to power a global-scale distributed trust 
 system as we envision it. The proof-of-work consensus algorithm also leads a to a large expenditure of energy which creates 
 large transaction costs. This is not acceptable if the trust system should be for general purpose 
 applications. For example, users will not accept to pay for each video they stream on the Tribler 
@@ -160,7 +161,7 @@ In Section \ref{sec:related_work} several improvements to the scalability are me
 alternative consensus protocol such as proof-of-stake and delegated proof-of-stake. Also, sharding
 and off-chain transaction channels have been proposed which are supposed to increase throughput.
 Each solution balances three design variables: decentralization, scalability and consistency. This
-is commonly called the scalability trilemma in blockchain communities \footnote{For example mentioned in the etherem wiki. https://github.com/ethereum/wiki/wiki/Sharding-FAQs}.
+is commonly called the scalability trilemma in blockchain communities \footnote{For example mentioned in the Ethereum wiki. https://github.com/ethereum/wiki/wiki/Sharding-FAQs}.
 Crytpocurrencies generally target decentralization and consistency as the driving design factors. 
 Financial transactions have high value and require consistency. Secure payments are enabled while 
 scalability is less important.
@@ -249,16 +250,16 @@ required to ensure that the block has not been tampered with and is correctly co
 chain. A block can only be valid if all of the following conditions are true:
 
 \begin{enumerate}
-    \item the transaction field contains the necessary information to properly define a transaction 
+    \item The transaction field contains the necessary information to properly define a transaction 
     in the application context. For Tribler it needs to contain at least the amount of data which 
     was uploaded and downloaded between the two agents. 
-    \item both block hashes need to point to the valid, previous block on the chain of the same 
+    \item Both block hashes need to point to the valid, previous block on the chain of the same 
     public key. This makes the validity a recursive definition which depends on the previous content
     of the chain of both agents.
-    \item both public keys need to be valid public keys
-    \item the signatures need to be correct for the given public keys and block content
-    \item the block needs to carry the next integer as sequence number compared to the blocks that 
-    the previous hashes point to
+    \item Both public keys need to be valid public keys.
+    \item The signatures need to be correct for the given public keys and block content.
+    \item The block needs to carry the next integer as sequence number compared to the blocks that 
+    the previous hashes point to.
 \end{enumerate}
 
 The true validity of a block can only be established if the verifier also checks all other blocks on
@@ -294,7 +295,7 @@ the network. Also, multiple transactions can be performed at the same time globa
 the rules of the system. In contrast to the Bitcoin system, only the transactions of each agent are
 strictly ordered, the global set of transactions is not.
 
-This result is a system that scales with the size of the network. A simple example makes this very 
+This results in a system that scales with the size of the network. A simple example makes this very 
 clear. Consider two networks, one with 10 nodes and one with 100 nodes. For simplicity we consider
 time to be discrete and agents to interact in rounds. Each transaction takes 1 round and all agents 
 interact. Throughput calculation is then straightforward. Nodes arrange in pairs and perform a
@@ -361,7 +362,7 @@ of $A$.
 
 TrustChain makes any manipulation detectable. Still if agent $C$ collaborates with agent $A$ or 
 agent $C$ is ``lazy'' and does not obtain $A$'s chain to verify it prior to an interaction, $C$ can 
-perform a transaction. The collaboration or laziness cannot be detected and $C$ will remain honest 
+perform a transaction. The collusion or laziness cannot be detected and $C$ will remain honest 
 in the eyes of future partners.
 
 \subsection{Forking and double-spending}
@@ -380,7 +381,7 @@ the hashes will not point to the transaction with $B$.  This creates a \textit{p
 
 The actual
 detection of this attack requires agents to obtain transactions from their peers and compare those 
-to existing blocks. Because no agent is aware of the transaction $B$, agents cannot not specifically 
+to existing blocks. Because no agent is aware of the transaction with $B$, agents cannot not specifically 
 request $B$'s history to check for the attack. Therefore, the detection requires the collaboration
 of the network in the form of random block requests. As we will show in Chapter \ref{chap:model}, 
 without exchanging information about their transactions, agents are not able to find a double-spender.
@@ -388,17 +389,11 @@ without exchanging information about their transactions, agents are not able to 
 \subsection{Block withholding}
 Once agents have a longer history they will have records of positive and negative encounters. A 
 malicious agent then might try to hide any records of negative encounters, thus boosting the trust 
-others have in the attacker. The architecture of TrustChain is made to make such an attack easily detectable.
+others have in the attacker. The architecture of TrustChain makes such an attack easily detectable.
 The blockchain of any agent creates a tamper-proof, irreversible order for all transactions. Only if
 the sequence numbers increase exactly by one to each following block can another agent be sure that 
-the whole history was shared by an agent. 
-
-Again, an agent can only be sure of another agent's trustworthiness if she know his full history. 
-Although it might seem that an ``almost'' complete history is also enough to determine the trustworthiness
-of an agent within certain bounds this is only true if the value of a single transaction is bounded.
-In the example of Trilber, if each block can only record a maximum of 100MB of data transacted, then 
-even with one missing block the true reputation of an agent can be estimated within a 100MB margin.
-Without such bounds also the reputation cannot be estimated within bounds. 
+the whole history was shared by an agent. Therefore to establish the trustworthiness of an agent, 
+another agent at least needs to obtain their full chain.
 
 Note that if an agent witholds the latest blocks, this cannot be detected by another agent (except
 if that information was obtained already through gossiping). Yet such an attack is similar to a
@@ -459,7 +454,8 @@ valid solution to solve this problem. Still TrustChain provides no strong incent
 gather blocks from their peers. This opens the system to free-riders who do not exchange information and verify 
 blocks but remain honest in the eyes of their peers. 
 
-Additionally, the lack of incentive for gossiping decreases the probability of indirect reciprocity.
+Additionally, the lack of incentive for gossiping decreases the probability of indirect reciprocity
+because agents are not aware of each others good or bad reputation.
 As we have discussed in the previous chapter, global-scale trust system will mostly rely of indirect
 reciprocity. Therefore the dissemination of data is essential to our system.
 

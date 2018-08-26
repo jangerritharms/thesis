@@ -53,9 +53,10 @@ blocks are exchanged.
 
 Exchanges can become very large, in a theoretical 
 worst case the whole network's data. Therefore we do not store all exchanged blocks directly but only
-the root hash of a Merkle tree of the blocks. A conceptual representation and data representation 
+the root of a hash tree of the blocks. A conceptual representation and data representation 
 is shown in Figure \ref{fig:exchange_block}. Note that except for the \verb|exchange_down| and \verb|exchange_up|
 fields the block is similar to a transaction block as shown in Figure \ref{fig:trustchain_block}. 
+The creation of the block is shown in Figure \ref{fig:block_exchange}.
 
 Just like transaction blocks, the exchange blocks become part of an agent's chain with two incoming
 and two outgoing pointers. Any exchange is recorded on-chain, creating a tamper-evident history 
@@ -66,7 +67,7 @@ Thus the same validity conditions apply.
 Each agent keeps track of the actual set of blocks that were received in an exchange block such that 
 the root hash of the exchanged blocks can be recomputed to check the validity of the exchange block. Specifically, each 
 node stores an \textit{index of the blocks} contained in an exchange in a separate database. The 
-index maps an exchange block to an index, consisting of the public key and sequence number for each
+index maps an exchange block to the public key and sequence number of each
 block received. This index can be 
 used to retrieve the actual blocks from the database of blocks. This is illustrated in Figure \ref{fig:exchange_process}.
 
@@ -81,6 +82,16 @@ With respect to our model, exchange blocks contain the agents that are involved 
 (represented by $a(e)$ in our model), whereas the root hashes of the exchanged blocks correspond to
 the function $x$ in the model. Similar to $x$, the exchange hashes can only be evaluated if the 
 block itself, and all exchanged blocks are available to an agent.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/trustchain-3.pdf}
+    \caption{One half of a block exchange is shown. Agent $A$ sends blocks to $B$. $H$ creates the 
+    root of a hash tree of the blocks sent. The root hash is stored in the
+    exchange block. $B$ receives the blocks and can recompute the hash to verify the correctness.
+    Also any other agent that has the same blocks can recompute the hash.}
+    \label{fig:block_exchange}
+\end{figure}
 
 \subsection{Verification protocol}
 The architecture is designed such that another node can validate the correctness of an exchange
@@ -107,8 +118,8 @@ removed. They can thus be verified also long after the exchange has taken place.
 verification at any time, $B$ will need to have a long-term storage for all blocks received in 
 exchanges.
 
-In order to ensure that such block requests happen periodically, a mechanism needs to be designed 
-which ensures this.
+We define an exchange policy which requires agents to request blocks from each other. This ensures 
+that block requests happen frequently and agents cannot remove any data from their database.
 
 \subsection{Tamper-evidence and authenticity of blocks}
 The tamper-evident property is inherited from the TrustChain architecture discussed in 
@@ -214,8 +225,16 @@ are resolved. Note that if both agents have different blocks of a double spend s
 not be synchronized with this method. However, the difference will be detected when controlling the
 hash.
 
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{images/exchange_process.pdf}
+    \caption{Exchange process between two agents $A$ and $B$.}
+    \label{ref:exchange_process}
+\end{figure}
+
 \subsection{Exchange process}
-We shall now describe the complete process of an exchange between two agents in detail. Thus, $A$ 
+We shall now describe the complete process of an exchange between two agents in detail. The process
+is also shown in Figure \ref{ref:exchange_process}. Thus, $A$ 
 initiates the exchange by sending $A$'s complete chain to $B$, together with a block index for each 
 exchange block.
 $B$ can perform simple checks on the chain, for example whether it contains the correct number of exchange blocks

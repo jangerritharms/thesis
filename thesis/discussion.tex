@@ -1,9 +1,9 @@
 \chapter{Conclusion}
-Creating trust between strangers on the internet is one of the most significant and challenging topics
-of this century. Many of the current centralized reputation systems will in the long run not be able
-to satisfy the demands for privacy, security and platform freedom. A distributed trust system can 
-be a valid solution, yet it bears its own challenges. In this work we solved the problem of recording,
-disseminating and verifying records of interactions which are the basis of any reputation or trust 
+Creating trust on the internet is a challenging task.
+Many of the current centralized reputation systems will, in the long run, not be able
+to satisfy the demands for privacy, security and platform freedom. A distributed trust system is 
+a possible solution, yet it bears its own challenges. In this work we addressed the problem of ensuring
+the dissemination and verification of records of interactions, which are the basis of any reputation or trust 
 system. We will discuss in this last chapter our contribution to the design of a trust system and 
 the future research towards a fully distributed, scalable and secure global trust system.
 
@@ -14,8 +14,8 @@ lead to a good reputation whereas negative interactions lead to a bad reputation
 reputation, the more we trust them and are willing to reciprocate their positive interactions. In a 
 digital trust system the records of interactions therefore play a critical role in ensuring the 
 correct value and validity of trust. Yet, in a distributed system without central government, no 
-single point in the network has all information. This creates a problem for the verification and 
-validation of interactions. 
+single point in the network has all information. A key problem to solve is there to ensure the 
+correctness of interaction records and their dissemination in the network.
 
 \subsection{Model}
 We first designed a model to study the problem theoretically. We model a network of agents. Agents 
@@ -24,28 +24,28 @@ other interactions as well as other exchanges. We showed that without
 exchanging information, the network of agents is not able to defend against double spending attacks. In order to 
 ensure that agents do gather and disseminate information, each exchange of information needs to be become part of an agents history
 similar to interactions. Agents thus need to prove 
-with their history that they did exchange information. Finally we show that if agents exchange all their 
+with their history that they did exchange information. It is thus possible to ensure a certain exchange
+policy. We show that if agents are bound to a policy to exchange all their 
 information with every encounter, additional desired security properties can be ensured. This includes
-that agents can repeat verification of their partner and thus be sure they did not perform any 
+that agents can verify the past behavior of their partner and thus be sure they did not perform any 
 invalid interactions. 
 
 \subsection{Architecture}
-After proving theoretically the importance of exchanging information, we design an architecture that allows to 
-record and verify transactions and exchanges of information. For that purpose we extend our
+After proving theoretically the importance of exchanging information, we designed an architecture that allows to 
+record and verify transactions and exchanges of information. For that purpose we extend the
 TrustChain fabric, which is a blockchain-based, scalability-focussed solution for recording 
 interactions in distributed systems. The entangled hashchain approach of TrustChain creates advanced
 tools for the detection of manipulation attacks. However TrustChain's security greatly relies on the
 willingness of agents to obtain their peers blocks and verify them. 
 
-Our extension adds exchange blocks to TrustChain which record any block exchanges between agents. We call
-this exchange transparency.
+Our extension adds exchange blocks to TrustChain which record any block exchanges between agents. 
 Exchange blocks contain a hash of the blocks that were exchanged and they are recorded on the chains
-in the same way as normal transactions. This creates for each agent a tamper-proof history of exchanges and
+in the same way as normal transactions. This creates for each agent a tamper-evident history of exchanges and
 transactions. By recording a signed hash of each exchange, agents can be asked to provide the exchanged
-blocks such that the hash can be recalculated by the verifier. Failure to provide the correct block that
-match the exchange hashes will lead to mistrust. This allows honest agents to distinguish
-between honest agents that also exchange data, free-riders that do not record exchanges or only empty
-exchanges and manipulators that have invalid data on their chain. In applications that require the 
+blocks such that the hash can be recomputed by any verifier. Failure to provide the correct blocks 
+will lead to mistrust. This allows honest agents to distinguish
+between honest agents that also exchange data, free-riders that do not 
+exchange and manipulators that have invalid data on their chain. In applications that require the 
 highest level of security, agents can be required to exchange all knowledge. This allows any agent 
 to redo any verification in the subject's history. If all verifications pass, the agent acted exactly
 like the verifier would do and thus can be considered very trustworthy.
@@ -55,8 +55,8 @@ Our final contribution is an implementation of the architecture and verification
 an experimental analysis of its manipulation resistance. In our experiments small groups of agents 
 are emulated. The groups consist of honest agents that implement the exchange and verification 
 mechanism according to design, as well as free-riders and manipulators. We show with two examples
-that honest agents are able to detect manipulating agents. This is made possible by the TrustChain 
-architecture and is to be expected. But it was not possible yet to also defend against lazy agents
+that honest agents are able to detect manipulating agents. But it was not possible yet to also 
+defend against lazy agents
 that do not help in detecting those agents. Our extended architecture allows honest agents to 
 detect exchange free-riders, even if they are colluding and also agents that knowingly interact with
 malicious nodes. As a consequence, any agent that wants to interact with an honest agent in the future
@@ -68,16 +68,20 @@ agents to replay the history of another agent to validate their complete histori
 our work is a major step in securing our future distributed trust system.
 
 \subsection{Research question}
-With respect to our research question we can make the following conclusions. Recording exchanges 
+The research question we set out to answer is:
+\begin{center}
+    \textit{How to ensure that reports of encounters are honest, consistent and disseminated in a distributed trust system?}
+\end{center}
+
+We can make the following conclusions. Recording exchanges 
 leads to a strong incentive to disseminate and verify encounters between agents. This way honesty
 of encounter reports can be ensured as well as consistency. Therefore our architecture could be 
 seen as a possible solution to problem of recording encounters in a trust system. 
 
 However, our system creates restrictions for the scalability of the system. We require much more 
-storage than only the own transactions. Also, extensive verifications can become very costly once 
-agents' chain become significant in size. Therefore, this system is only partly applicable in the 
-context of a global-scale trust system. Other innovations, like a system-level trust system could 
-help lessen the scalability issues.
+storage than only the own transactions. Also, the audit verification can become very costly in terms of computing resources
+once agents' chains become significant in size. Therefore, this system is only partly applicable in the 
+context of a global-scale trust system. 
 
 \section{Future work}
 Looking ahead, there are still major challenges to achieve our ambitious goal of building the 
@@ -90,26 +94,27 @@ The recording of exchanges has great influence on many components of the trust s
 these could be analyzed in this work. 
 
 First of all a larger study on the scalability of our mechanism
-needs to be done. Redoing the verification of an agents complete history is very work intensive once the 
+needs to be done. Redoing the verification of an agent's complete history is very work intensive once the 
 history grows. It is possible to do this in multiple steps, each time two agents interact they only
-need to verify the history that is changed. Also, the Network-State-Exchange policy will lead to 
-storing all data of the network, this can in many cases not be acceptable. Therefore a mechanism 
-needs to be designed to delete data without impacting the security of the system to badly. 
+need to verify the history that has changed since their last encounter. 
 
-Another interesting direction for further research is building a system-level trust system which we
-mentioned in Section~\ref{sec:system_trust}. Instead of performing complete verification and exchanges
-with every interaction, agents build system level trust. After a few exchanges, verifications and 
-succesful interactions, two agents can trust each other's verifications. Thus if one of the two 
-agents verifies a third, the other agent believes this verification is correct and does not perform
-it again. Instead of stopping to verify trusted agents, verifications can become less frequent. Any 
-misbehavior destroys the trust. It should be noted that the system-level trust is different from the
-trust in the application context: an agent can only be downloading but still always share and verify
-transaction data. Such a node will have a bad application context reputation but a great system-level
-reputation.
+Also, the Network-State-Exchange policy will require each agent to store all data of the network. 
+This is, in many cases, not be acceptable. Instead, other less demanding exchange policies could 
+be put in place. This is a trade of between consistency and scalability. Our architecture is 
+flexible to allow different policies to be applied.
+
+Another promising direction for further research is building a system-level trust system which we
+mentioned in Section~\ref{sec:system_trust}. Instead of enforcing a certain policy it is optional
+exchange and verify data. However, each exchange and verification will lead to a more positive 
+reputation of that agent on a system-level. Agents that exchange, store and verify many blocks should
+be rewarded with better conditions. An open question will be how to combine the system-level with 
+application-level reputation. And whether the incentive can be strong enough to ensure proper 
+consistency and dissemination.
+
 
 \subsection{Future development of trust system}
-In Chapter \ref{chap:problem} we have introduced the architecture of a trust system. We have tackled
-in this work the mechanism for recording transactions and the distribution of those records. But
+In Chapter \ref{chap:problem} we have introduced the architecture of a trust system. We have addressed
+the mechanism for recording transactions and the distribution of those records. But
 other challenges remain. 
 
 A strong identity system which relates the public keys to true identities through government issued

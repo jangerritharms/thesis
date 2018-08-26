@@ -88,7 +88,7 @@ encounter history.
 The history of any \textit{honest} agent $p$ is totally ordered by $<$. If we denote the 
 $i$-th encounter of $p$ as $n_p(i)$ then we can alternatively write the agents history of length $t$ 
 encounters as $H_p(t) = \{ n_p(1), n_p(2), ..., n_p(t)\}$. Similarly we can define $I_p(t)$ and 
-$E_p(t)$ as the interactions and exchanges of $p$ after $t$ encounters. Note that $N_p(t) = I_p(t) \cap E_p(t)$. 
+$E_p(t)$ as the interactions and exchanges of $p$ after $t$ encounters. Note that $N_p(t) = I_p(t) \cup E_p(t)$. 
 A \textit{dishonest} agent can break the order of their history. We will define this behavior in 
 Definition \ref{def:double_spend}.
 
@@ -551,7 +551,7 @@ Network-State-Exchange policy, can verify whether their partner has up to the po
 adhered to the policy.
 
 \begin{thm}[Detectability of free-riding]
-    \label{thm:ver_free-rider}
+    \label{thm:detectability_free-rider}
     An honest agent who applies the Network-State-Exchange policy is able to verify whether another
     agent is a free-rider.
 \end{thm}

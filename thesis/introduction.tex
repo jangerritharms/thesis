@@ -15,7 +15,7 @@
 %  Nowak, Axelrod, 
 
 Trust is the bedrock of society. From the evolution of species \cite{MOHTASHEMI2003523, nowak2006five, Axelrod1390}, economic markets \cite{akerlof1970lemons} all the way to the 
-modern sharing economy \cite{resnick2002trust}, trust has always had an important impact on almost every aspect of our lives.
+modern sharing economy \cite{resnick2002trust}, trust impacts almost every aspect of our lives.
 Trust is built on a good reputation which in turn is created through positive outcomes of past 
 interactions. The value of a good reputation also depends on how widely known that reputation is.
 In small communities, knowledge about each other is gained through gossiping or personal experience. 
@@ -25,17 +25,17 @@ transactions of value between previously unrelated strangers. This makes a relia
 system even more important. Protecting and distributing the knowledge about transactions, that these 
 systems rely on, is a tough challenge we are faced with when designing a global trust system.
 
-The current state-of-the-art trust building systems are online platforms for the sharing economy.
+The sharing economy is a good example where trust needs to be built between strangers.
 The reputation systems of Uber\footnote{https://uber.com} and Airbnb\footnote{https://airbnb.com} are
-an essential part of their business. The good reputation allows commuters to trust their driver and
+an essential part of their business. A good reputation allows commuters to trust their driver and
 get into the car of a stranger, or allows house owners to rent their home to a couple from the other
 side of the world \cite{ert2016trust}. The reputation of drivers and renters are stored on the platforms, they are both
 valuable to the people as well as the company. This leads to problems when renters do not agree with
 updates to the platform: they cannot take their reputation and move to a competitor. Users are locked
-into those platforms, giving their owners great power and influence.
+into those platforms, giving providers of those platforms great power and influence.
 
 A similar situation exists in the financial world. Banks are entrusted with their clients money, but 
-their power led to corruption and the trust was abused. \cite{financial_crisis} The situation escalated in the 2007-08 
+their power led to corruption and the trust was abused \cite{financial_crisis}. The situation escalated in the 2007-08 
 financial crisis which led to a global recession. The crisis inspired a new solution: Bitcoin \cite{nakamoto2008bitcoin}. Bitcoin
 is supposed to enable secure payments without banks. Instead of centralizing power, Bitcoin distributes
 the responsibility of verifying and confirming transactions over all users.
@@ -49,7 +49,7 @@ mechanism to create trust. This work sets an important
 step towards creating such a system. Specifically we propose a mechanism that protects and 
 distributes the records of transaction which are essential for creating trust. 
 
-This chapter introduces some key concepts offers trust and explains the context of this work.
+This chapter introduces some key concepts of trust and explains the context of this work.
 It should shed light on the origin of trust research and its significance for the future of the 
 internet. A thorough contextual basis is created for the reader to understand the problem description
 and the proposed solution in the following chapters.
@@ -58,16 +58,15 @@ and the proposed solution in the following chapters.
 Virtually everyone that is part of a social community understands the concept of trust, yet defining
 trust scientifically is hard. This is also due to the fact that trust is studied in a diverse set 
 of sciences: evolutionary biology, sociology, economics and computer science \cite{shockley2015interdisciplinary}. In the simplified
-form of a model trust can well be described and studied. The prisoner's 
-dilemma \cite{rapoport1965prisoner} is one such model from game theory that creates a framework for 
+form of a model trust can well be described and studied. The Prisoner's 
+Dilemma \cite{rapoport1965prisoner} is one such model from game theory that creates a framework for 
 understanding trust. It is widely used in research and is the basis for many experimental studies.
 We describe in the following the game, it's relation with cooperation and the impact on evolutionary
 theory, economics and computer networks.
 
 \subsection{Prisoner's Dilemma}
 \label{sec:prisoner}
-The Prisoner's dilemma describes a dilemma common in many real-world situations, for
-example the problem of two partners caught for a crime that are questioned in two separate rooms. 
+The Prisoner's Dilemma describes the problem of two partners caught for a crime that are questioned in two separate rooms. 
 Each prisoner has two options, either deny all allegations, which is more generally called cooperating
  or betray the partner, which is called defecting in general game theory. If both stay 
 silent, both will get a sentence of one year. If one betrays the other, the snitch is set free while the 
@@ -75,8 +74,8 @@ betrayed gets three years in prison. If both betray each other, they both have t
 When analyzing the game without any additional knowledge and considering the payoffs for one of the
 prisoner's it is always advantageous to betray the other. Either the other also betrays, in which case
 two years is better than three, or the other stays silent in which case betraying sets us free. 
-However, when considering both prisoners' outcomes together it would be best for both to stay silent.
-\cite{rapoport1965prisoner}
+However, when considering both prisoners' outcomes together it would be best for both to stay silent
+\cite{rapoport1965prisoner}.
 
 \begin{figure}
     \centering
@@ -150,7 +149,7 @@ meet $A$ and be able to provide value.
 \end{figure}
 
 Therefore, a variation of the Prisoner's Dilemma game has been studied by evolution theorists, which
-we will refer to this as the donation game. In it players are either donor or recipient for one round, the donor can decide to either donate
+we will refer to as the \textit{donation game}. In it players are either donor or recipient for one round, the donor can decide to either donate
 some value to the recipient or not. In subsequent rounds, players will switch roles such that they
 are donor and recipient in equal number of rounds. Donating comes at a small cost but largely benefits the recipient.
 In this game agents again can follow certain strategies, for example simple strategies like always donate or never
@@ -161,7 +160,7 @@ donation will also be denied by others.
 Research has shown that if the costs compared to the benefit are sufficiently low and the history of
 behavior of partners is sufficiently well-known to players, cooperation can be established \cite{nowak2005evolution}.
 
-The stability of the cooperative strategy in the donation depends on the knowledge about what strategy
+The stability of the cooperative strategy in the donation game depends on the knowledge about what strategy
 a partner adhered to in previous rounds. If $A$ is has donated value to $B$ and in a later round 
 $C$ has to decide whether to donate to $A$, knowledge of $A$'s previous interaction influences the 
 decision. If $C$ knows about $A$'s donation, $C$ will most probably also donate, otherwise this might
@@ -189,12 +188,12 @@ The Prisoner's Dilemma, trust and cooperation are not only studied by evolution 
 economists. A marketplace is a good example for a context in which strategies for indirect reciprocity
 can be applied.
 How trust and the lack of it influence trade and markets has been studied in the well-known paper ``Market for lemons'' by 
-Akerlof~\cite{akerlof1970lemons}. He describes the information asymmetry between seller, who knows
-the quality of the goods which will be sold, and the buyer, who can only estimate that quality by 
-some market statistic. The seller's incentive to sell goods of lesser quality than the average 
-statistic leads to a decreasing statistic and thus price which in turn decreases the quality of the 
-goods sellers are willing to offer for that lower price. Hence the market breaks down. Akerlof
-describes institutions to solve this problem namely institutions such as guarantees, brand names and
+Akerlof~\cite{akerlof1970lemons}. Akerlof describes in his paper how the information asymmetry between buyers and sellers on the market for 
+used cars can lead to a general decrease in the quality of cars sold in the market. Buyers cannot 
+distinguish between good and bad used cars and therefore offer an average price. However sellers will
+only sell bad cars for the average price in order to make a profit. This leads to a general decrease 
+in quality which buyers will observe and subsequently offer less. Akerlof
+describes institutions to solve this problem such as guarantees, brand names and
 certifications. These are trust inducing institutions and can be generalized as \textit{reputation systems}.
 If the sellers sell goods to many people and those people report or gossip the good quality of what
 they have bought, others can trust those sellers and both seller and buyers will thrive. On the 
@@ -203,6 +202,24 @@ This closes the gap to the work of Nowak as this reputation is what makes indire
 possible: the seller is not taking advantage of the buyer's inconvenient situation but the buyer
 cannot directly return that favor. Only by gossipping the event to other potential buyers who are 
 then more willingly to buy from the seller is the reciprocity circle closed.~\cite{nowak2006five}
+
+\subsection{Trust and reputation}
+We have used the terms trust system and reputation system interchangeably so far. We shall shortly
+shed light on the differences. 
+
+Commonly a system is referred to as a reputation system if it produces a score for an entity as 
+seen by the whole community where as trust is the subjective view of that reputation. If the whole 
+history of an agent is known, only a single reputation score can be assigned to that agent. Yet, 
+each observing agent can have a different trust score for the agent given the same evidence \cite{josang2007survey}.
+
+However, reputation can be subjective if each agent only knows a subset of an agent's history. In that
+case each different subset creates a different (subjective) reputation. Both reputation and trust 
+system thus rely on the knowledge of an agent's history. The difference lies in the calculation of 
+scores. 
+
+This work will mostly be concerned with the way the history of agents is communicated through records
+of interactions. As this is significant to both trust and reputation systems, we will continue to use them 
+interchangeably. However, we are aware of the existing difference.
 
 % 3. Reputation systems guide buyers towards to most trustworthy sellers on markets or help guests find houses on Airbnb that actually hold the promises made in the description. Reputation systems require three properties: dissemination, strong identities and  Yet companies take advantage of our trust and misuse our data, influence us and do not take appropriate measures to protect our data from attacks. Centralized systems are broken.
 % (eBay) Ba and Pavlou, survey of reputation systems, definition of reputation system, Pouwelse 
@@ -215,11 +232,12 @@ after year. Trust was mostly based on personal experience or word-of-mouth marke
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/economy.png}
-    \caption{Evolution of the economy. Source: Created at Blockchain Lab TU Delft}
+    \caption{The evolution of economies. Trust played a role in each phase. First trust was established between traders. Globalization led to trust between large companies and their customers through branding. The current sharing economy creates trust between strangers through a centralized platform. We envision a future in which trust 
+    can be created directly between strangers using an open, free and independent distributed trust system. Source: Created at Blockchain Lab TU Delft}
     \label{fig:economy}
 \end{figure}
 
-During industrial and post-industrial age companies have largely replaced local producers and are 
+During the industrial and post-industrial age, companies have largely replaced local producers and are 
 trusted by millions of customers based on their brand name. We buy most goods from nation wide and 
 global companies that are competing with few other competitors. Trust is build through advertisements
 and product quality but also the effect of masses plays a role: if many people have an iPhone, even 
@@ -227,8 +245,8 @@ more people want one. But the trust has limits. A recent example of a company mi
 the brand is Volkswagen~\cite{VWDiesel}, who advertised and sold dirty Diesel cars under the cover 
 of being clean. 
 
-The last two decades saw the development of a new branch of the economy: the sharing economy powered
-by the internet. We can now buy used goods on eBay, renting a house to a stranger (or from a 
+The last two decades saw the development of a new branch of the economy: the sharing economy built on the internet. 
+We can now buy used goods on eBay, rent a house to a stranger (or from a 
 stranger) on Airbnb, get into a stranger's car with Uber. The sharing economy or collaborative consumption is the 
 rising star of economic concepts in the information age and it is powered by reputation. A company 
 offers a platform on which the two sides of a trade or transaction can find each other. With each 
@@ -239,12 +257,12 @@ if the platform changes their rules in an almost unacceptable way or abuses the 
 users have entrusted them with? Users cannot take their reputation and data to another platform
 because their reputation is actually owned by the platform facilitating the trades. Similar to what
 can be seen in the analog economy, digital companies first build trust with their users before 
-abusing their power. Again a recent example is the facebook/cambridge analytica scandals.~\cite{facebook} 
+abusing their power. Again a recent example is the Facebook/Cambridge Analytica scandal~\cite{facebook}.
 
 
 Similar to the above examples of a misuse of trust, customers of banks lost trust in them when large
-scale speculations in the housing market led to the 2008 financial crisis\cite{financial_crisis}. 
-Shortly afterwards an alternative financial system was proposed with Bitcoin\cite{nakamoto2008bitcoin}.
+scale speculations in the housing market led to the 2008 financial crisis \cite{financial_crisis}. 
+Shortly afterwards an alternative financial system was proposed with Bitcoin \cite{nakamoto2008bitcoin}.
 Bitcoin enables digital money transfers without banks, so direct transactions between owners of 
 bitcoins in a decentralized system. The advent of Bitcoin represents the next step in the digital
 economy, in which market interactions happen directly between entities without an intermediary.
@@ -260,7 +278,7 @@ challenges from a technical point of view. Distributed system are intrinsically 
 blessing and curse. No party can impose unfair rules on other users but it is also hard to prevent 
 malicious users from sending wrong information across the network. Mechanisms need to be designed to
 encourage honest behavior in the system. Although Bitcoin has proven that secure interactions in a
-distributed network are possible it struggles with major scalability issues.\cite{gervais2016security}
+distributed network are possible it struggles with major scalability issues \cite{gervais2016security}.
 Distributed, secure and globally scalable systems remain an unsolved problem. 
 
 % 5. This master thesis was written in the context of the blockchain lab at TU Delft which has a long history of research on the topic of distributed reputation systems. The research is targeted at Tribler, a secure BitTorrent client which is aimed at protecting against free-riders.
@@ -269,7 +287,7 @@ Distributed, secure and globally scalable systems remain an unsolved problem.
 \label{sec:tribler}
 Distributed trust and reputation systems are not completely new. Examples of reputation systems
 being applied in a distributed application can be found in the field of peer-to-peer
-data exchanges and mobile ad hoc networks. \cite{HENDRIKX2015184} In both contexts a reputation system
+data exchanges and mobile ad hoc networks \cite{HENDRIKX2015184}. In both contexts a reputation system
 can ensure the fair use and contribution to the network's pool of resources. In this section we 
 introduce Tribler, a peer-to-peer file-sharing and video streaming service which is based on the 
 BitTorrent protocol. Taking Tribler as an example, we show how an application context can be mapped to 
@@ -277,7 +295,7 @@ the dilemma and trust problem which were discussed so far.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.7\textwidth]{images/tribler}
+    \includegraphics[width=\textwidth]{images/tribler}
     \caption{Graphical user interface of Tribler. The network graph shows which nodes we have 
     interacted with in the past. The stroke width of the connections shows their reputation from 
     our point of view.}
@@ -292,13 +310,12 @@ Section \ref{sec:indirect_reciprocity} very well. When a node streams a video, i
 data from another node which has that content available. The other node needs to upload the video to
 the downloader. The uploader matches the donor, while the downloader is the recipient. The uploader
 does not immediately benefit from uploading a video. He only benefits if the knowledge about the 
-altruistic act is spread such that he is more likely to also be able to stream videos in the future.
+altruistic act is spread such that he is more likely to receive videos in the future.
 
 The reputation of an agent in Tribler then represents the 
 contribution behavior of that agent. Contributing, that is uploading video streams to other users,
 increases an agent's reputation whereas downloading, that is streaming videos, decreases an agent's 
-reputation. Also, relaying is a neutral activity in terms of the upload-download ratio, yet the 
-reputation of an agent that relays a lot of data needs to be higher as well. In contrast to 
+reputation. In contrast to 
 reputation, trust is subjective and can be seen as the subjective perception of a peer being a 
 ``good contributor''. 
 
@@ -316,7 +333,7 @@ instances of the software running on multiple machines and thus ``control'' mult
 being able to run or stop the agents, the human user has only a very small decision space, though, 
 because the software runs on its own and executes according to design. 
 
-The distinction of honest, cooperating and dishonest, defecting agents is then made as follows: honest agents are the 
+The distinction of \textit{honest}, cooperating and \textit{dishonest}, defecting agents is then made as follows: honest agents are the 
 instances that run the software as intended while dishonest agents are instances of manipulated 
 software. 
 
@@ -387,8 +404,8 @@ sharing and verifying the records of transactions. Specifically this work extend
 architecture with a new type of record: exchange blocks. Together with transaction blocks these 
 enable our system to document all communication between agents. This enables the honest agents to 
 verify that their peers follow the proper exchange and verification policies. We further implement
-this architecture and show that if hoenst agents follow a policy to exchange all data, they are 
-able to detect and ignore exchange free-riders, strategic manipulators and colluding agents, who do 
+this architecture and show that if honest agents follow a policy to exchange all data, they are 
+able to detect and ignore free-riders, strategic manipulators and colluding agents, who do 
 not verify their partners.
 
 We will enlarge on the problem description in the next chapter. Afterwards TrustChain is introduced
