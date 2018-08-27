@@ -697,19 +697,21 @@ This binds a requirement for storage space and bandwidth to the ability of inter
 be too stringent for some application contexts. 
 
 The Network-State-Exchange policy requires agents to share all their knowledge. After an exchange 
-both agents therefore have the combined knowledge of both agents. If an agent periodically performs such an 
-exchange with random other agents, their knowledge will approach the complete network state, that 
-is, all interactions and exchanges will be known to them. This concept is also studied in the context
+both agents therefore have the combined knowledge of both agents. This concept is also studied in the context
 of replicated databases in work by Demers et al.\ \cite{demers1987epidemic}. They define the anti-entropy
-mechanism in which a database instance randomly picks other instances to resolve any differences. Being
-any update will eventually arrive at every instance. Similarly, each agent in our network will eventually 
-have knowledge of all encounters, if we assume that agents randomly choose their interaction partners.
+mechanism in which a database instance randomly picks other instances to resolve any differences. 
+Their results show that any update will eventually be distributed to all instances. Complete 
+dissemination is reached with a time complexity proportional to the logarithm of the population 
+size. If all agents perform periodical random peer sampling for interactions, the results should 
+be similar to those of Demers. This means that the Network-State-Exchange requires the storage of 
+the complete networks data, that is, all interactions and encounters. 
 
-In order to increase the efficiency of exchanges, agents could only send knowledge of encounters 
-that their partner does not have. In that case bandwidth costs are small if agents already of similar subjective network states.
-This can lead to locality if agents are preferring interactions with other agents who have a similar
-knowledge such that they only need to exchange small amounts of data. In contrast, two agents with completely different sets will need to
-exchange large amounts of data.
-On the one hand this can increase the risk of network separation on the other hand this increases 
-the difficulty of creating a sybil attacks because only agents with similar information sets can 
-act as Sybils which increases their cost.
+\section{Chapter conclusion}
+We have shown that exchanging information of interactions and encounters allows to detect a fork 
+and double-spend attack. Furthermore, if we record the exchanges in a similar way as interactions and
+make them part of an ordered history, honest agents can ensure that their partners apply a certain 
+exchange policy. Any agent that does not stick to the policy can be detected and dealt with accordingly.
+
+Finally, if agents apply a strong policy like the Network-State-Exchange policy, agents can 
+re-evaluate verifications that their peers have done in the past. Any failed verification that sitll 
+leads to an interaction will mark agents as lazy verification free-riders or accomplices.

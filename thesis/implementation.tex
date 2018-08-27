@@ -262,22 +262,16 @@ exchange according to the Network-State-Exchange policy.
 For each interaction the Network-State-Exchange policy requires a node $A$ to obtain all the blocks that
 their partner $B$ is aware of. If that $B$ is honest, this includes also all the knowledge of all of
 $B$'s peers. Consequently each agent will approximate the full network state. This requires the 
-storage of all blocks on the network. 
-
-The process is similar to the anti-entropy mechanism defined 
-in Demers et al. \cite{demers1987epidemic}. If we assume agents randomly chose their next interaction
-partner the two mechanisms are similar. Therefore a similar performance can be expected. Anti-entropy,
-being an epidemic algorithm, will eventually distribute updates to all nodes in an expected time 
-proportional to the log of the population size.
+storage of all blocks on the network. We have discussed this more in Section \ref{sec:storage}.
 
 The mechanism therefore disseminates updates to all nodes which leads to consistency and enables 
 indirect reciprocity because all agents can have a good estimate of each others reputation and trust.
 
-On the downside this mechanism will not scale. Although each exchange and 
+Although each exchange and 
 transaction still only requires two agents to communicate as in the example given in 
-Section \ref{sec:trustchain_scalability} storing all data is not an option if proper global throughput
-is required. In Section \ref{sec:system_trust} we explore different exchange policies that might 
-allow better scalability at lower storage cost.
+Section \ref{sec:trustchain_scalability} storing all interactions of the network will in practice 
+put a bound on the scalability of the approach. In Section \ref{sec:system_trust} we explore 
+different exchange policies that might allow better scalability at lower storage cost.
 
 \section{Example}
 We now consider an example to shed more light of the exchange and interaction process. We look at two
